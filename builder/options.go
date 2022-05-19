@@ -5,11 +5,11 @@
 package builder
 
 // Option configures the builder
-type Option func(*CLIBuilder) error
+type Option func(*AppBuilder) error
 
 // WithConfigPaths overrides the path to the app configuration file, should be a full absolute path
 func WithConfigPaths(paths ...string) Option {
-	return func(b *CLIBuilder) error {
+	return func(b *AppBuilder) error {
 		b.cfgSources = paths
 		return nil
 	}
@@ -17,7 +17,7 @@ func WithConfigPaths(paths ...string) Option {
 
 // WithLogger sets a custom logger to use
 func WithLogger(logger Logger) Option {
-	return func(b *CLIBuilder) error {
+	return func(b *AppBuilder) error {
 		b.log = logger
 		return nil
 	}
@@ -25,7 +25,7 @@ func WithLogger(logger Logger) Option {
 
 // WithAppDefinitionFile sets a file where the definition should be loaded from
 func WithAppDefinitionFile(f string) Option {
-	return func(b *CLIBuilder) error {
+	return func(b *AppBuilder) error {
 		b.appPath = f
 		return nil
 	}

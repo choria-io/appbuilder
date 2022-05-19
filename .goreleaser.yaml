@@ -1,0 +1,53 @@
+project_name: appbuilder
+
+release:
+  github:
+    owner: choria-io
+    name: appbuilder
+  name_template: "Release {{.Version}}"
+  draft: true
+
+changelog:
+  skip: true
+
+builds:
+  -
+    id: appbuilder
+    binary: appbuilder
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+
+archives:
+  - name_template: "appbuilder-{{.Version}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}"
+    wrap_in_directory: true
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "SHA256SUMS"
+  algorithm: sha256
+
+nfpms:
+  - file_name_template: 'appbuilder-{{.Version}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
+    homepage:  https://github.com/choria-io/appbuilder
+    description: Choria App Builder CLI
+    maintainer: R.I. Pienaar <rip@devco.net>
+    license: Apache 2.0
+    vendor: Choria
+    formats:
+      - deb
+      - rpm

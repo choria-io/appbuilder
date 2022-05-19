@@ -30,7 +30,7 @@ type Exec struct {
 	cmd       *kingpin.CmdClause
 	def       *Command
 	ctx       context.Context
-	b         *builder.CLIBuilder
+	b         *builder.AppBuilder
 }
 
 func MustRegister() {
@@ -43,7 +43,7 @@ var (
 	ErrorExecutionFailed = errors.New("execution failed")
 )
 
-func NewExecCommand(b *builder.CLIBuilder, j json.RawMessage, _ builder.Logger) (builder.Command, error) {
+func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, _ builder.Logger) (builder.Command, error) {
 	exec := &Exec{
 		def:       &Command{},
 		ctx:       b.Context(),

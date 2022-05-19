@@ -42,8 +42,8 @@ type templateState struct {
 	Config    interface{}
 }
 
-// CLIBuilder is the main runner and configuration handler
-type CLIBuilder struct {
+// AppBuilder is the main runner and configuration handler
+type AppBuilder struct {
 	ctx        context.Context
 	def        *Definition
 	name       string
@@ -71,8 +71,8 @@ Contact: %s
 )
 
 // New creates a new CLI Builder
-func New(ctx context.Context, name string, opts ...Option) (*CLIBuilder, error) {
-	builder := &CLIBuilder{
+func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) {
+	builder := &AppBuilder{
 		cfg:  make(map[string]interface{}),
 		ctx:  ctx,
 		name: name,
@@ -94,22 +94,22 @@ func New(ctx context.Context, name string, opts ...Option) (*CLIBuilder, error) 
 }
 
 // Configuration is the loaded configuration, valid only after LoadConfig() is called, usually done during RunCommand()
-func (b *CLIBuilder) Configuration() map[string]interface{} {
+func (b *AppBuilder) Configuration() map[string]interface{} {
 	return b.cfg
 }
 
 // Context gives access to the context used to control app execution and shutdown
-func (b *CLIBuilder) Context() context.Context {
+func (b *AppBuilder) Context() context.Context {
 	return b.ctx
 }
 
 // RunCommand prepares the CLI and runs it, including parsing all flags etc
-func (b *CLIBuilder) RunCommand() error {
+func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
 // HasDefinition determines if the named definition can be found on the node
-func (b *CLIBuilder) HasDefinition() bool {
+func (b *AppBuilder) HasDefinition() bool {
 	source, _ := b.findConfigFile(fmt.Sprintf(appDefPattern, b.name), b.appPath)
 	if source == "" {
 		return false
@@ -119,7 +119,7 @@ func (b *CLIBuilder) HasDefinition() bool {
 }
 
 // LoadDefinition loads the definition for the name from file, creates the command structure and validates everything
-func (b *CLIBuilder) LoadDefinition() (*Definition, error) {
+func (b *AppBuilder) LoadDefinition() (*Definition, error) {
 	source, err := b.findConfigFile(fmt.Sprintf(appDefPattern, b.name), b.appPath)
 	if err != nil {
 		return nil, ErrDefinitionNotfound
@@ -148,7 +148,7 @@ func (b *CLIBuilder) LoadDefinition() (*Definition, error) {
 	return d, b.createCommands(d, d.Commands)
 }
 
-func (b *CLIBuilder) createCommands(d *Definition, defs []json.RawMessage) error {
+func (b *AppBuilder) createCommands(d *Definition, defs []json.RawMessage) error {
 	for _, c := range defs {
 		cmd, err := b.createCommand(c)
 		if err != nil {
@@ -162,7 +162,7 @@ func (b *CLIBuilder) createCommands(d *Definition, defs []json.RawMessage) error
 }
 
 // LoadConfig loads the configuration if possible, does not error if nothing is found only if loading fails
-func (b *CLIBuilder) LoadConfig() (map[string]interface{}, error) {
+func (b *AppBuilder) LoadConfig() (map[string]interface{}, error) {
 	fname := fmt.Sprintf(appCfgPatten, b.name)
 
 	source, err := b.findConfigFile(fname, "")
@@ -195,7 +195,7 @@ func (b *CLIBuilder) LoadConfig() (map[string]interface{}, error) {
 	return cfg, nil
 }
 
-func (b *CLIBuilder) runCLI() error {
+func (b *AppBuilder) runCLI() error {
 	var err error
 
 	cmd := kingpin.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
@@ -212,7 +212,7 @@ func (b *CLIBuilder) runCLI() error {
 	return err
 }
 
-func (b *CLIBuilder) findConfigFile(name string, override string) (string, error) {
+func (b *AppBuilder) findConfigFile(name string, override string) (string, error) {
 	sources := []string{
 		filepath.Join(xdg.ConfigHome, "choria", "builder"),
 		"/etc/choria/builder",
@@ -246,7 +246,7 @@ func (b *CLIBuilder) findConfigFile(name string, override string) (string, error
 	return source, nil
 }
 
-func (b *CLIBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error {
+func (b *AppBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error {
 	bread := []string{"root"}
 
 	for _, c := range cmds {
@@ -281,7 +281,7 @@ func (b *CLIBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error
 	return nil
 }
 
-func (b *CLIBuilder) createCommand(def json.RawMessage) (Command, error) {
+func (b *AppBuilder) createCommand(def json.RawMessage) (Command, error) {
 	t := gjson.GetBytes(def, "type")
 	if !t.Exists() {
 		return nil, fmt.Errorf("%w:\n%s", ErrCommandHasNoType, string(def))
