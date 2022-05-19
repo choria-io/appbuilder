@@ -20,7 +20,7 @@ var (
 )
 
 // CommandConstructor should exist in any package that is used as a plugin
-type CommandConstructor func(*CLIBuilder, json.RawMessage, Logger) (Command, error)
+type CommandConstructor func(*AppBuilder, json.RawMessage, Logger) (Command, error)
 
 // RegisterCommand adds a new kind of command
 func RegisterCommand(kind string, constructor CommandConstructor) error {

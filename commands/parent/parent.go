@@ -28,7 +28,7 @@ func MustRegister() {
 	builder.MustRegisterCommand("parent", NewParentCommand)
 }
 
-func NewParentCommand(_ *builder.CLIBuilder, j json.RawMessage, _ builder.Logger) (builder.Command, error) {
+func NewParentCommand(_ *builder.AppBuilder, j json.RawMessage, _ builder.Logger) (builder.Command, error) {
 	parent := &Parent{
 		def: &Command{},
 	}
