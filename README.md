@@ -1,4 +1,4 @@
-![Choria App Builder](https://raw.githubusercontent.com/choria-io/appbuilder/main/images/logo.png)
+![Choria App Builder](https://github.com/choria-io/appbuilder/raw/main/images/logo.png)
 
 ## Overview
 
