@@ -8,7 +8,7 @@ more all in one friendly CLI tool that's easy to use and share.
  * [Wiki](https://github.com/choria-io/appbuilder/wiki)
  * [Community](https://github.com/choria-io/appbuilder/discussions)
  * [Code of Conduct](https://github.com/choria-io/.github/blob/master/CODE_OF_CONDUCT.md)
- * [Contribution Guide](https://github.com/choria-io/.github/blob/76457df778e680352723cd80b5de44201cb48462/CONTRIBUTING.md)
+ * [Contribution Guide](https://github.com/choria-io/.github/blob/master/CONTRIBUTING.md)
 
 ## Status
 

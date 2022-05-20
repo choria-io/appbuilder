@@ -37,6 +37,21 @@ archives:
       - README.md
       - LICENSE
 
+brews:
+  - name: appbuilder
+    folder: Formula
+    tap:
+      owner: choria-io
+      name: homebrew-tap
+    url_template: "https://github.com/choria-io/appbuilder/releases/download/{{ .Tag }}/appbuilder-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.zip"
+    homepage: "https://github.com/choria-io/appbuilder"
+    description: "Choria Application Builder"
+    skip_upload: false
+    test: |
+      system "#{bin}/appbuilder --version"
+    install: |
+      bin.install "appbuilder"
+
 checksum:
   name_template: "SHA256SUMS"
   algorithm: sha256
