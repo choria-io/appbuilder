@@ -222,10 +222,7 @@ func (b *AppBuilder) runCLI() error {
 }
 
 func (b *AppBuilder) findConfigFile(name string, override string) (string, error) {
-	sources := []string{
-		filepath.Join(xdg.ConfigHome, "choria", "builder"),
-		"/etc/choria/builder",
-	}
+	sources := b.cfgSources
 
 	cur, err := filepath.Abs(".")
 	if err == nil {

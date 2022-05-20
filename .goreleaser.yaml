@@ -63,6 +63,14 @@ nfpms:
     maintainer: R.I. Pienaar <rip@devco.net>
     license: Apache 2.0
     vendor: Choria
+    bindir: /usr/bin
     formats:
       - deb
       - rpm
+    contents:
+      - dst: /etc/appbuilder
+        type: dir
+    overrides:
+      rpm:
+        replacements:
+          amd64: x86_64
