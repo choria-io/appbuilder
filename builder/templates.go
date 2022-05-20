@@ -52,9 +52,12 @@ func ParseStateTemplate(body string, args interface{}, flags interface{}, cfg in
 
 			return string(b), nil
 		},
-		"default": func(v string, dflt string) string {
-			if v != "" {
-				return v
+		"default": func(v interface{}, dflt string) string {
+			switch c := v.(type) {
+			case string:
+				if c != "" {
+					return c
+				}
 			}
 
 			return dflt

@@ -54,13 +54,12 @@ type AppBuilder struct {
 }
 
 var (
-	ErrorDuplicatePlugin     = errors.New("duplicate plugin")
-	ErrorUnknownPlugin       = errors.New("unknown plugin")
-	ErrDefinitionNotfound    = errors.New("definition not found")
-	ErrConfigNotFound        = errors.New("config file not found")
-	ErrConfigurationNotFound = errors.New("configuration file not found")
-	ErrCommandHasNoType      = errors.New("command has no type defined")
-	ErrInvalidDefinition     = errors.New("invalid definition")
+	ErrorDuplicatePlugin  = errors.New("duplicate plugin")
+	ErrorUnknownPlugin    = errors.New("unknown plugin")
+	ErrDefinitionNotfound = errors.New("definition not found")
+	ErrConfigNotFound     = errors.New("config file not found")
+	ErrCommandHasNoType   = errors.New("command has no type defined")
+	ErrInvalidDefinition  = errors.New("invalid definition")
 
 	appDefPattern  = "%s-app.yaml"
 	appCfgPatten   = "%s-cfg.yaml"
@@ -198,6 +197,16 @@ func (b *AppBuilder) LoadConfig() (map[string]interface{}, error) {
 func (b *AppBuilder) runCLI() error {
 	var err error
 
+	b.cfg, err = b.LoadConfig()
+	if err != nil && !errors.Is(err, ErrConfigNotFound) {
+		return err
+	}
+
+	b.def, err = b.LoadDefinition()
+	if err != nil {
+		return err
+	}
+
 	cmd := kingpin.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
 	cmd.Version(b.def.Version)
 	cmd.Author(b.def.Author)
@@ -240,7 +249,7 @@ func (b *AppBuilder) findConfigFile(name string, override string) (string, error
 	}
 
 	if source == "" {
-		return "", fmt.Errorf("%w: %s in %s", ErrConfigurationNotFound, name, strings.Join(sources, ", "))
+		return "", fmt.Errorf("%w: %s in %s", ErrConfigNotFound, name, strings.Join(sources, ", "))
 	}
 
 	return source, nil
