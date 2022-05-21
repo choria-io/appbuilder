@@ -61,6 +61,7 @@ type GenericArgument struct {
 	Description string   `json:"description"`
 	Required    bool     `json:"required"`
 	Enum        []string `json:"enum"`
+	Default     string   `json:"default"`
 }
 
 // GenericFlag is a standard command line flag
@@ -70,6 +71,7 @@ type GenericFlag struct {
 	Required    bool     `json:"required"`
 	PlaceHolder string   `json:"placeholder"`
 	Enum        []string `json:"enum"`
+	Default     string   `json:"default"`
 }
 
 // GenericTransform is a generic transformation definition
@@ -93,6 +95,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				arg.Required()
 			}
 
+			if a.Default != "" {
+				arg.Default(a.Default)
+			}
+
 			if len(a.Enum) > 0 {
 				arguments[a.Name] = arg.Enum(a.Enum...)
 			} else {
@@ -107,8 +113,13 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 			if f.Required {
 				flag.Required()
 			}
+
 			if f.PlaceHolder != "" {
 				flag.PlaceHolder(f.PlaceHolder)
+			}
+
+			if f.Default != "" {
+				flag.Default(f.Default)
 			}
 
 			if len(f.Enum) > 0 {
