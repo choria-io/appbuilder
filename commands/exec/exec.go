@@ -18,7 +18,8 @@ import (
 )
 
 type Command struct {
-	Command string `json:"command"`
+	Command     string   `json:"command"`
+	Environment []string `json:"environment"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -30,6 +31,7 @@ type Exec struct {
 	cmd       *kingpin.CmdClause
 	def       *Command
 	ctx       context.Context
+	log       builder.Logger
 	b         *builder.AppBuilder
 }
 
@@ -43,11 +45,12 @@ var (
 	ErrorExecutionFailed = errors.New("execution failed")
 )
 
-func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, _ builder.Logger) (builder.Command, error) {
+func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger) (builder.Command, error) {
 	exec := &Exec{
 		def:       &Command{},
 		ctx:       b.Context(),
 		b:         b,
+		log:       log,
 		Arguments: map[string]*string{},
 		Flags:     map[string]*string{},
 	}
@@ -88,8 +91,20 @@ func (r *Exec) runCommand(_ *kingpin.ParseContext) error {
 		return ErrorInvalidCommand
 	}
 
+	var env []string
+	for _, e := range r.def.Environment {
+		v, err := builder.ParseStateTemplate(e, r.Arguments, r.Flags, r.b.Configuration())
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
+		}
+		env = append(env, v)
+		r.log.Debugf("Using environment variable: %v", v)
+	}
+
+	r.log.Debugf("Executing %q with arguments %v", parts[0], parts[1:])
+
 	run := exec.CommandContext(r.ctx, parts[0], parts[1:]...)
-	run.Env = os.Environ()
+	run.Env = append(os.Environ(), env...)
 	run.Stdin = os.Stdin
 	run.Stdout = os.Stdout
 	run.Stderr = os.Stderr

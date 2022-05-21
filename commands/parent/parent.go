@@ -55,6 +55,22 @@ func (r *Parent) Validate(log builder.Logger) error {
 		errs = append(errs, err.Error())
 	}
 
+	if len(r.def.Flags) > 0 {
+		errs = append(errs, "parent commands can not have flags")
+	}
+
+	if len(r.def.Arguments) > 0 {
+		errs = append(errs, "parent commands can not have arguments")
+	}
+
+	if len(r.def.Commands) == 0 {
+		errs = append(errs, "parent requires sub commands")
+	}
+
+	if r.def.ConfirmPrompt != "" {
+		errs = append(errs, "parents do not accept confirm prompts")
+	}
+
 	if len(errs) > 0 {
 		return errors.New(strings.Join(errs, ", "))
 	}
