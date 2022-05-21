@@ -1,4 +1,4 @@
-baseURL = "https://choria-io.github.com/appbuilder"
+baseURL = "https://choria-io.github.io/appbuilder/"
 languageCode = "en-us"
 title = "Choria Application Builder Documentation"
 theme = "hugo-theme-relearn"
@@ -18,7 +18,7 @@ alwaysopen = true
 [[menu.shortcuts]]
 name = "<i class='fab fa-fw fa-github'></i> GitHub"
 identifier = "ds"
-url = "https://choria-io.github.io/appbuilder/"
+url = "https://github.com/choria-io/appbuilder"
 weight = 10
 
 [[menu.shortcuts]]
