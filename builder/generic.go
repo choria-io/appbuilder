@@ -57,17 +57,19 @@ func (c *GenericCommand) Validate(logger Logger) error {
 
 // GenericArgument is a standard command line argument
 type GenericArgument struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Required    bool     `json:"required"`
+	Enum        []string `json:"enum"`
 }
 
 // GenericFlag is a standard command line flag
 type GenericFlag struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Required    bool   `json:"required"`
-	PlaceHolder string `json:"placeholder"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Required    bool     `json:"required"`
+	PlaceHolder string   `json:"placeholder"`
+	Enum        []string `json:"enum"`
 }
 
 // GenericTransform is a generic transformation definition
@@ -91,7 +93,11 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				arg.Required()
 			}
 
-			arguments[a.Name] = arg.String()
+			if len(a.Enum) > 0 {
+				arguments[a.Name] = arg.Enum(a.Enum...)
+			} else {
+				arguments[a.Name] = arg.String()
+			}
 		}
 	}
 
@@ -104,7 +110,12 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 			if f.PlaceHolder != "" {
 				flag.PlaceHolder(f.PlaceHolder)
 			}
-			flags[f.Name] = flag.String()
+
+			if len(f.Enum) > 0 {
+				arguments[f.Name] = flag.Enum(f.Enum...)
+			} else {
+				arguments[f.Name] = flag.String()
+			}
 		}
 	}
 
