@@ -43,7 +43,7 @@ brews:
     tap:
       owner: choria-io
       name: homebrew-tap
-    url_template: "https://github.com/choria-io/appbuilder/releases/download/{{ .Tag }}/appbuilder-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.zip"
+    url_template: "https://github.com/choria-io/appbuilder/releases/download/{{ .Tag }}/appbuilder-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.tar.gz"
     homepage: "https://github.com/choria-io/appbuilder"
     description: "Choria Application Builder"
     skip_upload: false
