@@ -18,7 +18,7 @@ alwaysopen = true
 [[menu.shortcuts]]
 name = "<i class='fab fa-fw fa-github'></i> GitHub"
 identifier = "ds"
-url = "https://github.com/choria-io/appbuilder"
+url = "https://choria-io.github.io/appbuilder/"
 weight = 10
 
 [[menu.shortcuts]]
