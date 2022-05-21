@@ -22,7 +22,7 @@ url = "https://github.com/choria-io/appbuilder"
 weight = 10
 
 [[menu.shortcuts]]
-name = "<i class='far fa-download'></i> Download"
+name = "<i class='far fa-save'></i> Download"
 url = "https://github.com/choria-io/appbuilder/releases"
 weight = 11
 

@@ -1,5 +1,4 @@
 +++
-chapter = true
 weight = 5
 +++
 
