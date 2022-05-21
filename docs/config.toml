@@ -22,16 +22,21 @@ url = "https://github.com/choria-io/appbuilder"
 weight = 10
 
 [[menu.shortcuts]]
+name = "<i class='far fa-download'></i> Download"
+url = "https://github.com/choria-io/appbuilder/releases"
+weight = 11
+
+[[menu.shortcuts]]
 name = "<i class='far fa-comments'></i> Discussions"
 url = "https://github.com/choria-io/appbuilder/discussions"
-weight = 11
+weight = 12
 
 [[menu.shortcuts]]
 name = "<i class='far fa-life-ring'></i> Issues"
 url = "https://github.com/choria-io/appbuilder/issues"
-weight = 12
+weight = 13
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-slack'></i> #choria"
 url = "https://slack.puppet.com/"
-weight = 13
+weight = 14
