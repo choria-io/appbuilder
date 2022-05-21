@@ -1,3 +1,5 @@
 appbuilder
 dist
 .idea
+.hugo_build.lock
+docs/public
