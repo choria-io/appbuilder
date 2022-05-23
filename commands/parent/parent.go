@@ -44,7 +44,12 @@ func NewParentCommand(_ *builder.AppBuilder, j json.RawMessage, _ builder.Logger
 func (r *Parent) String() string { return fmt.Sprintf("%s (parent)", r.def.Name) }
 
 func (r *Parent) Validate(log builder.Logger) error {
-	errs := []string{}
+	if r.def.Type != "parent" {
+		return fmt.Errorf("not a parent command")
+	}
+
+	var errs []string
+
 	err := r.def.GenericCommand.Validate(log)
 	if err != nil {
 		errs = append(errs, err.Error())
