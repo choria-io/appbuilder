@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/kballard/go-shellquote"
@@ -65,7 +66,33 @@ func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 
 func (r *Exec) String() string { return fmt.Sprintf("%s (exec)", r.def.Name) }
 
-func (r *Exec) Validate(log builder.Logger) error { return nil }
+func (r *Exec) Validate(log builder.Logger) error {
+	if r.def.Type != "exec" {
+		return fmt.Errorf("not an exec command")
+	}
+
+	var errs []string
+
+	err := r.def.GenericCommand.Validate(log)
+	if err != nil {
+		errs = append(errs, err.Error())
+	}
+
+	err = r.def.GenericSubCommands.Validate(log)
+	if err != nil {
+		errs = append(errs, err.Error())
+	}
+
+	if r.def.Command == "" {
+		errs = append(errs, "a command is required")
+	}
+
+	if len(errs) > 0 {
+		return errors.New(strings.Join(errs, ", "))
+	}
+
+	return nil
+}
 
 func (r *Exec) SubCommands() []json.RawMessage {
 	return r.def.Commands

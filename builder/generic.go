@@ -35,9 +35,9 @@ type GenericCommand struct {
 	ConfirmPrompt string            `json:"confirm_prompt"`
 }
 
-// Validate ensures the command is well formed
+// Validate ensures the command is well-formed
 func (c *GenericCommand) Validate(logger Logger) error {
-	errs := []string{}
+	var errs []string
 	if c.Name == "" {
 		errs = append(errs, "name is required")
 	}
@@ -123,9 +123,9 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 			}
 
 			if len(f.Enum) > 0 {
-				arguments[f.Name] = flag.Enum(f.Enum...)
+				flags[f.Name] = flag.Enum(f.Enum...)
 			} else {
-				arguments[f.Name] = flag.String()
+				flags[f.Name] = flag.String()
 			}
 		}
 	}
