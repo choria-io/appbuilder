@@ -35,7 +35,6 @@ func RunStandardCLI(ctx context.Context, name string, watchInterrupts bool, log 
 	}
 
 	if len(opts) == 0 {
-		opts = []Option{WithLogger(log)}
 		if cfg := os.Getenv("BUILDER_CONFIG"); cfg != "" {
 			opts = append(opts, WithConfigPaths(cfg))
 		}
@@ -43,6 +42,13 @@ func RunStandardCLI(ctx context.Context, name string, watchInterrupts bool, log 
 			opts = append(opts, WithAppDefinitionFile(cfg))
 		}
 	}
+
+	// we set the logger option first, if we made a new logger above
+	// it will be set, if the user supplied one, it will be set
+	//
+	// but if a user later pass WithLogger() also that one will win
+	// as options are processed in array order
+	opts = append([]Option{WithLogger(log)}, opts...)
 
 	bldr, err := New(ctx, name, opts...)
 	if err != nil {
