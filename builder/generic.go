@@ -5,12 +5,15 @@
 package builder
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/itchyny/gojq"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -77,6 +80,59 @@ type GenericFlag struct {
 // GenericTransform is a generic transformation definition
 type GenericTransform struct {
 	Query string `json:"query"`
+	q     *gojq.Query
+}
+
+// Validate parses and validates the JQ query
+func (t *GenericTransform) Validate() error {
+	if t == nil || t.Query == "" {
+		return fmt.Errorf("no query supplied")
+	}
+
+	var err error
+
+	t.q, err = gojq.Parse(t.Query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// FTransformJSON transforms json input via query and write the output to the writer
+func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j json.RawMessage) error {
+	if t.q == nil {
+		return fmt.Errorf("no query")
+	}
+
+	input := map[string]interface{}{}
+	err := json.Unmarshal(j, &input)
+	if err != nil {
+		return fmt.Errorf("json output parse error: %v", err)
+	}
+
+	iter := t.q.RunWithContext(ctx, input)
+	for {
+		v, ok := iter.Next()
+		if !ok {
+			break
+		}
+
+		switch val := v.(type) {
+		case error:
+			return val
+		case string:
+			fmt.Fprintln(w, val)
+		default:
+			j, err := json.MarshalIndent(val, "", "  ")
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(w, string(j))
+		}
+	}
+
+	return nil
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
