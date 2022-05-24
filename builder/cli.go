@@ -15,11 +15,52 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func RunBuilderCLI(ctx context.Context, watchInterrupts bool, opts ...Option) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	if opts == nil {
+		opts = []Option{}
+	}
+
+	bldr, err := createBuilder(ctx, "builder", nil, opts...)
+	if err != nil {
+		return err
+	}
+
+	if watchInterrupts {
+		go interruptWatcher(ctx, cancel, bldr.log)
+	}
+
+	return bldr.RunBuilderCLI()
+}
+
 // RunStandardCLI runs a standard command line instance with shutdown watchers etc. If log is nil a logger will be created
 func RunStandardCLI(ctx context.Context, name string, watchInterrupts bool, log Logger, opts ...Option) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	if opts == nil {
+		opts = []Option{}
+	}
+
+	bldr, err := createBuilder(ctx, name, log, opts...)
+	if err != nil {
+		return err
+	}
+
+	if watchInterrupts {
+		go interruptWatcher(ctx, cancel, bldr.log)
+	}
+
+	if !bldr.HasDefinition() {
+		return fmt.Errorf("%w: %s", ErrDefinitionNotfound, name)
+	}
+
+	return bldr.RunCommand()
+}
+
+func createBuilder(ctx context.Context, name string, log Logger, opts ...Option) (*AppBuilder, error) {
 	if log == nil {
 		logger := logrus.New()
 		log = logrus.NewEntry(logger).WithField("app", name)
@@ -28,10 +69,6 @@ func RunStandardCLI(ctx context.Context, name string, watchInterrupts bool, log 
 		} else {
 			logger.SetLevel(logrus.WarnLevel)
 		}
-	}
-
-	if watchInterrupts {
-		go interruptWatcher(ctx, cancel, log)
 	}
 
 	if len(opts) == 0 {
@@ -48,23 +85,10 @@ func RunStandardCLI(ctx context.Context, name string, watchInterrupts bool, log 
 	//
 	// but if a user later pass WithLogger() also that one will win
 	// as options are processed in array order
-	opts = append([]Option{WithLogger(log)}, opts...)
-
-	bldr, err := New(ctx, name, opts...)
-	if err != nil {
-		return err
+	if log != nil {
+		opts = append([]Option{WithLogger(log)}, opts...)
 	}
-
-	if !bldr.HasDefinition() {
-		return fmt.Errorf("%w: %s", ErrDefinitionNotfound, name)
-	}
-
-	err = bldr.RunCommand()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return New(ctx, name, opts...)
 }
 
 func interruptWatcher(ctx context.Context, cancel context.CancelFunc, log Logger) {

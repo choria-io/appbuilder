@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/ghodss/yaml"
 	"github.com/tidwall/gjson"
+	"github.com/xlab/tablewriter"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -61,6 +63,10 @@ var (
 	ErrCommandHasNoType   = errors.New("command has no type defined")
 	ErrInvalidDefinition  = errors.New("invalid definition")
 
+	Version = "development"
+	Commit  = "unknown"
+	Date    = "unknown"
+
 	appDefPattern  = "%s-app.yaml"
 	appCfgPatten   = "%s-cfg.yaml"
 	descriptionFmt = `%s
@@ -83,9 +89,11 @@ func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) 
 	}
 
 	for _, opt := range opts {
-		err := opt(builder)
-		if err != nil {
-			return nil, err
+		if opt != nil {
+			err := opt(builder)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -107,6 +115,130 @@ func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
+func (b *AppBuilder) createBuilderApp(cmd KingpinCommand) {
+	validate := cmd.Command("validate", "Validates a application definition").Action(b.validateAction)
+	validate.Arg("definition", "Path to the definition to validate").Required().ExistingFileVar(&b.appPath)
+
+	cmd.Command("info", "Shows information about the App Builder setup").Action(b.infoAction)
+	cmd.Command("list", "List applications").Action(b.listAction)
+}
+
+// RunBuilderCLI runs the builder command, used to validate apps and more
+func (b *AppBuilder) RunBuilderCLI() error {
+	help := `Choria Application Builder
+
+This is the builder helper allowing you to validate and
+inspect the configuration.
+
+If you expected your own command here be sure to create
+a symlink from your command name to this file and then 
+always invoke the symlink.
+
+For help see https://choria-io.github.io/appbuilder/
+`
+	cmd := kingpin.New(b.name, help)
+	cmd.Version(Version)
+	cmd.Author("R.I.Pienaar <rip@devco.net>")
+
+	b.createBuilderApp(cmd)
+
+	_, err := cmd.Parse(os.Args[1:])
+	return err
+}
+
+func (b *AppBuilder) listAction(_ *kingpin.ParseContext) error {
+	sources := append([]string{"."}, b.cfgSources...)
+	var found []string
+
+	for _, source := range sources {
+
+		if !fileExist(source) {
+			continue
+		}
+
+		err := filepath.Walk(source, func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if strings.HasSuffix(info.Name(), "-app.yaml") {
+				abs, err := filepath.Abs(filepath.Join(source, info.Name()))
+				if err != nil {
+					return err
+				}
+
+				found = append(found, abs)
+			}
+
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(found) == 0 {
+		fmt.Println("No Application Definitions found")
+	}
+
+	table := tablewriter.CreateTable()
+	table.UTF8Box()
+	table.AddTitle("Known Applications")
+	table.AddHeaders("Name", "Location", "Description")
+
+	for _, source := range found {
+		d, err := b.loadDefinition(source)
+		if err != nil {
+			return err
+		}
+
+		app := strings.TrimSuffix(source, "-app.yaml")
+		table.AddRow(filepath.Base(app), source, d.Description)
+	}
+
+	fmt.Println(table.Render())
+
+	return nil
+}
+
+func (b *AppBuilder) infoAction(_ *kingpin.ParseContext) error {
+	fmt.Printf("Choria Application Builder version %s (%s)\n", Version, Commit)
+	fmt.Println()
+	fmt.Printf("        Debug Logging (BUILDER_DEBUG): %t\n", os.Getenv("BUILDER_DEBUG") != "")
+	if os.Getenv("BUILDER_CONFIG") != "" {
+		fmt.Printf("  Configuration File (BUILDER_CONFIG): %s\n", os.Getenv("BUILDER_CONFIG"))
+	} else {
+		fmt.Printf("  Configuration File (BUILDER_CONFIG): not specified\n")
+	}
+	if os.Getenv("BUILDER_APP") != "" {
+		fmt.Printf("        Definition File (BUILDER_APP): %s\n", os.Getenv("BUILDER_APP"))
+	} else {
+		fmt.Printf("        Definition File (BUILDER_APP): not specified\n")
+	}
+
+	fmt.Printf("                     Source Locations: %s\n", strings.Join(b.cfgSources, ", "))
+
+	return nil
+}
+
+func (b *AppBuilder) validateAction(_ *kingpin.ParseContext) error {
+	d, err := b.loadDefinition(b.appPath)
+	if err != nil {
+		return err
+	}
+
+	err = d.Validate(nil)
+	if err != nil {
+		fmt.Printf("Application definition %s not valid: %v\n", b.appPath, err)
+		os.Exit(1)
+	} else {
+		fmt.Printf("Application definition %s is valid\n", b.appPath)
+		return nil
+	}
+
+	return err
+}
+
 // HasDefinition determines if the named definition can be found on the node
 func (b *AppBuilder) HasDefinition() bool {
 	source, _ := b.findConfigFile(fmt.Sprintf(appDefPattern, b.name), b.appPath)
@@ -115,6 +247,26 @@ func (b *AppBuilder) HasDefinition() bool {
 	}
 
 	return fileExist(source)
+}
+
+func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
+	cfg, err := os.ReadFile(source)
+	if err != nil {
+		return nil, err
+	}
+
+	d := &Definition{}
+	cfgj, err := yaml.YAMLToJSON(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(cfgj, d)
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }
 
 // LoadDefinition loads the definition for the name from file, creates the command structure and validates everything
@@ -128,18 +280,7 @@ func (b *AppBuilder) LoadDefinition() (*Definition, error) {
 		b.log.Debugf("Loading application definition %v", source)
 	}
 
-	cfg, err := os.ReadFile(source)
-	if err != nil {
-		return nil, err
-	}
-
-	d := &Definition{}
-	cfgj, err := yaml.YAMLToJSON(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(cfgj, d)
+	d, err := b.loadDefinition(source)
 	if err != nil {
 		return nil, err
 	}

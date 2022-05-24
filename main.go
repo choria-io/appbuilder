@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/appbuilder/commands/exec"
@@ -20,7 +21,13 @@ func main() {
 	exec.MustRegister()
 
 	name := filepath.Base(os.Args[0])
-	err := builder.RunStandardCLI(context.Background(), name, true, nil)
+	var err error
+
+	if strings.HasPrefix(name, "appbuilder") {
+		err = builder.RunBuilderCLI(context.Background(), true)
+	} else {
+		err = builder.RunStandardCLI(context.Background(), name, true, nil)
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s failed: %v\n", name, err)
 		os.Exit(1)
