@@ -11,7 +11,8 @@ changelog:
   skip: true
 
 builds:
-  -
+  - ldflags:
+    - "-s -w -X github.com/choria-io/appbuilder/builder.Version={{.Version}} -X github.com/choria-io/appbuilder/builder.Commit={{.Commit}} -X github.com/choria-io/appbuilder/builder.Date={{.Date}}"
     id: appbuilder
     binary: appbuilder
     goos:

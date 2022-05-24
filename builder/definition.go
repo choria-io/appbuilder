@@ -37,7 +37,7 @@ func (d *Definition) Validate(log Logger) error {
 		errs = append(errs, "description is required")
 	}
 	if matched, err := regexp.MatchString(semverVerifier, d.Version); !matched || err != nil {
-		errs = append(errs, "version is required to be set and be valid semver")
+		errs = append(errs, "version is required to be a valid semver")
 	}
 	if d.Author == "" {
 		errs = append(errs, "author is required")

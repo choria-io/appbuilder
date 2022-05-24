@@ -44,6 +44,7 @@ func (c *GenericCommand) Validate(logger Logger) error {
 	if c.Name == "" {
 		errs = append(errs, "name is required")
 	}
+
 	if c.Description == "" {
 		errs = append(errs, "description is required")
 	}
