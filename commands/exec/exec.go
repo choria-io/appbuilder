@@ -19,8 +19,9 @@ import (
 )
 
 type Command struct {
-	Command     string   `json:"command"`
-	Environment []string `json:"environment"`
+	Command     string                    `json:"command"`
+	Environment []string                  `json:"environment"`
+	Transform   *builder.GenericTransform `json:"transform"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -87,6 +88,13 @@ func (r *Exec) Validate(log builder.Logger) error {
 		errs = append(errs, "a command is required")
 	}
 
+	if r.def.Transform != nil {
+		err := r.def.Transform.Validate()
+		if err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+
 	if len(errs) > 0 {
 		return errors.New(strings.Join(errs, ", "))
 	}
@@ -102,6 +110,40 @@ func (r *Exec) CreateCommand(app builder.KingpinCommand) (*kingpin.CmdClause, er
 	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.Arguments, r.Flags, r.runCommand)
 
 	return r.cmd, nil
+}
+
+func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
+	r.log.Debugf("Executing %q with arguments %v", cmd, args)
+
+	run := exec.CommandContext(r.ctx, cmd, args...)
+	run.Env = append(os.Environ(), env...)
+	run.Stdin = os.Stdin
+	run.Stdout = os.Stdout
+	run.Stderr = os.Stderr
+
+	err := run.Run()
+	if err != nil {
+		return fmt.Errorf("%w: %v", ErrorExecutionFailed, err)
+	}
+
+	return nil
+}
+
+func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
+	r.log.Debugf("Executing %q with arguments %v using a transform", cmd, args)
+
+	run := exec.CommandContext(r.ctx, cmd, args...)
+	run.Env = append(os.Environ(), env...)
+
+	run.Stdin = os.Stdin
+	run.Stderr = os.Stderr
+
+	out, err := run.Output()
+	if err != nil {
+		return err
+	}
+
+	return r.def.Transform.FTransformJSON(r.ctx, os.Stdout, out)
 }
 
 func (r *Exec) runCommand(_ *kingpin.ParseContext) error {
@@ -128,18 +170,9 @@ func (r *Exec) runCommand(_ *kingpin.ParseContext) error {
 		r.log.Debugf("Using environment variable: %v", v)
 	}
 
-	r.log.Debugf("Executing %q with arguments %v", parts[0], parts[1:])
-
-	run := exec.CommandContext(r.ctx, parts[0], parts[1:]...)
-	run.Env = append(os.Environ(), env...)
-	run.Stdin = os.Stdin
-	run.Stdout = os.Stdout
-	run.Stderr = os.Stderr
-
-	err = run.Run()
-	if err != nil {
-		return fmt.Errorf("%w: %v", ErrorExecutionFailed, err)
+	if r.def.Transform == nil {
+		return r.runInTerminal(parts[0], parts[1:], env)
+	} else {
+		return r.runWithTransform(parts[0], parts[1:], env)
 	}
-
-	return nil
 }
