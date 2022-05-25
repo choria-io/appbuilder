@@ -140,8 +140,8 @@ func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j js
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
-func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]*string, flags map[string]*string, cb kingpin.Action) *kingpin.CmdClause {
-	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, cb))
+func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]*string, flags map[string]*string, cfg map[string]interface{}, cb kingpin.Action) *kingpin.CmdClause {
+	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, cfg, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
 	}
@@ -191,7 +191,7 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 	return cmd
 }
 
-func runWrapper(cmd GenericCommand, handler kingpin.Action) kingpin.Action {
+func runWrapper(cmd GenericCommand, arguments map[string]*string, flags map[string]*string, cfg map[string]interface{}, handler kingpin.Action) kingpin.Action {
 	return func(pc *kingpin.ParseContext) error {
 		if cmd.ConfirmPrompt != "" {
 			ans := false
@@ -205,7 +205,14 @@ func runWrapper(cmd GenericCommand, handler kingpin.Action) kingpin.Action {
 		}
 
 		if cmd.Banner != "" {
-			fmt.Println(cmd.Banner)
+			b, err := ParseStateTemplate(cmd.Banner, arguments, flags, cfg)
+			if err != nil {
+				return err
+			}
+
+			if b != "" {
+				fmt.Println(b)
+			}
 		}
 
 		return handler(pc)

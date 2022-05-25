@@ -107,7 +107,7 @@ func (r *Exec) SubCommands() []json.RawMessage {
 }
 
 func (r *Exec) CreateCommand(app builder.KingpinCommand) (*kingpin.CmdClause, error) {
-	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.Arguments, r.Flags, r.runCommand)
+	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.Arguments, r.Flags, r.b.Configuration(), r.runCommand)
 
 	return r.cmd, nil
 }
