@@ -89,7 +89,7 @@ func (r *Exec) Validate(log builder.Logger) error {
 	}
 
 	if r.def.Transform != nil {
-		err := r.def.Transform.Validate()
+		err := r.def.Transform.Validate(log)
 		if err != nil {
 			errs = append(errs, err.Error())
 		}
