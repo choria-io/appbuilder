@@ -32,7 +32,7 @@ var _ = Describe("GenericCommand", func() {
 				{Name: "arg1", Description: "help1", Default: "default1", Enum: []string{"default1", "default2"}, Required: true},
 			}
 
-			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, nil, nil, cb)
+			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, nil, nil, nil, cb)
 			model := cmd.Model()
 
 			Expect(model.Name).To(Equal("ginkgo"))
@@ -47,7 +47,7 @@ var _ = Describe("GenericCommand", func() {
 				{Name: "arg1", Description: "help1", Default: "default1", Enum: []string{"default1", "default2"}, Required: true},
 			}
 
-			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, map[string]*string{}, nil, cb)
+			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, map[string]*string{}, nil, nil, cb)
 			model := cmd.Model()
 			Expect(model.Args).To(HaveLen(1))
 			Expect(model.Args[0].Name).To(Equal("arg1"))
@@ -60,7 +60,7 @@ var _ = Describe("GenericCommand", func() {
 				{Name: "flag1", Description: "help1", Default: "default1", Enum: []string{"default1", "default2"}, Required: true},
 			}
 
-			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, nil, map[string]*string{}, cb)
+			cmd := CreateGenericCommand(kingpin.New("app", "app"), def, nil, map[string]*string{}, nil, cb)
 			model := cmd.Model()
 			Expect(model.Flags).To(HaveLen(1))
 			Expect(model.Flags[0].Name).To(Equal("flag1"))

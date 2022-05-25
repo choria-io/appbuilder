@@ -22,7 +22,7 @@ var _ = Describe("Exec", func() {
 	var p *Exec
 
 	BeforeEach(func() {
-		p = &Exec{def: &Command{}}
+		p = &Exec{def: &Command{}, b: &builder.AppBuilder{}}
 		p.def.Type = "exec"
 	})
 
