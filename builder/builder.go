@@ -202,7 +202,7 @@ func (b *AppBuilder) listAction(_ *kingpin.ParseContext) error {
 }
 
 func (b *AppBuilder) infoAction(_ *kingpin.ParseContext) error {
-	fmt.Printf("Choria Application Builder version %s (%s)\n", Version, Commit)
+	fmt.Println("Choria Application Builder")
 	fmt.Println()
 	fmt.Printf("        Debug Logging (BUILDER_DEBUG): %t\n", os.Getenv("BUILDER_DEBUG") != "")
 	if os.Getenv("BUILDER_CONFIG") != "" {
