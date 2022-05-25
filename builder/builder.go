@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -151,29 +150,24 @@ func (b *AppBuilder) listAction(_ *kingpin.ParseContext) error {
 	var found []string
 
 	for _, source := range sources {
-
 		if !fileExist(source) {
 			continue
 		}
 
-		err := filepath.Walk(source, func(path string, info fs.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
+		entries, err := os.ReadDir(source)
+		if err != nil {
+			return err
+		}
 
-			if strings.HasSuffix(info.Name(), "-app.yaml") {
-				abs, err := filepath.Abs(filepath.Join(source, info.Name()))
+		for _, entry := range entries {
+			if strings.HasSuffix(entry.Name(), "-app.yaml") {
+				abs := filepath.Join(source, entry.Name())
 				if err != nil {
 					return err
 				}
 
 				found = append(found, abs)
 			}
-
-			return nil
-		})
-		if err != nil {
-			return err
 		}
 	}
 
