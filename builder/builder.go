@@ -115,7 +115,7 @@ func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
-func (b *AppBuilder) createBuilderApp(cmd KingpinCommand) {
+func (b *AppBuilder) CreateBuilderApp(cmd KingpinCommand) {
 	validate := cmd.Command("validate", "Validates a application definition").Action(b.validateAction)
 	validate.Arg("definition", "Path to the definition to validate").Required().ExistingFileVar(&b.appPath)
 
@@ -140,7 +140,7 @@ For help see https://choria-io.github.io/appbuilder/
 	cmd.Version(Version)
 	cmd.Author("R.I.Pienaar <rip@devco.net>")
 
-	b.createBuilderApp(cmd)
+	b.CreateBuilderApp(cmd)
 
 	_, err := cmd.Parse(os.Args[1:])
 	return err
