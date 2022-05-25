@@ -41,9 +41,11 @@ func ParseStateTemplate(body string, args interface{}, flags interface{}, cfg in
 
 			return v, nil
 		},
+
 		"escape": func(v string) string {
 			return shellescape.Quote(v)
 		},
+
 		"read_file": func(v string) (string, error) {
 			b, err := os.ReadFile(v)
 			if err != nil {
@@ -52,6 +54,7 @@ func ParseStateTemplate(body string, args interface{}, flags interface{}, cfg in
 
 			return string(b), nil
 		},
+
 		"default": func(v interface{}, dflt string) string {
 			switch c := v.(type) {
 			case string:
