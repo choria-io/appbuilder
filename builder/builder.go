@@ -115,7 +115,7 @@ func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
-func (b *AppBuilder) createBuilderApp(cmd KingpinCommand) {
+func (b *AppBuilder) CreateBuilderApp(cmd KingpinCommand) {
 	validate := cmd.Command("validate", "Validates a application definition").Action(b.validateAction)
 	validate.Arg("definition", "Path to the definition to validate").Required().ExistingFileVar(&b.appPath)
 
@@ -140,7 +140,7 @@ For help see https://choria-io.github.io/appbuilder/
 	cmd.Version(Version)
 	cmd.Author("R.I.Pienaar <rip@devco.net>")
 
-	b.createBuilderApp(cmd)
+	b.CreateBuilderApp(cmd)
 
 	_, err := cmd.Parse(os.Args[1:])
 	return err
@@ -222,14 +222,29 @@ func (b *AppBuilder) infoAction(_ *kingpin.ParseContext) error {
 }
 
 func (b *AppBuilder) validateAction(_ *kingpin.ParseContext) error {
-	d, err := b.loadDefinition(b.appPath)
+	d, err := b.LoadDefinition()
 	if err != nil {
 		return err
 	}
 
+	errs := make(chan string, 10000)
+
 	err = d.Validate(nil)
 	if err != nil {
-		fmt.Printf("Application definition %s not valid: %v\n", b.appPath, err)
+		errs <- err.Error()
+	}
+
+	b.validateCommands([]string{"root"}, errs, d.commands...)
+
+	close(errs)
+
+	if len(errs) > 0 {
+		fmt.Printf("Application definition %s not valid:\n", b.appPath)
+		fmt.Println()
+		for e := range errs {
+			fmt.Printf("   %v\n", e)
+		}
+
 		os.Exit(1)
 	} else {
 		fmt.Printf("Application definition %s is valid\n", b.appPath)
@@ -391,6 +406,26 @@ func (b *AppBuilder) findConfigFile(name string, override string) (string, error
 	}
 
 	return source, nil
+}
+
+func (b *AppBuilder) validateCommands(bread []string, errs chan string, cmds ...Command) {
+	for _, c := range cmds {
+		bread = append(bread, c.String())
+		b.log.Debugf("Validating %s", c)
+		err := c.Validate(b.log)
+		if err != nil {
+			errs <- fmt.Sprintf("%s: %s", strings.Join(bread, " -> "), err)
+		}
+
+		for _, sub := range c.SubCommands() {
+			sc, err := b.createCommand(sub)
+			if err != nil {
+				errs <- fmt.Sprintf("%s: %s", strings.Join(bread, " ->  "), err.Error())
+			}
+
+			b.validateCommands(bread, errs, sc)
+		}
+	}
 }
 
 func (b *AppBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error {
