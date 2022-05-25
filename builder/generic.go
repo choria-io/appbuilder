@@ -36,6 +36,7 @@ type GenericCommand struct {
 	Arguments     []GenericArgument `json:"arguments"`
 	Flags         []GenericFlag     `json:"flags"`
 	ConfirmPrompt string            `json:"confirm_prompt"`
+	Banner        string            `json:"banner"`
 }
 
 // Validate ensures the command is well-formed
@@ -85,7 +86,7 @@ type GenericTransform struct {
 }
 
 // Validate parses and validates the JQ query
-func (t *GenericTransform) Validate() error {
+func (t *GenericTransform) Validate(log Logger) error {
 	if t == nil || t.Query == "" {
 		return fmt.Errorf("no query supplied")
 	}
@@ -201,6 +202,10 @@ func runWrapper(cmd GenericCommand, handler kingpin.Action) kingpin.Action {
 			if !ans {
 				return fmt.Errorf("aborted")
 			}
+		}
+
+		if cmd.Banner != "" {
+			fmt.Println(cmd.Banner)
 		}
 
 		return handler(pc)
