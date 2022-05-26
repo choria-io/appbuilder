@@ -37,6 +37,10 @@ type Exec struct {
 	b         *builder.AppBuilder
 }
 
+func Register() error {
+	return builder.RegisterCommand("exec", NewExecCommand)
+}
+
 func MustRegister() {
 	builder.MustRegisterCommand("exec", NewExecCommand)
 }

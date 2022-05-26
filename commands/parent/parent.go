@@ -24,6 +24,10 @@ type Parent struct {
 	def *Command
 }
 
+func Register() {
+	builder.RegisterCommand("parent", NewParentCommand)
+}
+
 func MustRegister() {
 	builder.MustRegisterCommand("parent", NewParentCommand)
 }
