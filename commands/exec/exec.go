@@ -13,9 +13,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/kballard/go-shellquote"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type Command struct {

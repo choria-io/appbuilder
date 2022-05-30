@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/adrg/xdg v0.4.0
+	github.com/alecthomas/kingpin v1.3.8-0.20211026191244-551b91efb557
 	github.com/ghodss/yaml v1.0.0
 	github.com/itchyny/gojq v0.12.7
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -13,7 +14,6 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tidwall/gjson v1.14.1
 	github.com/xlab/tablewriter v0.0.0-20160610135559-80b567a11ad5
-	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
 )
 

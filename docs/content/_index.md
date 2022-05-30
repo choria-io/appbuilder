@@ -6,7 +6,7 @@ weight = 5
 
 Operations teams tend to use a large selection of shell scripts, piped commands, kubectl invocations and more in their day to day job.
 
-To a large extend these are tribal knowledge and something that is a big hurdle for new members of the team.  The answer is often to write wiki pages capturing run books that has these commands documented.
+To a large extent these are tribal knowledge and something that is a big hurdle for new members of the team.  The answer is often to write wiki pages capturing run books that has these commands documented.
 
 This does not scale well and does not stay up to date.
 

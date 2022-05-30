@@ -8,9 +8,9 @@ import (
 	"bytes"
 	"context"
 
+	"github.com/alecthomas/kingpin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var _ = Describe("GenericCommand", func() {

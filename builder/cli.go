@@ -23,7 +23,7 @@ func RunBuilderCLI(ctx context.Context, watchInterrupts bool, opts ...Option) er
 		opts = []Option{}
 	}
 
-	bldr, err := createBuilder(ctx, "builder", nil, opts...)
+	bldr, err := createBuilder(ctx, os.Args[0], nil, opts...)
 	if err != nil {
 		return err
 	}

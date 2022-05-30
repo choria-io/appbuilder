@@ -7,10 +7,10 @@ package exec
 import (
 	"testing"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func TestExec(t *testing.T) {
