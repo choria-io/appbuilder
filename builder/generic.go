@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/alecthomas/kingpin"
 	"github.com/itchyny/gojq"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // GenericSubCommands is the typical sub commands most commands support, custom plugins can choose to use this if they support sub commands

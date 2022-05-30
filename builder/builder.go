@@ -5,6 +5,7 @@
 package builder
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -12,12 +13,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/adrg/xdg"
+	"github.com/alecthomas/kingpin"
 	"github.com/ghodss/yaml"
 	"github.com/tidwall/gjson"
 	"github.com/xlab/tablewriter"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type KingpinCommand interface {
@@ -122,6 +124,62 @@ func (b *AppBuilder) CreateBuilderApp(cmd KingpinCommand) {
 	cmd.Command("list", "List applications").Action(b.listAction)
 }
 
+var usageTemplate = `{{define "FormatCommand"}}\
+{{if .FlagSummary}} {{.FlagSummary}}{{end}}\
+{{range .Args}} {{if not .Required}}[{{end}}<{{.Name}}>{{if .Value|IsCumulative}}...{{end}}{{if not .Required}}]{{end}}{{end}}\
+{{end}}\
+
+{{define "FormatCommands"}}\
+{{range .Commands}}\
+{{if not .Hidden}}\
+  {{.FullCommand}}{{if .Default}}*{{end}}{{template "FormatCommand" .}}
+{{.Help|Wrap 4}}
+{{end}}\
+{{end}}\
+{{end}}\
+
+{{ define "FormatCommandsForTopLevel" }}\
+{{range .Commands}}\
+{{if not .Hidden}}\
+{{if not (eq .FullCommand "help")}}\
+  {{.FullCommand}}{{if .Default}}*{{end}}{{template "FormatCommand" .}}
+{{.Help|FirstLine|Wrap 4}}
+{{end}}\
+{{end}}\
+{{end}}\
+{{end}}\
+
+{{define "FormatUsage"}}\
+{{template "FormatCommand" .}}{{if .Commands}} <command> [<args> ...]{{end}}
+{{if .Help}}
+{{.Help|Wrap 0}}\
+{{end}}\
+{{end}}\
+
+{{if .Context.SelectedCommand}}\
+usage: {{.App.Name}} {{.Context.SelectedCommand}}{{template "FormatUsage" .Context.SelectedCommand}}
+{{else}}\
+usage: {{.App.Name}}{{template "FormatUsage" .App}}
+{{end}}\
+{{if .Context.SelectedCommand}}\
+{{if .Context.Flags}}\
+Flags:
+{{.Context.Flags|FlagsToTwoColumns|FormatTwoColumns}}
+{{end}}\
+{{if .Context.Args}}\
+Args:
+{{.Context.Args|ArgsToTwoColumns|FormatTwoColumns}}
+{{end}}\
+{{if len .Context.SelectedCommand.Commands}}\
+Subcommands:
+{{template "FormatCommands" .Context.SelectedCommand}}
+{{end}}\
+{{else if .App.Commands}}\
+Commands:
+{{template "FormatCommandsForTopLevel" .App}}
+{{end}}\
+`
+
 // RunBuilderCLI runs the builder command, used to validate apps and more
 func (b *AppBuilder) RunBuilderCLI() error {
 	help := `Choria Application Builder
@@ -138,6 +196,22 @@ For help see https://choria-io.github.io/appbuilder/
 	cmd := kingpin.New(b.name, help)
 	cmd.Version(Version)
 	cmd.Author("R.I.Pienaar <rip@devco.net>")
+	cmd.HelpFlag.Hidden()
+	cmd.VersionFlag.Hidden()
+	cmd.HelpFlag.Hidden()
+	cmd.GetFlag("help").Hidden()
+	cmd.UsageTemplate(usageTemplate)
+	cmd.UsageFuncs(template.FuncMap{
+		"FirstLine": func(v string) string {
+			if v == "" {
+				return v
+			}
+
+			scanner := bufio.NewScanner(strings.NewReader(v))
+			scanner.Scan()
+			return scanner.Text()
+		},
+	})
 
 	b.CreateBuilderApp(cmd)
 
@@ -360,7 +434,22 @@ func (b *AppBuilder) runCLI() error {
 	cmd := kingpin.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
 	cmd.Version(b.def.Version)
 	cmd.Author(b.def.Author)
+	cmd.HelpFlag.Hidden()
 	cmd.VersionFlag.Hidden()
+	cmd.HelpFlag.Hidden()
+	cmd.GetFlag("help").Hidden()
+	cmd.UsageTemplate(usageTemplate)
+	cmd.UsageFuncs(template.FuncMap{
+		"FirstLine": func(v string) string {
+			if v == "" {
+				return v
+			}
+
+			scanner := bufio.NewScanner(strings.NewReader(v))
+			scanner.Scan()
+			return scanner.Text()
+		},
+	})
 
 	err = b.registerCommands(cmd, b.def.commands...)
 	if err != nil {

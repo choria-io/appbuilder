@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type Command struct {
