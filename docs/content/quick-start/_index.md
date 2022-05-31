@@ -9,6 +9,8 @@ pre = "<b>1. </b>"
 
 Over on our [Releases](https://github.com/choria-io/appbuilder/releases) page you will find binaries, rpms, debs, zip files and more holding the `appbuilder` command. There is just one command and you can place it anywhere in your path.
 
+If your editor supports it there is a [JSON Schema for the definition](https://choria.io/schemas/appbuilder/v1/application.json).
+
 We publish OS X and Linux homebrew packages:
 
 ```nohighlight
@@ -69,6 +71,7 @@ $ demo say "hello world"
             (__)\       )\/\
                 ||----w |
                 ||     ||
+
 $ demo think "this is pretty cool"
  _____________________
 ( this is pretty cool )

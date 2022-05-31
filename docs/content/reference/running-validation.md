@@ -1,7 +1,7 @@
 +++
 title = "Runtime Settings and Tools"
 toc = true
-index = 40
+index = 70
 +++
 
 When just invoking `appbuilder` various utilities are exposed, your apps also take some Environment Variables as runtime
