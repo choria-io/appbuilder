@@ -5,8 +5,6 @@ weight = 20
 pre = "<b>2. </b>"
 +++
 
-# Reference
-
 ## Command Components
 
 The system primarily is there to execute a type of command somewhere in the hierarchy of a CLI tools sub commands.

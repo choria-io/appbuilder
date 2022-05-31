@@ -1,7 +1,7 @@
 +++
 title = "Templating"
 toc = true
-weight = 25
+weight = 65
 +++
 
 Templates allow you to interpolate values from Flags, Arguments and Configuration into some aspects of commands.

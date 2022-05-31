@@ -4,6 +4,8 @@ weight = 20
 toc = true
 +++
 
+Use the `exec` command to execute commands found in your shell, and, optionally format their output through JQ.
+
 ## Running commands
 
 An exec runs a command, it is identical to the [generic example](../common-settings/) shown earlier and accepts flags, arguments and sub commands.  The only difference is that it adds a `command`, `environment` (since `0.0.3`) and `transform` (since `0.0.5`) items.

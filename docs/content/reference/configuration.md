@@ -1,6 +1,6 @@
 +++
 title = "Configuration"
-weight = 30
+weight = 60
 toc = true
 +++
 
