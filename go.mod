@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.4
 	github.com/adrg/xdg v0.4.0
-	github.com/alecthomas/kingpin v1.3.8-0.20211026191244-551b91efb557
+	github.com/choria-io/fisk v0.1.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/itchyny/gojq v0.12.8
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
@@ -18,8 +18,6 @@ require (
 )
 
 require (
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
-	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
 	github.com/itchyny/timefmt-go v0.1.3 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect

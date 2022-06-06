@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
+	"github.com/choria-io/fisk"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -29,7 +29,7 @@ var _ = Describe("Parent", func() {
 
 	Describe("CreateCommand", func() {
 		It("Should create the command with aliases", func() {
-			cmd := kingpin.New("x", "y")
+			cmd := fisk.New("x", "y")
 			p.def.Name = "ptest"
 			p.def.Description = "ptest description"
 			p.def.Aliases = []string{"p", "x"}

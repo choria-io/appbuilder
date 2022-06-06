@@ -16,21 +16,21 @@ import (
 	"text/template"
 
 	"github.com/adrg/xdg"
-	"github.com/alecthomas/kingpin"
+	"github.com/choria-io/fisk"
 	"github.com/ghodss/yaml"
 	"github.com/tidwall/gjson"
 	"github.com/xlab/tablewriter"
 )
 
 type KingpinCommand interface {
-	Flag(name, help string) *kingpin.FlagClause
-	Command(name, help string) *kingpin.CmdClause
+	Flag(name, help string) *fisk.FlagClause
+	Command(name, help string) *fisk.CmdClause
 }
 
 // Command is the interface a command plugin should implement
 type Command interface {
 	// CreateCommand should add all the flags, sub commands, arguments and more to the app
-	CreateCommand(app KingpinCommand) (*kingpin.CmdClause, error)
+	CreateCommand(app KingpinCommand) (*fisk.CmdClause, error)
 	// SubCommands is the list of defined sub commands, nil if none
 	SubCommands() []json.RawMessage
 	// Validate should validate the properties of the command after creation
@@ -193,7 +193,7 @@ always invoke the symlink.
 
 For help see https://choria-io.github.io/appbuilder/
 `
-	cmd := kingpin.New(b.name, help)
+	cmd := fisk.New(b.name, help)
 	cmd.Version(Version)
 	cmd.Author("R.I.Pienaar <rip@devco.net>")
 	cmd.HelpFlag.Hidden()
@@ -219,7 +219,7 @@ For help see https://choria-io.github.io/appbuilder/
 	return err
 }
 
-func (b *AppBuilder) listAction(_ *kingpin.ParseContext) error {
+func (b *AppBuilder) listAction(_ *fisk.ParseContext) error {
 	sources := append([]string{"."}, b.cfgSources...)
 	var found []string
 
@@ -269,7 +269,7 @@ func (b *AppBuilder) listAction(_ *kingpin.ParseContext) error {
 	return nil
 }
 
-func (b *AppBuilder) infoAction(_ *kingpin.ParseContext) error {
+func (b *AppBuilder) infoAction(_ *fisk.ParseContext) error {
 	fmt.Println("Choria Application Builder")
 	fmt.Println()
 	fmt.Printf("        Debug Logging (BUILDER_DEBUG): %t\n", os.Getenv("BUILDER_DEBUG") != "")
@@ -289,7 +289,7 @@ func (b *AppBuilder) infoAction(_ *kingpin.ParseContext) error {
 	return nil
 }
 
-func (b *AppBuilder) validateAction(_ *kingpin.ParseContext) error {
+func (b *AppBuilder) validateAction(_ *fisk.ParseContext) error {
 	d, err := b.LoadDefinition()
 	if err != nil {
 		return err
@@ -431,7 +431,7 @@ func (b *AppBuilder) runCLI() error {
 		return err
 	}
 
-	cmd := kingpin.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
+	cmd := fisk.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
 	cmd.Version(b.def.Version)
 	cmd.Author(b.def.Author)
 	cmd.HelpFlag.Hidden()

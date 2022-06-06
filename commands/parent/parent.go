@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
+	"github.com/choria-io/fisk"
 )
 
 type Command struct {
@@ -20,7 +20,7 @@ type Command struct {
 }
 
 type Parent struct {
-	cmd *kingpin.CmdClause
+	cmd *fisk.CmdClause
 	def *Command
 }
 
@@ -91,7 +91,7 @@ func (p *Parent) SubCommands() []json.RawMessage {
 	return p.def.Commands
 }
 
-func (p *Parent) CreateCommand(app builder.KingpinCommand) (*kingpin.CmdClause, error) {
+func (p *Parent) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error) {
 	p.cmd = app.Command(p.def.Name, p.def.Description)
 	for _, a := range p.def.Aliases {
 		p.cmd.Alias(a)
