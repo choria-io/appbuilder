@@ -97,11 +97,11 @@ flags:
   - name: ne
     description: Finds nodes with version not equal to the given
     placeholder: VERSION
-    reply_filter: ok() && semver(data("version", "!= {{.Flags.ne}}
+    reply_filter: ok() && semver(data("version", "!= {{.Flags.ne}}"))
   - name: eq
     description: Finds nodes with version equal to the given
     placeholder: VERSION
-    reply_filter: ok() && semver(data("version", "== {{.Flags.eq}}
+    reply_filter: ok() && semver(data("version", "== {{.Flags.eq}}"))
 
 request:
   agent: rpcutil
