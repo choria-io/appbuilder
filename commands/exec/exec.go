@@ -13,8 +13,8 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/choria-io/appbuilder/builder"
+	"github.com/choria-io/fisk"
 	"github.com/kballard/go-shellquote"
 )
 
@@ -30,7 +30,7 @@ type Command struct {
 type Exec struct {
 	Arguments map[string]*string
 	Flags     map[string]*string
-	cmd       *kingpin.CmdClause
+	cmd       *fisk.CmdClause
 	def       *Command
 	ctx       context.Context
 	log       builder.Logger
@@ -110,7 +110,7 @@ func (r *Exec) SubCommands() []json.RawMessage {
 	return r.def.Commands
 }
 
-func (r *Exec) CreateCommand(app builder.KingpinCommand) (*kingpin.CmdClause, error) {
+func (r *Exec) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error) {
 	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.Arguments, r.Flags, r.b.Configuration(), r.runCommand)
 
 	return r.cmd, nil
@@ -150,7 +150,7 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 	return r.def.Transform.FTransformJSON(r.ctx, os.Stdout, out)
 }
 
-func (r *Exec) runCommand(_ *kingpin.ParseContext) error {
+func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	cmd, err := builder.ParseStateTemplate(r.def.Command, r.Arguments, r.Flags, r.b.Configuration())
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
