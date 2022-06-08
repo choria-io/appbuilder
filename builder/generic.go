@@ -27,16 +27,22 @@ func (c *GenericSubCommands) Validate(logger Logger) error {
 	return nil
 }
 
+type GenericCommandCheat struct {
+	Label string `json:"label,omitempty"`
+	Cheat string `json:"cheat"`
+}
+
 // GenericCommand is a typical command with the minimal options all supported
 type GenericCommand struct {
-	Name          string            `json:"name"`
-	Description   string            `json:"description"`
-	Aliases       []string          `json:"aliases"`
-	Type          string            `json:"type"`
-	Arguments     []GenericArgument `json:"arguments"`
-	Flags         []GenericFlag     `json:"flags"`
-	ConfirmPrompt string            `json:"confirm_prompt"`
-	Banner        string            `json:"banner"`
+	Name          string               `json:"name"`
+	Description   string               `json:"description"`
+	Aliases       []string             `json:"aliases"`
+	Type          string               `json:"type"`
+	Arguments     []GenericArgument    `json:"arguments,omitempty"`
+	Flags         []GenericFlag        `json:"flags,omitempty"`
+	ConfirmPrompt string               `json:"confirm_prompt"`
+	Banner        string               `json:"banner"`
+	Cheat         *GenericCommandCheat `json:"cheat,omitempty"`
 }
 
 // Validate ensures the command is well-formed
@@ -51,6 +57,10 @@ func (c *GenericCommand) Validate(logger Logger) error {
 	}
 	if c.Type == "" {
 		errs = append(errs, "command type is required")
+	}
+
+	if c.Cheat != nil && c.Cheat.Cheat == "" {
+		errs = append(errs, "cheats require a body")
 	}
 
 	if len(errs) > 0 {
@@ -144,6 +154,15 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, cfg, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
+	}
+
+	if sc.Cheat != nil {
+		name := sc.Name
+		if sc.Cheat.Label != "" {
+			name = sc.Cheat.Label
+		}
+
+		cmd.Cheat(name, sc.Cheat.Cheat)
 	}
 
 	if arguments != nil {
