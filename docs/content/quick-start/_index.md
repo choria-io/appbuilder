@@ -57,7 +57,7 @@ commands:
         required: true
 ```
 
-Place this file in either `/etc/appbuilder/demo-app.yaml` or `~/.config/appbuilder/demo-app.yaml`.
+Place this file in either `/etc/appbuilder/demo-app.yaml` or `~/.config/appbuilder/demo-app.yaml` (`~/Library/Application Support/appbuilder/demo-app.yaml` on a Mac).
 
 ```nohighlight
 $ sudo mkdir -p /etc/appbuilder/demo-app.yaml
