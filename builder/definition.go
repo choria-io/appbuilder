@@ -10,12 +10,20 @@ import (
 	"strings"
 )
 
+type AppCheat struct {
+	Enabled bool     `json:"enabled,omitempty"`
+	Tags    []string `json:"tags,omitempty"`
+
+	GenericCommandCheat
+}
+
 // Definition defines the entire application, it's the root of the app with all possible sub commands below it
 type Definition struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Version     string `json:"version"`
-	Author      string `json:"author"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Version     string    `json:"version"`
+	Author      string    `json:"author"`
+	Cheats      *AppCheat `json:"cheat"`
 
 	GenericSubCommands
 
