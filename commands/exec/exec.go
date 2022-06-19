@@ -22,6 +22,8 @@ type Command struct {
 	Command     string                    `json:"command"`
 	Environment []string                  `json:"environment"`
 	Transform   *builder.GenericTransform `json:"transform"`
+	Script      string                    `json:"script"`
+	Shell       string                    `json:"shell"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -88,8 +90,12 @@ func (r *Exec) Validate(log builder.Logger) error {
 		errs = append(errs, err.Error())
 	}
 
-	if r.def.Command == "" {
-		errs = append(errs, "a command is required")
+	if r.def.Command == "" && r.def.Script == "" {
+		errs = append(errs, "a command or script is required")
+	}
+
+	if r.def.Command != "" && r.def.Script != "" {
+		errs = append(errs, "only one of command or script is allowed")
 	}
 
 	if r.def.Transform != nil {
@@ -150,16 +156,60 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 	return r.def.Transform.FTransformJSON(r.ctx, os.Stdout, out)
 }
 
-func (r *Exec) runCommand(_ *fisk.ParseContext) error {
-	cmd, err := builder.ParseStateTemplate(r.def.Command, r.Arguments, r.Flags, r.b.Configuration())
-	if err != nil {
-		return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
+func (r *Exec) findShell() []string {
+	if r.def.Shell != "" {
+		parts, err := shellquote.Split(r.def.Shell)
+		if err != nil {
+			return nil
+		}
+
+		if len(parts) == 1 {
+			parts = append(parts, "-c")
+		}
+
+		return parts
 	}
 
-	parts, err := shellquote.Split(cmd)
-	if err != nil {
-		return fmt.Errorf("%w: %v", ErrorInvalidCommand, err)
+	if shell := os.Getenv("SHELL"); shell != "" {
+		return []string{shell, "-c"}
 	}
+
+	if _, err := os.Stat("/bin/bash"); !os.IsNotExist(err) {
+		return []string{"/bin/bash", "-c"}
+	}
+
+	return []string{"/bin/sh", "-c"}
+}
+
+func (r *Exec) runCommand(_ *fisk.ParseContext) error {
+	var cmd string
+	var err error
+	var parts []string
+
+	if r.def.Command != "" {
+		cmd, err = builder.ParseStateTemplate(r.def.Command, r.Arguments, r.Flags, r.b.Configuration())
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
+		}
+
+		parts, err = shellquote.Split(cmd)
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorInvalidCommand, err)
+		}
+	} else {
+		shell := r.findShell()
+		if len(shell) == 0 {
+			return fmt.Errorf("cannot determine shell, set SHELL or shell property")
+		}
+
+		script, err := builder.ParseStateTemplate(r.def.Script, r.Arguments, r.Flags, r.b.Configuration())
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
+		}
+
+		parts = append(shell, script)
+	}
+
 	if len(parts) == 0 {
 		return ErrorInvalidCommand
 	}
