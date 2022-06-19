@@ -16,7 +16,7 @@ Most commands include a standard set of fields - those that do not or have speci
 
 Lets look at how we can produce this command:
 
-```
+```nohighlight
 usage: demo say [<flags>] <message>
 
 Says something using the cowsay command
@@ -37,7 +37,7 @@ It's made up of a `commands` member that has these properties:
 name: example
 description: Example application
 version: 1.0.0
-author: Opertions team <ops@example.net>
+author: Operations team <ops@example.net>
 
 commands:
   - 
@@ -106,3 +106,5 @@ information to users before running a command.  Perhaps to warn them that a conf
         description: The message to send to the terminal
         required: true
 ```
+
+Since version `0.0.7` we support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.

@@ -29,9 +29,31 @@ arguments:
      required: true
 ```
 
-The `command` is how the shell command is specified and we show some [templating](Templating).  This will read the `.Config` hash for a value `Cowsay` if it does not exist it will default to `"cowsay"`. We also see how we can reference the `.Arguments` to access the value supplied by the user, we escape it for shell safety.
+The `command` is how the shell command is specified and we show some [templating](../templating).  This will read the `.Config` hash for a value `Cowsay` if it does not exist it will default to `"cowsay"`. We also see how we can reference the `.Arguments` to access the value supplied by the user, we escape it for shell safety.
 
 We also show how to set environment variables using `environment`, this too will be templated. This was added in version `0.0.3`.
+
+## Shell scripts
+
+A shell script can be added directly to your app, setting `shell` will use that command to run the script, if not set it will use `$SHELL`, `/bin/bash` or `/bin/sh` which ever is found first.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.0.8
+{{% /notice %}}
+
+The script is parsed through [templating](../templating).
+
+```yaml
+name: script
+description: A shell script
+type: exec
+shell: /bin/zsh
+script: |
+  for i in {1..5}
+  do
+    echo "hello world"
+  done
+```
 
 ## Transformation using JQ
 

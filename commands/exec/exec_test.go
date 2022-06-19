@@ -5,6 +5,7 @@
 package exec
 
 import (
+	"os"
 	"testing"
 
 	"github.com/choria-io/appbuilder/builder"
@@ -49,12 +50,12 @@ var _ = Describe("Exec", func() {
 	Describe("Validate", func() {
 		It("Should do generic validations", func() {
 			err := p.Validate(nil)
-			Expect(err).To(MatchError("name is required, description is required, a command is required"))
+			Expect(err).To(MatchError("name is required, description is required, a command or script is required"))
 
 			p.def.GenericCommand.Name = "ginkgo"
 			p.def.GenericCommand.Description = "ginkgo description"
 			err = p.Validate(nil)
-			Expect(err).To(MatchError("a command is required"))
+			Expect(err).To(MatchError("a command or script is required"))
 		})
 
 		It("Should require a command", func() {
@@ -62,11 +63,47 @@ var _ = Describe("Exec", func() {
 			p.def.GenericCommand.Description = "ginkgo description"
 
 			err := p.Validate(nil)
-			Expect(err).To(MatchError("a command is required"))
+			Expect(err).To(MatchError("a command or script is required"))
 
 			p.def.Command = "/bin/echo hello"
 			err = p.Validate(nil)
 			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("Should prevent command and script", func() {
+			p.def.Script = "script"
+			p.def.Command = "x"
+			p.def.Name = "x"
+			p.def.Description = "x"
+
+			err := p.Validate(nil)
+			Expect(err).To(MatchError("only one of command or script is allowed"))
+		})
+	})
+
+	Describe("findShell", func() {
+		It("Should support shell property in the definition", func() {
+			p.def.Shell = "/bin/ginkgo"
+			Expect(p.findShell()).To(Equal([]string{"/bin/ginkgo", "-c"}))
+
+			p.def.Shell = "/bin/ginkgo -c"
+			Expect(p.findShell()).To(Equal([]string{"/bin/ginkgo", "-c"}))
+		})
+
+		It("Should support SHELL", func() {
+			pre := os.Getenv("SHELL")
+			defer func() { os.Setenv("SHELL", pre) }()
+
+			os.Setenv("SHELL", "/bin/ginkgo")
+			Expect(p.findShell()).To(Equal([]string{"/bin/ginkgo", "-c"}))
+		})
+
+		It("Should fall back shell", func() {
+			pre := os.Getenv("SHELL")
+			defer func() { os.Setenv("SHELL", pre) }()
+
+			os.Setenv("SHELL", "")
+			Expect(p.findShell()).To(HaveLen(2))
 		})
 	})
 })
