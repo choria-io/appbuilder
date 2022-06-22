@@ -38,6 +38,7 @@ name: example
 description: Example application
 version: 1.0.0
 author: Operations team <ops@example.net>
+help_template: default # optional
 
 commands:
   - 
@@ -73,6 +74,8 @@ commands:
     # Sub commands to create below this one (optional, but see specific references)
     commands: []
 ```
+
+Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
 
 Since version `0.0.4` if a specific flag or argument has a finite number of options, you can limit it using the `enum` option and we have a `default` option to complement it, here's an example:
 

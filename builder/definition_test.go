@@ -27,7 +27,10 @@ var _ = Describe("Definition", func() {
 			d.Description = "ginkgo example"
 			d.Author = "Ginkgo Tests"
 			d.Commands = []json.RawMessage{[]byte("{}")}
+			d.HelpTemplate = "x"
+			Expect(d.Validate(nil)).To(MatchError("invalid definition: application: help_template must be one of compact, long, default or unset"))
 
+			d.HelpTemplate = "compact"
 			Expect(d.Validate(nil)).To(Succeed())
 		})
 	})

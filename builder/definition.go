@@ -19,11 +19,12 @@ type AppCheat struct {
 
 // Definition defines the entire application, it's the root of the app with all possible sub commands below it
 type Definition struct {
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Version     string    `json:"version"`
-	Author      string    `json:"author"`
-	Cheats      *AppCheat `json:"cheat"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Version      string    `json:"version"`
+	Author       string    `json:"author"`
+	Cheats       *AppCheat `json:"cheat"`
+	HelpTemplate string    `json:"help_template"`
 
 	GenericSubCommands
 
@@ -52,6 +53,11 @@ func (d *Definition) Validate(log Logger) error {
 	}
 	if len(d.Commands) == 0 {
 		errs = append(errs, "no commands defined")
+	}
+
+	ht := strings.TrimSpace(strings.ToLower(d.HelpTemplate))
+	if !(ht == "" || ht == "compact" || ht == "long" || ht == "default") {
+		errs = append(errs, "help_template must be one of compact, long, default or unset")
 	}
 
 	if len(errs) > 0 {
