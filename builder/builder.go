@@ -369,6 +369,15 @@ func (b *AppBuilder) runCLI() error {
 	cmd.HelpFlag.Hidden()
 	cmd.GetFlag("help").Hidden()
 
+	switch strings.TrimSpace(strings.ToLower(b.def.HelpTemplate)) {
+	case "", "default":
+		cmd.UsageTemplate(fisk.ShorterMainUsageTemplate)
+	case "compact":
+		cmd.UsageTemplate(fisk.CompactUsageTemplate)
+	case "long":
+		cmd.UsageTemplate(fisk.KingpinDefaultUsageTemplate)
+	}
+
 	cheats := b.def.Cheats
 	if cheats != nil && (cheats.Enabled || cheats.Cheat != "") {
 		cmd.WithCheats(cheats.Tags...)
