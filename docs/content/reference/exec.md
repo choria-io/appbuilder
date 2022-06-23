@@ -31,7 +31,9 @@ arguments:
 
 The `command` is how the shell command is specified and we show some [templating](../templating).  This will read the `.Config` hash for a value `Cowsay` if it does not exist it will default to `"cowsay"`. We also see how we can reference the `.Arguments` to access the value supplied by the user, we escape it for shell safety.
 
-We also show how to set environment variables using `environment`, this too will be templated. This was added in version `0.0.3`.
+We also show how to set environment variables using `environment`, this too will be templated.
+
+Since version `0.0.9` setting environment variable `BUILDER_DRY_RUN` to any value will enable debug logging, log the command and terminate without calling your command.
 
 ## Shell scripts
 

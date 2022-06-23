@@ -64,7 +64,7 @@ func createBuilder(ctx context.Context, name string, log Logger, opts ...Option)
 	if log == nil {
 		logger := logrus.New()
 		log = logrus.NewEntry(logger).WithField("app", name)
-		if os.Getenv("BUILDER_DEBUG") != "" {
+		if os.Getenv("BUILDER_DEBUG") != "" || os.Getenv("BUILDER_DRY_RUN") != "" {
 			logger.SetLevel(logrus.DebugLevel)
 		} else {
 			logger.SetLevel(logrus.WarnLevel)

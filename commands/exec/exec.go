@@ -122,8 +122,24 @@ func (r *Exec) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error
 	return r.cmd, nil
 }
 
+func (r *Exec) logCommand(cmd string, args []string, env []string) {
+	r.log.Debugf("Executing command %q", cmd)
+
+	for _, e := range env {
+		r.log.Debugf("Environment: %s", e)
+	}
+
+	for i, a := range args {
+		r.log.Debugf("Argument %d: %v", i, a)
+	}
+}
+
 func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
-	r.log.Debugf("Executing %q with arguments %v", cmd, args)
+	r.logCommand(cmd, args, env)
+
+	if os.Getenv("BUILDER_DRY_RUN") != "" {
+		return fmt.Errorf("%s: dry run mode", ErrorExecutionFailed)
+	}
 
 	run := exec.CommandContext(r.ctx, cmd, args...)
 	run.Env = append(os.Environ(), env...)
@@ -140,7 +156,11 @@ func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
 }
 
 func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
-	r.log.Debugf("Executing %q with arguments %v using a transform", cmd, args)
+	r.logCommand(cmd, args, env)
+
+	if os.Getenv("BUILDER_DRY_RUN") == "1" {
+		return fmt.Errorf("%s: dry run mode", ErrorExecutionFailed)
+	}
 
 	run := exec.CommandContext(r.ctx, cmd, args...)
 	run.Env = append(os.Environ(), env...)
@@ -221,7 +241,6 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
 		env = append(env, v)
-		r.log.Debugf("Using environment variable: %v", v)
 	}
 
 	if r.def.Transform == nil {
