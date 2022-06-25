@@ -6,7 +6,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,15 +20,10 @@ func main() {
 	exec.MustRegister()
 
 	name := filepath.Base(os.Args[0])
-	var err error
 
 	if strings.HasPrefix(name, "appbuilder") {
-		err = builder.RunBuilderCLI(context.Background(), true)
-	} else {
-		err = builder.RunStandardCLI(context.Background(), name, true, nil)
+		builder.RunBuilderCLI(context.Background(), true, builder.WithContextualUsageOnError())
 	}
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s failed: %v\n", name, err)
-		os.Exit(1)
-	}
+
+	builder.RunStandardCLI(context.Background(), name, true, nil, builder.WithContextualUsageOnError())
 }

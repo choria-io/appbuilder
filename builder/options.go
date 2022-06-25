@@ -30,3 +30,11 @@ func WithAppDefinitionFile(f string) Option {
 		return nil
 	}
 }
+
+// WithContextualUsageOnError handles application termination by showing contextual help rather than returning an error
+func WithContextualUsageOnError() Option {
+	return func(b *AppBuilder) error {
+		b.exitWithUsage = true
+		return nil
+	}
+}

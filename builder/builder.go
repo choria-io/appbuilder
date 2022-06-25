@@ -45,13 +45,14 @@ type templateState struct {
 
 // AppBuilder is the main runner and configuration handler
 type AppBuilder struct {
-	ctx        context.Context
-	def        *Definition
-	name       string
-	appPath    string
-	cfg        map[string]interface{}
-	cfgSources []string
-	log        Logger
+	ctx           context.Context
+	def           *Definition
+	name          string
+	appPath       string
+	cfg           map[string]interface{}
+	cfgSources    []string
+	log           Logger
+	exitWithUsage bool
 }
 
 var (
@@ -144,6 +145,11 @@ For help see https://choria-io.github.io/appbuilder/
 	cmd.GetFlag("help").Hidden()
 
 	b.CreateBuilderApp(cmd)
+
+	if b.exitWithUsage {
+		cmd.MustParseWithUsage(os.Args[1:])
+		return nil
+	}
 
 	_, err := cmd.Parse(os.Args[1:])
 	return err
@@ -395,6 +401,11 @@ func (b *AppBuilder) runCLI() error {
 	err = b.registerCommands(cmd, b.def.commands...)
 	if err != nil {
 		return err
+	}
+
+	if b.exitWithUsage {
+		cmd.MustParseWithUsage(os.Args[1:])
+		return nil
 	}
 
 	_, err = cmd.Parse(os.Args[1:])
