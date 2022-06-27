@@ -166,6 +166,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 		cmd.Cheat(name, sc.Cheat.Cheat)
 	}
 
+	if sc.ConfirmPrompt != "" {
+		flags["prompt"] = cmd.Flag("prompt", "Disables the interactive confirmation prompt").Default("true").Bool()
+	}
+
 	if arguments != nil {
 		for _, a := range sc.Arguments {
 			arg := cmd.Arg(a.Name, a.Description)
@@ -221,7 +225,9 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 
 func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, cfg map[string]interface{}, handler fisk.Action) fisk.Action {
 	return func(pc *fisk.ParseContext) error {
-		if cmd.ConfirmPrompt != "" {
+		f := dereferenceArgsOrFlags(flags)
+
+		if cmd.ConfirmPrompt != "" && f["prompt"] == true {
 			ans := false
 			err := survey.AskOne(&survey.Confirm{Message: cmd.ConfirmPrompt, Default: false}, &ans)
 			if err != nil {
