@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
 	github.com/adrg/xdg v0.4.0
-	github.com/choria-io/fisk v0.1.5-0.20220625143252-ede8b65f403e
+	github.com/choria-io/fisk v0.1.5
 	github.com/ghodss/yaml v1.0.0
 	github.com/itchyny/gojq v0.12.8
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
