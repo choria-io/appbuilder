@@ -6,6 +6,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,9 +23,19 @@ func main() {
 
 	name := filepath.Base(os.Args[0])
 
+	var err error
+
 	if strings.HasPrefix(name, "appbuilder") {
-		builder.RunBuilderCLI(context.Background(), true, builder.WithContextualUsageOnError())
+		err = builder.RunBuilderCLI(context.Background(), true, builder.WithContextualUsageOnError())
+	} else {
+		err = builder.RunStandardCLI(context.Background(), name, true, nil, builder.WithContextualUsageOnError())
 	}
 
-	builder.RunStandardCLI(context.Background(), name, true, nil, builder.WithContextualUsageOnError())
+	if errors.Is(err, builder.ErrInvalidDefinition) {
+		fmt.Fprintln(os.Stderr, "error: Invalid definition, please use validate to test your definition")
+		os.Exit(1)
+	} else if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
 }

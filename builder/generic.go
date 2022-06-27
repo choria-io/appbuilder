@@ -81,12 +81,13 @@ type GenericArgument struct {
 
 // GenericFlag is a standard command line flag
 type GenericFlag struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Required    bool     `json:"required"`
-	PlaceHolder string   `json:"placeholder"`
-	Enum        []string `json:"enum"`
-	Default     string   `json:"default"`
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Required    bool        `json:"required"`
+	PlaceHolder string      `json:"placeholder"`
+	Enum        []string    `json:"enum"`
+	Default     interface{} `json:"default"`
+	Bool        bool        `json:"bool"`
 }
 
 // GenericTransform is a generic transformation definition
@@ -150,7 +151,7 @@ func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j js
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
-func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]*string, flags map[string]*string, cfg map[string]interface{}, cb fisk.Action) *fisk.CmdClause {
+func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, cfg map[string]interface{}, cb fisk.Action) *fisk.CmdClause {
 	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, cfg, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
@@ -176,9 +177,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				arg.Default(a.Default)
 			}
 
-			if len(a.Enum) > 0 {
+			switch {
+			case len(a.Enum) > 0:
 				arguments[a.Name] = arg.Enum(a.Enum...)
-			} else {
+			default:
 				arguments[a.Name] = arg.String()
 			}
 		}
@@ -195,13 +197,20 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				flag.PlaceHolder(f.PlaceHolder)
 			}
 
-			if f.Default != "" {
-				flag.Default(f.Default)
+			if f.Default != nil {
+				flag.Default(fmt.Sprintf("%v", f.Default))
 			}
 
-			if len(f.Enum) > 0 {
+			switch {
+			case len(f.Enum) > 0:
 				flags[f.Name] = flag.Enum(f.Enum...)
-			} else {
+			case f.Bool:
+				if f.Default == true || f.Default == "true" {
+					flags[f.Name] = flag.Bool()
+				} else {
+					flags[f.Name] = flag.UnNegatableBool()
+				}
+			default:
 				flags[f.Name] = flag.String()
 			}
 		}
@@ -210,7 +219,7 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 	return cmd
 }
 
-func runWrapper(cmd GenericCommand, arguments map[string]*string, flags map[string]*string, cfg map[string]interface{}, handler fisk.Action) fisk.Action {
+func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, cfg map[string]interface{}, handler fisk.Action) fisk.Action {
 	return func(pc *fisk.ParseContext) error {
 		if cmd.ConfirmPrompt != "" {
 			ans := false
