@@ -39,7 +39,7 @@ func NewParentCommand(_ *builder.AppBuilder, j json.RawMessage, _ builder.Logger
 
 	err := json.Unmarshal(j, parent.def)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
 	}
 
 	return parent, nil

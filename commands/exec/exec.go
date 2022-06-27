@@ -30,8 +30,8 @@ type Command struct {
 }
 
 type Exec struct {
-	Arguments map[string]*string
-	Flags     map[string]*string
+	Arguments map[string]interface{}
+	Flags     map[string]interface{}
 	cmd       *fisk.CmdClause
 	def       *Command
 	ctx       context.Context
@@ -59,13 +59,13 @@ func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 		ctx:       b.Context(),
 		b:         b,
 		log:       log,
-		Arguments: map[string]*string{},
-		Flags:     map[string]*string{},
+		Arguments: map[string]interface{}{},
+		Flags:     map[string]interface{}{},
 	}
 
 	err := json.Unmarshal(j, exec.def)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
 	}
 
 	return exec, nil

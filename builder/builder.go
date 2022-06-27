@@ -277,12 +277,12 @@ func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
 	d := &Definition{}
 	cfgj, err := yaml.YAMLToJSON(cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
 	}
 
 	err = json.Unmarshal(cfgj, d)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
 	}
 
 	return d, nil
@@ -304,10 +304,19 @@ func (b *AppBuilder) LoadDefinition() (*Definition, error) {
 		return nil, err
 	}
 
-	return d, b.createCommands(d, d.Commands)
+	err = b.createCommands(d, d.Commands)
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }
 
 func (b *AppBuilder) createCommands(d *Definition, defs []json.RawMessage) error {
+	if len(defs) == 0 {
+		return fmt.Errorf("%w: no definitions found", ErrInvalidDefinition)
+	}
+
 	for _, c := range defs {
 		cmd, err := b.createCommand(c)
 		if err != nil {
@@ -509,5 +518,10 @@ func (b *AppBuilder) createCommand(def json.RawMessage) (Command, error) {
 		return nil, err
 	}
 
-	return cons(b, def, b.log)
+	cmd, err := cons(b, def, b.log)
+	if err != nil {
+		return nil, err
+	}
+
+	return cmd, nil
 }

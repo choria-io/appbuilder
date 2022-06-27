@@ -8,16 +8,33 @@ import (
 	"bytes"
 	"errors"
 	"os"
+	"reflect"
 	"text/template"
 
 	"gopkg.in/alessio/shellescape.v1"
 )
 
+func dereferenceArgsOrFlags(input map[string]interface{}) map[string]interface{} {
+	res := map[string]interface{}{}
+	for k, v := range input {
+		e := reflect.ValueOf(v).Elem()
+
+		// the only kinds of values we support
+		if e.Kind() == reflect.Bool {
+			res[k] = e.Bool()
+		} else {
+			res[k] = e.String()
+		}
+	}
+
+	return res
+}
+
 // ParseStateTemplate parses body as a go text template with supplied values exposed to the user
-func ParseStateTemplate(body string, args interface{}, flags interface{}, cfg interface{}) (string, error) {
+func ParseStateTemplate(body string, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (string, error) {
 	state := templateState{
-		Arguments: args,
-		Flags:     flags,
+		Arguments: dereferenceArgsOrFlags(args),
+		Flags:     dereferenceArgsOrFlags(flags),
 		Config:    cfg,
 	}
 
