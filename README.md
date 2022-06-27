@@ -12,7 +12,7 @@ more all in one friendly CLI tool that's easy to use and share.
 
 ## Status
 
-This is a brand new project that's under active development, we are extracting the core out of the maain Choria project
-into a standalone component.
+The core features are stable, and we've hit a point of feature stability and completeness. We are actively exploring
+[future ideas](https://github.com/choria-io/appbuilder/issues?q=is%3Aissue+is%3Aopen+label%3Aideas) and improving UX.
 
 There is a [video introducing the idea behind it](https://youtu.be/wbu3N63WY7Y).
