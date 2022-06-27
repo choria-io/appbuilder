@@ -111,3 +111,26 @@ information to users before running a command.  Perhaps to warn them that a conf
 ```
 
 Since version `0.0.7` we support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
+
+### Boolean Flags
+
+We support boolean flags since version `0.1.1`:
+
+```yaml
+  - name: delete
+    description: Delete the data
+    type: exec
+    command: |
+      {{if .Flags.force}}
+      rm -rfv /data
+      {{else}}
+      echo "Please pass --force to delete the data"
+      {{end}}
+    flags:
+      - name: force
+        description: Required to pass when removing data
+        bool: true
+```
+
+Here we have a `--force` flag that is used to influence the command.  Booleans can have their default set to `true` or `"true`" which will then add a `--no-flag-name` option added to negate it.
+
