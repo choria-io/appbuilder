@@ -112,6 +112,21 @@ information to users before running a command.  Perhaps to warn them that a conf
 
 Since version `0.0.7` we support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
 
+### Confirmations
+
+You can prompt for confirmation from a user for performing an action:
+
+```yaml
+  - name: delete
+    description: Delete the data
+    type: exec
+    confirm_prompt: "Really?"
+    command: rm -rf /nonexisting
+```
+
+Before running the command the user will be prompted to confirm he wish to do it.  Since version `0.2.0` an option will
+be added to the CLI allowing you to skip the prompt using `--no-prompt`.
+
 ### Boolean Flags
 
 We support boolean flags since version `0.1.1`:
@@ -122,7 +137,7 @@ We support boolean flags since version `0.1.1`:
     type: exec
     command: |
       {{if .Flags.force}}
-      rm -rfv /data
+      rm -rfv /nonexisting
       {{else}}
       echo "Please pass --force to delete the data"
       {{end}}
