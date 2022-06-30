@@ -4,6 +4,10 @@
 
 package builder
 
+import (
+	"io"
+)
+
 // Option configures the builder
 type Option func(*AppBuilder) error
 
@@ -35,6 +39,22 @@ func WithAppDefinitionFile(f string) Option {
 func WithContextualUsageOnError() Option {
 	return func(b *AppBuilder) error {
 		b.exitWithUsage = true
+		return nil
+	}
+}
+
+// WithStdout configures a standard out handle to output
+func WithStdout(w io.Writer) Option {
+	return func(b *AppBuilder) error {
+		b.stdOut = w
+		return nil
+	}
+}
+
+// WithStderr configures a standard error out handle to output
+func WithStderr(w io.Writer) Option {
+	return func(b *AppBuilder) error {
+		b.stdErr = w
 		return nil
 	}
 }

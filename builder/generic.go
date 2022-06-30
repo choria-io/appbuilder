@@ -63,6 +63,12 @@ func (c *GenericCommand) Validate(logger Logger) error {
 		errs = append(errs, "cheats require a body")
 	}
 
+	for _, f := range c.Flags {
+		if len(f.Short) > 1 {
+			errs = append(errs, fmt.Sprintf("short flag for %s must be 1 character", f.Name))
+		}
+	}
+
 	if len(errs) > 0 {
 		return errors.New(strings.Join(errs, ", "))
 	}
@@ -88,12 +94,13 @@ type GenericFlag struct {
 	Enum        []string    `json:"enum"`
 	Default     interface{} `json:"default"`
 	Bool        bool        `json:"bool"`
+	EnvVar      string      `json:"env"`
+	Short       string      `json:"short"`
 }
 
 // GenericTransform is a generic transformation definition
 type GenericTransform struct {
 	Query string `json:"query"`
-	q     *gojq.Query
 }
 
 // Validate parses and validates the JQ query
@@ -104,7 +111,7 @@ func (t *GenericTransform) Validate(log Logger) error {
 
 	var err error
 
-	t.q, err = gojq.Parse(t.Query)
+	_, err = gojq.Parse(t.Query)
 	if err != nil {
 		return err
 	}
@@ -113,8 +120,8 @@ func (t *GenericTransform) Validate(log Logger) error {
 }
 
 // FTransformJSON transforms json input via query and write the output to the writer
-func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j json.RawMessage) error {
-	if t.q == nil {
+func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, args map[string]interface{}, flags map[string]interface{}, cfg interface{}, j json.RawMessage) error {
+	if t.Query == "" {
 		return fmt.Errorf("no query")
 	}
 
@@ -124,7 +131,17 @@ func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j js
 		return fmt.Errorf("json output parse error: %v", err)
 	}
 
-	iter := t.q.RunWithContext(ctx, input)
+	query, err := ParseStateTemplate(t.Query, args, flags, cfg)
+	if err != nil {
+		return err
+	}
+
+	q, err := gojq.Parse(query)
+	if err != nil {
+		return err
+	}
+
+	iter := q.RunWithContext(ctx, input)
 	for {
 		v, ok := iter.Next()
 		if !ok {
@@ -151,8 +168,8 @@ func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, j js
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
-func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, cfg map[string]interface{}, cb fisk.Action) *fisk.CmdClause {
-	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, cfg, cb))
+func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
+	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, b, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
 	}
@@ -205,6 +222,14 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				flag.Default(fmt.Sprintf("%v", f.Default))
 			}
 
+			if f.EnvVar != "" {
+				flag.Envar(f.EnvVar)
+			}
+
+			if f.Short != "" {
+				flag.Short([]rune(f.Short)[0])
+			}
+
 			switch {
 			case len(f.Enum) > 0:
 				flags[f.Name] = flag.Enum(f.Enum...)
@@ -223,7 +248,7 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 	return cmd
 }
 
-func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, cfg map[string]interface{}, handler fisk.Action) fisk.Action {
+func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, b *AppBuilder, handler fisk.Action) fisk.Action {
 	return func(pc *fisk.ParseContext) error {
 		f := dereferenceArgsOrFlags(flags)
 
@@ -239,13 +264,13 @@ func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[
 		}
 
 		if cmd.Banner != "" {
-			b, err := ParseStateTemplate(cmd.Banner, arguments, flags, cfg)
+			txt, err := ParseStateTemplate(cmd.Banner, arguments, flags, b.Configuration())
 			if err != nil {
 				return err
 			}
 
-			if b != "" {
-				fmt.Println(b)
+			if txt != "" {
+				fmt.Fprintln(b.stdOut, txt)
 			}
 		}
 

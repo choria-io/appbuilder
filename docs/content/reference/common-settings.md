@@ -77,18 +77,6 @@ commands:
 
 Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
 
-Since version `0.0.4` if a specific flag or argument has a finite number of options, you can limit it using the `enum` option and we have a `default` option to complement it, here's an example:
-
-```yaml
-flags:
-  - name: eyes
-    description: Control the eyes of the cow
-    enum: ["*", "+", "x", "@"]
-    default: "+"
-```
-
-If any option other than those are supplied an error will be raised. If `--eyes` is not given it will default to `+`.
-
 Since version `0.0.6` you can emit a banner before invoking the commands in an exec, use this to show a warning or extra
 information to users before running a command.  Perhaps to warn them that a config override is in use like here:
 
@@ -112,22 +100,38 @@ information to users before running a command.  Perhaps to warn them that a conf
 
 Since version `0.0.7` we support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
 
-### Confirmations
+#### Arguments
 
-You can prompt for confirmation from a user for performing an action:
+An `argument` is a positional input to a command. `example say hello`, when the command is `say` the `hello` would be the first argument.
 
-```yaml
-  - name: delete
-    description: Delete the data
-    type: exec
-    confirm_prompt: "Really?"
-    command: rm -rf /nonexisting
-```
+Arguments can have many options, the table below detail them and the version that added them.
 
-Before running the command the user will be prompted to confirm he wish to do it.  Since version `0.2.0` an option will
-be added to the CLI allowing you to skip the prompt using `--no-prompt`.
+| Option        | Description                                                                                                             | Required | Version |
+|---------------|-------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `name`        | A unique name for each flag                                                                                             | yes      |         |
+| `description` | A description for this flag, typically 1 line                                                                           | yes      |         |
+| `required`    | Indicates that a value for this flag must be set, which includes being set from default                                 |          |         |
+| `enum`        | An array of valid values, if set the flag must be one of these values                                                   |          | 0.0.4   |
+| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`              |          | 0.0.4   |
 
-### Boolean Flags
+
+#### Flags
+
+A `flag` is a option passed to the application using something like `--flag`, typically these are used for optional inputs. Flags can have many options, the table below detail them and the version that added them.
+
+| Option        | Description                                                                                                             | Required | Version |
+|---------------|-------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `name`        | A unique name for each flag                                                                                             | yes      |         |
+| `description` | A description for this flag, typically 1 line                                                                           | yes      |         |
+| `required`    | Indicates that a value for this flag must be set, which includes being set from default                                 |          |         |
+| `placeholder` | Will show this text in the help output like `--cowfile=FILE`                                                            |          |         |
+ | `enum`        | An array of valid values, if set the flag must be one of these values                                                   |          | 0.0.4   |
+| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`              |          | 0.0.4   |
+| `bool`        | Indicates that the flag is a boolean (see below)                                                                        |          | 0.1.1   |
+| `env`         | Will load the value from an environment variable if set, passing the flag specifically wins, then the env, then default |          | 0.1.2   |
+| `short`       | A single character that can be used instead of the `name` to access this flag. ie. `--cowfile` might also be `-F`       |          | 0.1.2   |
+
+##### Boolean Flags
 
 We support boolean flags since version `0.1.1`:
 
@@ -148,4 +152,19 @@ We support boolean flags since version `0.1.1`:
 ```
 
 Here we have a `--force` flag that is used to influence the command.  Booleans can have their default set to `true` or `"true`" which will then add a `--no-flag-name` option added to negate it.
+
+### Confirmations
+
+You can prompt for confirmation from a user for performing an action:
+
+```yaml
+  - name: delete
+    description: Delete the data
+    type: exec
+    confirm_prompt: "Really?"
+    command: rm -rf /nonexisting
+```
+
+Before running the command the user will be prompted to confirm he wish to do it.  Since version `0.2.0` an option will
+be added to the CLI allowing you to skip the prompt using `--no-prompt`.
 

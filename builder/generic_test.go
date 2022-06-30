@@ -95,16 +95,16 @@ var _ = Describe("GenericTransform", func() {
 	Describe("FTransformJSON", func() {
 		It("Should transform using the query", func() {
 			out := bytes.NewBuffer([]byte{})
-			err := trans.FTransformJSON(context.Background(), out, []byte(`{"hello":"world"`))
+			err := trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{"hello":"world"`))
 			Expect(err).To(MatchError("no query"))
 
 			trans.Query = ".hello"
 			Expect(trans.Validate(nil)).To(Succeed())
 
-			err = trans.FTransformJSON(context.Background(), out, []byte(`{`))
+			err = trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{`))
 			Expect(err).To(MatchError("json output parse error: unexpected end of JSON input"))
 
-			err = trans.FTransformJSON(context.Background(), out, []byte(`{"hello":"world"}`))
+			err = trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{"hello":"world"}`))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(out.String()).To(Equal("world\n"))
 		})
