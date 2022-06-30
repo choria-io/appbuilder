@@ -1,0 +1,174 @@
+name: sample
+description: A sample application demonstrating App Builder features
+version: 0.1.1
+author: R.I.Pienaar <rip@devco.net>
+
+# We set the 'long' template, this is a small command
+# with few sub commands and the longer output remains
+# easily consumed
+help_template: long
+
+# A top level cheat block enables cheats in general for this application,
+# see other cheats added later on under exec
+cheat:
+  label: sample
+  cheat: |
+    # to see all the commands available
+    sample --help-compact
+
+commands:
+  - name: basics
+    description: Demonstrates basic features such as flags and arguments
+    type: parent
+    commands:
+      # Demonstrates the use of arguments and flags, mixing in arguments for main
+      # functionality and flags for optional behavior changes.
+      #
+      # Also uses Go templates to adjust the command based on the flags given and
+      # checks input is valid.
+      - name: required
+        description: Greet someone by name, name+surname with a customizable greeting
+        type: exec
+        # Here we use arguments for the name and surname, the name is required but surname is optional.
+        arguments:
+          - name: name
+            description: The name of the person to greet
+            required: true
+          - name: surname
+            description: An optional surname of the person to greet
+        # We add an optional flag to override the "Hello" greeting
+        # It accepts only one of the 3 valid values
+        flags:
+          - name: greeting
+            description: The greeting to use instead of Hello
+            default: Hello
+            env: GREETING
+            short: g
+            enum:
+              - Hello
+              - Morning
+              - Halo
+
+        # We use go templates and the default + require functions to ensure users do not set empty
+        # strings such as "sample basics required ''" which would set the name to an empty string,
+        # in that case we would fail stating a name is required.transform:
+        #
+        # In the case of an empty greeting, we fall back to the default "Hello"
+        command: |
+          {{ if .Arguments.surname }}
+            echo '{{ .Flags.greeting }} {{.Arguments.surname}}, {{ require .Arguments.name "a name is required" }} {{.Arguments.surname}}'
+          {{ else }}
+            echo '{{ .Flags.greeting }} {{ require .Arguments.name "a name is required" }}'
+          {{ end }}
+
+      # Here we add 2 boolean flags, the "banner" flag will have --no-banner and --banner
+      # flags added as it's defaulting to true
+      #
+      # The "silent" flag will not have --no-silent as the default is false
+      - name: booleans
+        description: Demonstrates the use of boolean flags
+        type: exec
+        flags:
+          - name: banner
+            description: Includes a descriptive banner
+            default: true
+            bool: true
+          - name: silent
+            description: Do not produce any output
+            bool: true
+
+        # Here we use a shell script to demonstrate accessing variables and doing
+        # logic on those variables, booleans will always be "true" and "false" strings
+        # in this pattern
+        shell: /bin/bash
+        script: |
+          if [ "{{ .Flags.silent }}" == "false" ]
+          then
+            if [ "{{ .Flags.banner }}" == "true" ]
+            then
+              echo ">> This is a banner describing the command, can be disabled with --no-banner"
+              echo ">> The command just shows "hello world" unless --silent is passed"
+              echo
+            fi
+          
+            echo "Hello world"
+          fi
+          
+
+  - name: exec
+    description: Demonstrate exec features
+    type: parent
+
+    commands:
+      # The confirm_prompt will require user enters y/n before running the command,
+      # it will also add --no-prompt as an option to skip the prompt from within scripts
+      - name: confirm
+        description: Demonstrates use of confirm_prompt to ask for confirmation
+        type: exec
+        # adds a specific cheat accessible as "sample cheat exec"
+        cheat:
+          label: exec
+          cheat: |
+            # to be asked a confirmation
+            sample exec confirm
+            sample exec confirm --no-prompt
+        confirm_prompt: Are you sure you wish to execute the command
+        command: echo "execution confirmed, will run command"
+
+      # Banners are shown to users before a command is run, use this if for example you will
+      # run a command through sudo to explain that the user will need to enter his password, or
+      # really just any time you want to pass on information to the user about the workings of
+      # a command
+      - name: banner
+        description: Demonstrates a warning banner above the execution
+        type: exec
+        banner: |
+          >>> 
+          >>> This is a banner shown above the command, use it to warn or inform
+          >>> users about details about your command
+          >>>
+        command: echo "Command output"
+
+      # Here we set an environment variable from a input argument and access it in the script
+      - name: env
+        description: Demonstrates setting custom environment variables from a required argument
+        type: exec
+        arguments:
+          - name: value
+            description: The value to pass into the environment
+            required: true
+        environment:
+          - APPVAR="{{.Arguments.value}}"
+        script: |
+          echo "The supplied value set in APPVAR: ${APPVAR?}"
+
+      # This fetches the latest release information from GitHub
+      # and transform the JSON response using JQ to show latest
+      # release and release notes.
+      #
+      # It requires curl in your PATH and access to the internet.
+      - name: jq
+        description: Demonstrates transforming data using jq
+
+        type: exec
+        arguments:
+          - name: owner
+            description: Sets a repository owner to query
+            default: choria-io
+          - name: repo
+            description: Sets a repository name to query
+            default: appbuilder
+
+        banner: |
+          >>> 
+          >>> This command uses curl to fetch data from GitHub
+          >>>
+        transform:
+          query: |
+            if ( .message | length ) == 0 then
+              "The latest release is: " + .name + "\n\n" + .body
+            else
+              "Release lookup failed: " + .message + "\n\n"
+            end
+        command: | 
+          curl -s https://api.github.com/repos/{{ .Arguments.owner }}/{{ .Arguments.repo }}/releases/latest

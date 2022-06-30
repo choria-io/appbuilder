@@ -15,4 +15,6 @@ more all in one friendly CLI tool that's easy to use and share.
 The core features are stable, and we've hit a point of feature stability and completeness. We are actively exploring
 [future ideas](https://github.com/choria-io/appbuilder/issues?q=is%3Aissue+is%3Aopen+label%3Aideas) and improving UX.
 
+The Go API for embedding builder in other applications is not yet stable.
+
 There is a [video introducing the idea behind it](https://youtu.be/wbu3N63WY7Y).

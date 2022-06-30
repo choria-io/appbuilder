@@ -34,3 +34,13 @@ func (l *defaultLogger) Errorf(format string, v ...interface{}) {
 func (l *defaultLogger) Debugf(format string, v ...interface{}) {
 	log.Printf(format, v...)
 }
+
+type NoopLogger struct{}
+
+func (n NoopLogger) Debugf(format string, v ...interface{}) {}
+
+func (n NoopLogger) Infof(format string, v ...interface{}) {}
+
+func (n NoopLogger) Warnf(format string, v ...interface{}) {}
+
+func (n NoopLogger) Errorf(format string, v ...interface{}) {}

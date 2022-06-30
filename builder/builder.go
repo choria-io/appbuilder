@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,6 +52,8 @@ type AppBuilder struct {
 	appPath       string
 	cfg           map[string]interface{}
 	cfgSources    []string
+	stdOut        io.Writer
+	stdErr        io.Writer
 	log           Logger
 	exitWithUsage bool
 }
@@ -78,10 +81,12 @@ Contact: %s
 // New creates a new CLI Builder
 func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) {
 	builder := &AppBuilder{
-		cfg:  make(map[string]interface{}),
-		ctx:  ctx,
-		name: name,
-		log:  &defaultLogger{},
+		cfg:    make(map[string]interface{}),
+		ctx:    ctx,
+		name:   name,
+		stdOut: os.Stdout,
+		stdErr: os.Stderr,
+		log:    &defaultLogger{},
 		cfgSources: []string{
 			filepath.Join(xdg.ConfigHome, "appbuilder"),
 			"/etc/appbuilder",
@@ -98,6 +103,16 @@ func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) 
 	}
 
 	return builder, nil
+}
+
+// Stdout is the target for writing errors
+func (b *AppBuilder) Stdout() io.Writer {
+	return b.stdOut
+}
+
+// Stderr is the target for writing errors
+func (b *AppBuilder) Stderr() io.Writer {
+	return b.stdErr
 }
 
 // Configuration is the loaded configuration, valid only after LoadConfig() is called, usually done during RunCommand()
@@ -143,6 +158,8 @@ For help see https://choria-io.github.io/appbuilder/
 	cmd.VersionFlag.Hidden()
 	cmd.HelpFlag.Hidden()
 	cmd.GetFlag("help").Hidden()
+	cmd.UsageWriter(b.stdErr)
+	cmd.ErrorWriter(b.stdErr)
 
 	b.CreateBuilderApp(cmd)
 
@@ -363,19 +380,7 @@ func (b *AppBuilder) LoadConfig() (map[string]interface{}, error) {
 	return cfg, nil
 }
 
-func (b *AppBuilder) runCLI() error {
-	var err error
-
-	b.cfg, err = b.LoadConfig()
-	if err != nil && !errors.Is(err, ErrConfigNotFound) {
-		return err
-	}
-
-	b.def, err = b.LoadDefinition()
-	if err != nil {
-		return err
-	}
-
+func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 	cmd := fisk.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
 	cmd.Version(b.def.Version)
 	cmd.Author(b.def.Author)
@@ -383,6 +388,8 @@ func (b *AppBuilder) runCLI() error {
 	cmd.VersionFlag.Hidden()
 	cmd.HelpFlag.Hidden()
 	cmd.GetFlag("help").Hidden()
+	cmd.UsageWriter(b.stdErr)
+	cmd.ErrorWriter(b.stdErr)
 
 	switch strings.TrimSpace(strings.ToLower(b.def.HelpTemplate)) {
 	case "", "default":
@@ -407,7 +414,45 @@ func (b *AppBuilder) runCLI() error {
 		cmd.Help = fmt.Sprintf("%s\n\nUse '%s cheat' to access cheat sheet style help", cmd.Help, b.name)
 	}
 
-	err = b.registerCommands(cmd, b.def.commands...)
+	err := b.registerCommands(cmd, b.def.commands...)
+	if err != nil {
+		return nil, err
+	}
+
+	return cmd, nil
+}
+
+// FiskApplication loads the definition and returns a fisk application
+func (b *AppBuilder) FiskApplication() (*fisk.Application, error) {
+	var err error
+
+	b.cfg, err = b.LoadConfig()
+	if err != nil && !errors.Is(err, ErrConfigNotFound) {
+		return nil, err
+	}
+
+	b.def, err = b.LoadDefinition()
+	if err != nil {
+		return nil, err
+	}
+
+	return b.createAppCLI()
+}
+
+func (b *AppBuilder) runCLI() error {
+	var err error
+
+	b.cfg, err = b.LoadConfig()
+	if err != nil && !errors.Is(err, ErrConfigNotFound) {
+		return err
+	}
+
+	b.def, err = b.LoadDefinition()
+	if err != nil {
+		return err
+	}
+
+	cmd, err := b.FiskApplication()
 	if err != nil {
 		return err
 	}
@@ -429,9 +474,7 @@ func (b *AppBuilder) findConfigFile(name string, override string) (string, error
 		sources = append([]string{cur}, sources...)
 	}
 
-	if b.log != nil {
-		b.log.Debugf("Searching for config %s in %s with override %q", name, strings.Join(sources, ", "), override)
-	}
+	b.log.Debugf("Searching for config %s in %s with override %q", name, strings.Join(sources, ", "), override)
 
 	source := override
 	if source == "" {

@@ -30,8 +30,8 @@ type Command struct {
 }
 
 type Exec struct {
-	Arguments map[string]interface{}
-	Flags     map[string]interface{}
+	arguments map[string]interface{}
+	flags     map[string]interface{}
 	cmd       *fisk.CmdClause
 	def       *Command
 	ctx       context.Context
@@ -59,8 +59,8 @@ func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 		ctx:       b.Context(),
 		b:         b,
 		log:       log,
-		Arguments: map[string]interface{}{},
-		Flags:     map[string]interface{}{},
+		arguments: map[string]interface{}{},
+		flags:     map[string]interface{}{},
 	}
 
 	err := json.Unmarshal(j, exec.def)
@@ -117,7 +117,7 @@ func (r *Exec) SubCommands() []json.RawMessage {
 }
 
 func (r *Exec) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error) {
-	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.Arguments, r.Flags, r.b.Configuration(), r.runCommand)
+	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.arguments, r.flags, r.b, r.runCommand)
 
 	return r.cmd, nil
 }
@@ -144,8 +144,8 @@ func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
 	run := exec.CommandContext(r.ctx, cmd, args...)
 	run.Env = append(os.Environ(), env...)
 	run.Stdin = os.Stdin
-	run.Stdout = os.Stdout
-	run.Stderr = os.Stderr
+	run.Stdout = r.b.Stdout()
+	run.Stderr = r.b.Stderr()
 
 	err := run.Run()
 	if err != nil {
@@ -166,14 +166,14 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 	run.Env = append(os.Environ(), env...)
 
 	run.Stdin = os.Stdin
-	run.Stderr = os.Stderr
+	run.Stderr = r.b.Stderr()
 
 	out, err := run.Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %v", ErrorExecutionFailed, err)
 	}
 
-	return r.def.Transform.FTransformJSON(r.ctx, os.Stdout, out)
+	return r.def.Transform.FTransformJSON(r.ctx, r.b.Stdout(), r.arguments, r.flags, r.b.Configuration(), out)
 }
 
 func (r *Exec) findShell() []string {
@@ -207,7 +207,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	var parts []string
 
 	if r.def.Command != "" {
-		cmd, err = builder.ParseStateTemplate(r.def.Command, r.Arguments, r.Flags, r.b.Configuration())
+		cmd, err = builder.ParseStateTemplate(r.def.Command, r.arguments, r.flags, r.b.Configuration())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -222,7 +222,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 			return fmt.Errorf("cannot determine shell, set SHELL or shell property")
 		}
 
-		script, err := builder.ParseStateTemplate(r.def.Script, r.Arguments, r.Flags, r.b.Configuration())
+		script, err := builder.ParseStateTemplate(r.def.Script, r.arguments, r.flags, r.b.Configuration())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -236,7 +236,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 
 	var env []string
 	for _, e := range r.def.Environment {
-		v, err := builder.ParseStateTemplate(e, r.Arguments, r.Flags, r.b.Configuration())
+		v, err := builder.ParseStateTemplate(e, r.arguments, r.flags, r.b.Configuration())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
