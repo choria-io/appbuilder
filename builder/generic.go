@@ -5,16 +5,13 @@
 package builder
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/choria-io/fisk"
-	"github.com/itchyny/gojq"
 )
 
 // GenericSubCommands is the typical sub commands most commands support, custom plugins can choose to use this if they support sub commands
@@ -96,73 +93,6 @@ type GenericFlag struct {
 	Bool        bool        `json:"bool"`
 	EnvVar      string      `json:"env"`
 	Short       string      `json:"short"`
-}
-
-// GenericTransform is a generic transformation definition
-type GenericTransform struct {
-	Query string `json:"query"`
-}
-
-// Validate parses and validates the JQ query
-func (t *GenericTransform) Validate(log Logger) error {
-	if t == nil || t.Query == "" {
-		return fmt.Errorf("no query supplied")
-	}
-
-	var err error
-
-	_, err = gojq.Parse(t.Query)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// FTransformJSON transforms json input via query and write the output to the writer
-func (t *GenericTransform) FTransformJSON(ctx context.Context, w io.Writer, args map[string]interface{}, flags map[string]interface{}, cfg interface{}, j json.RawMessage) error {
-	if t.Query == "" {
-		return fmt.Errorf("no query")
-	}
-
-	input := map[string]interface{}{}
-	err := json.Unmarshal(j, &input)
-	if err != nil {
-		return fmt.Errorf("json output parse error: %v", err)
-	}
-
-	query, err := ParseStateTemplate(t.Query, args, flags, cfg)
-	if err != nil {
-		return err
-	}
-
-	q, err := gojq.Parse(query)
-	if err != nil {
-		return err
-	}
-
-	iter := q.RunWithContext(ctx, input)
-	for {
-		v, ok := iter.Next()
-		if !ok {
-			break
-		}
-
-		switch val := v.(type) {
-		case error:
-			return val
-		case string:
-			fmt.Fprintln(w, val)
-		default:
-			j, err := json.MarshalIndent(val, "", "  ")
-			if err != nil {
-				return err
-			}
-			fmt.Fprintln(w, string(j))
-		}
-	}
-
-	return nil
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments

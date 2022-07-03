@@ -51,7 +51,7 @@ commands:
 
         # We use go templates and the default + require functions to ensure users do not set empty
         # strings such as "sample basics required ''" which would set the name to an empty string,
-        # in that case we would fail stating a name is required.transform:
+        # in that case we would fail stating a name is required.
         #
         # In the case of an empty greeting, we fall back to the default "Hello"
         command: |
@@ -164,11 +164,49 @@ commands:
           >>> This command uses curl to fetch data from GitHub
           >>>
         transform:
-          query: |
-            if ( .message | length ) == 0 then
-              "The latest release is: " + .name + "\n\n" + .body
-            else
-              "Release lookup failed: " + .message + "\n\n"
-            end
+          jq:
+            query: |
+              if ( .message | length ) == 0 then
+                "The latest release is: " + .name + "\n\n" + .body
+              else
+                "Release lookup failed: " + .message + "\n\n"
+              end
         command: | 
           curl -s https://api.github.com/repos/{{ .Arguments.owner }}/{{ .Arguments.repo }}/releases/latest
+
+      - name: linegraph
+        description: Draws an ASCII line graph
+        type: exec
+        flags:
+          - name: caption
+            description: The graph caption
+            default: Hourly weather forecast (C)
+        transform:
+          pipeline:
+            - jq:
+                query: |
+                  .weather[0].hourly|.[]|.FeelsLikeC
+            - line_graph:
+                width: 40
+                height: 10
+                caption: "{{ .Flags.caption }}"
+        command: |
+          curl -s wttr.in/?format=j1
+
+      - name: bargraph
+        description: Draws an ASCII bar graph
+        type: exec
+        flags:
+          - name: caption
+            description: The graph caption
+            default: Latest release asset sizes
+        transform:
+          pipeline:
+            - jq:
+                query: |
+                  .assets|map({(.name): .size})|reduce .[] as $a ({}; . + $a)
+            - bar_graph:
+                caption: "{{.Flags.caption}}"
+                bytes: true
+        command: |
+           curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest

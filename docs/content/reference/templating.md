@@ -1,7 +1,7 @@
 +++
 title = "Templating"
 toc = true
-weight = 65
+weight = 70
 +++
 
 Templates allow you to interpolate values from Flags, Arguments and Configuration into some aspects of commands.
@@ -35,7 +35,7 @@ Here we have examples of accessing the `.Config` and `.Arguments` structures and
 
 | Function    | Description                                                                            | Example                                 |
 |-------------|----------------------------------------------------------------------------------------|-----------------------------------------|
-| `require`   | Asserts that some data is available, errors with an optional custom message on failure | `{{ .Config.Password \| require "Password not set in the configuration" }}`|
-| `escape`    | Escapes a string for use in shell arguments                                            | `{{ .Arguments.message \| escape }}`|
+| `require`   | Asserts that some data is available, errors with an optional custom message on failure | `{{ require .Config.Password "Password not set in the configuration" }}`|
+| `escape`    | Escapes a string for use in shell arguments                                            | `{{ escape .Arguments.message }}`|
 | `read_file` | Reads a file                                                                           | `{{ read_file .Arguments.file }}`       |
 | `default`   | Checks a value, if its not supplied uses a default                                     | `{{ default .Config.Cowsay "cowsay" }}` |

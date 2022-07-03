@@ -1,7 +1,7 @@
 +++
 title = "Cheat Sheets"
 toc = true
-weight = 12
+weight = 100
 +++
 
 While output from `--help` can be useful, many people just don't read it or understand the particular format and syntax
