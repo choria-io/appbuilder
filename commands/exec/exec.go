@@ -19,11 +19,11 @@ import (
 )
 
 type Command struct {
-	Command     string                    `json:"command"`
-	Environment []string                  `json:"environment"`
-	Transform   *builder.GenericTransform `json:"transform"`
-	Script      string                    `json:"script"`
-	Shell       string                    `json:"shell"`
+	Command     string             `json:"command"`
+	Environment []string           `json:"environment"`
+	Transform   *builder.Transform `json:"transform"`
+	Script      string             `json:"script"`
+	Shell       string             `json:"shell"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -173,7 +173,13 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 		return fmt.Errorf("%w: %v", ErrorExecutionFailed, err)
 	}
 
-	return r.def.Transform.FTransformJSON(r.ctx, r.b.Stdout(), r.arguments, r.flags, r.b.Configuration(), out)
+	tRes, err := r.def.Transform.TransformBytes(r.ctx, out, r.arguments, r.flags, r.b.Configuration())
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprint(r.b.Stdout(), string(tRes))
+	return err
 }
 
 func (r *Exec) findShell() []string {

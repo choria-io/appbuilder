@@ -1,6 +1,6 @@
 +++
 title = "KV Command Type"
-weight = 30
+weight = 60
 toc = true
 +++
 
@@ -66,7 +66,7 @@ key: state
 # Triggers rendering the KV entry as JSON that will include metadata ab out the value.
 json: true
 ```
-Further if it's known that the entry holds JSON data it can be formatted using GOJQ:
+Further if it's known that the entry holds JSON data it can be formatted using [data transformations](../transformations):
 
 ```yaml
 name: version

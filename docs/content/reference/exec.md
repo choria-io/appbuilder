@@ -1,10 +1,12 @@
 +++
 title = "Exec Command Type"
-weight = 20
+weight = 30
 toc = true
 +++
 
 Use the `exec` command to execute commands found in your shell, and, optionally format their output through JQ.
+
+The `exec` command supports [data transformations](../transformations).
 
 ## Running commands
 
@@ -39,10 +41,6 @@ Since version `0.0.9` setting environment variable `BUILDER_DRY_RUN` to any valu
 
 A shell script can be added directly to your app, setting `shell` will use that command to run the script, if not set it will use `$SHELL`, `/bin/bash` or `/bin/sh` which ever is found first.
 
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.0.8
-{{% /notice %}}
-
 The script is parsed through [templating](../templating).
 
 ```yaml
@@ -55,40 +53,4 @@ script: |
   do
     echo "hello world"
   done
-```
-
-## Transformation using JQ
-
-If you have a command that is known to emit JSON data you can ask `appbuilder` to transform that data using a dialect of JQ called [GoJQ](https://github.com/itchyny/gojq), the resulting data will be printed to STDOUT.
-
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.0.5
-{{% /notice %}}
-
-```yaml
-name: ghd
-description: Gets the description of a Github Repo
-type: exec
-command: |
-  curl -H "Accept: application/vnd.github.v3+json"
-     https://api.github.com/repos/{{ .Arguments.owner }}/{{ .Arguments.repo }}
-
-transform:
-  query: .description
-
-arguments:
-  - name: owner
-    description: The repo owner
-    required: true
-
-  - name: repo
-    description: The repo name
-    require: true
-```
-
-Here we fetch data from the GitHub API and use the internal JQ to transform it by extracting just the one item.
-
-```nohighlight
-$ demo ghd choria-io appbuilder
-Tool to create friendly wrapping command lines over operations tools
 ```

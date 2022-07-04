@@ -1,7 +1,7 @@
 +++
 title = "Parent Command Type"
 toc = true
-weight = 15
+weight = 20
 +++
 
 A parent is a placeholder, you can have a command like `example deploy status` and `example deploy upgrade`, here the `deploy` is a `parent`. It's just there to group related commands and takes no action on it's own.

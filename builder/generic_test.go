@@ -5,7 +5,6 @@
 package builder
 
 import (
-	"bytes"
 	"context"
 
 	"github.com/choria-io/fisk"
@@ -72,41 +71,34 @@ var _ = Describe("GenericCommand", func() {
 
 var _ = Describe("GenericTransform", func() {
 	var (
-		trans *GenericTransform
+		trans *Transform
 	)
 
 	BeforeEach(func() {
-		trans = &GenericTransform{}
+		trans = &Transform{}
 	})
 
 	Describe("Validate", func() {
 		It("Should detect absent queries", func() {
 			err := trans.Validate(nil)
-			Expect(err).To(MatchError("no query supplied"))
-		})
-
-		It("Should fail for bad queries", func() {
-			trans.Query = "fo fo fo fo !)("
-			err := trans.Validate(nil)
-			Expect(err).To(MatchError(`unexpected token "fo"`))
+			Expect(err).To(MatchError(ErrInvalidTransform))
 		})
 	})
 
-	Describe("FTransformJSON", func() {
+	Describe("Transform", func() {
 		It("Should transform using the query", func() {
-			out := bytes.NewBuffer([]byte{})
-			err := trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{"hello":"world"`))
-			Expect(err).To(MatchError("no query"))
+			_, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"`), nil, nil, nil)
+			Expect(err).To(MatchError(ErrInvalidTransform))
 
 			trans.Query = ".hello"
 			Expect(trans.Validate(nil)).To(Succeed())
 
-			err = trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{`))
+			_, err = trans.TransformBytes(context.Background(), []byte(`{`), nil, nil, nil)
 			Expect(err).To(MatchError("json output parse error: unexpected end of JSON input"))
 
-			err = trans.FTransformJSON(context.Background(), out, nil, nil, nil, []byte(`{"hello":"world"}`))
+			res, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"}`), nil, nil, nil)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(out.String()).To(Equal("world\n"))
+			Expect(string(res)).To(Equal("world\n"))
 		})
 	})
 })

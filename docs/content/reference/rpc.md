@@ -12,6 +12,8 @@ your project working directory. No connection properties are required or support
 
 Before using this command type I suggest reading about [Choria Concepts](https://choria.io/docs/concepts/).
 
+The `rpc` command supports [data transformations](../transformations).
+
 {{% notice secondary "Version Hint" code-branch %}}
 This feature is only available when hosting App Builder applications within the Choria Server version 0.26.0 or newer
 {{% /notice %}}
@@ -110,7 +112,7 @@ request:
 
 ## Transforming Results
 
-Results can be transformed using GOJQ syntax, here's one that gets the state of a particular autonomous agent:
+Results can be transformed [data transformations](../transformations/), here's an example that gets the state of a particular autonomous agent:
 
 ```yaml
 name: state

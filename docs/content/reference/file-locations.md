@@ -1,7 +1,7 @@
 +++
 title = "File Locations"
 toc = true
-index = 30
+index = 110
 +++
 
 The only configuration you should be concerned about is your Application Definition and optional Application Configuration.
