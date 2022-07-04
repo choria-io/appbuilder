@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.5
 	github.com/adrg/xdg v0.4.0
-	github.com/choria-io/fisk v0.1.5
+	github.com/choria-io/fisk v0.1.6-0.20220704204204-31c4e55ecb26
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/guptarohit/asciigraph v0.5.5

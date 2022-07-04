@@ -75,7 +75,7 @@ commands:
     commands: []
 ```
 
-Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
+Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long`, `columns` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
 
 Since version `0.0.6` you can emit a banner before invoking the commands in an exec, use this to show a warning or extra
 information to users before running a command.  Perhaps to warn them that a config override is in use like here:
