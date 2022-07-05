@@ -56,8 +56,8 @@ func (d *Definition) Validate(log Logger) error {
 	}
 
 	ht := strings.TrimSpace(strings.ToLower(d.HelpTemplate))
-	if !(ht == "" || ht == "compact" || ht == "long" || ht == "default") {
-		errs = append(errs, "help_template must be one of compact, long, default or unset")
+	if !(ht == "" || ht == "compact" || ht == "long" || ht == "default" || ht == "columns") {
+		errs = append(errs, "help_template must be one of compact, long, default, columns or unset")
 	}
 
 	if len(errs) > 0 {
