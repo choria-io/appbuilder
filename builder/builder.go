@@ -393,12 +393,12 @@ func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 
 	switch strings.TrimSpace(strings.ToLower(b.def.HelpTemplate)) {
 	case "", "default":
-		cmd.UsageTemplate(fisk.ShorterMainUsageTemplate)
-	case "compact":
-		cmd.UsageTemplate(fisk.CompactUsageTemplate)
-	case "columns":
 		cmd.UsageTemplate(fisk.CompactMainUsageTemplate)
 		cmd.ErrorUsageTemplate(fisk.CompactMainUsageTemplate)
+	case "compact":
+		cmd.UsageTemplate(fisk.CompactUsageTemplate)
+	case "short":
+		cmd.UsageTemplate(fisk.ShorterMainUsageTemplate)
 	case "long":
 		cmd.UsageTemplate(fisk.KingpinDefaultUsageTemplate)
 	}
