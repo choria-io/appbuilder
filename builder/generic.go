@@ -182,17 +182,6 @@ func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[
 	return func(pc *fisk.ParseContext) error {
 		f := dereferenceArgsOrFlags(flags)
 
-		if cmd.ConfirmPrompt != "" && f["prompt"] == true {
-			ans := false
-			err := survey.AskOne(&survey.Confirm{Message: cmd.ConfirmPrompt, Default: false}, &ans)
-			if err != nil {
-				return err
-			}
-			if !ans {
-				return fmt.Errorf("aborted")
-			}
-		}
-
 		if cmd.Banner != "" {
 			txt, err := ParseStateTemplate(cmd.Banner, arguments, flags, b.Configuration())
 			if err != nil {
@@ -201,6 +190,17 @@ func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[
 
 			if txt != "" {
 				fmt.Fprintln(b.stdOut, txt)
+			}
+		}
+
+		if cmd.ConfirmPrompt != "" && f["prompt"] == true {
+			ans := false
+			err := survey.AskOne(&survey.Confirm{Message: cmd.ConfirmPrompt, Default: false}, &ans)
+			if err != nil {
+				return err
+			}
+			if !ans {
+				return fmt.Errorf("aborted")
 			}
 		}
 
