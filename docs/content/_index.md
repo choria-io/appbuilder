@@ -14,7 +14,7 @@ What if there was a CLI tool that encapsulated all of these commands in a single
 
 The `appbuilder` project lets you build exactly that by specifying a model for your CLI application in a YAML file and then building custom interfaces on the fly.
 
-There is an optional [video introducing the idea behind it](https://youtu.be/wbu3N63WY7Y).
+There is an optional [video introducing the idea behind it](https://youtu.be/-IUwoXEJK0c).
 
 ## Example
 
