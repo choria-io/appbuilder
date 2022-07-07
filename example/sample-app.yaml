@@ -3,10 +3,8 @@ description: A sample application demonstrating App Builder features
 version: 0.1.1
 author: R.I.Pienaar <rip@devco.net>
 
-# We set the 'long' template, this is a small command
-# with few sub commands and the longer output remains
-# easily consumed
-help_template: long
+# We set the default help template, also try 'long', 'compact' and 'short'
+help_template: default
 
 # A top level cheat block enables cheats in general for this application,
 # see other cheats added later on under exec
@@ -20,6 +18,9 @@ commands:
   - name: basics
     description: Demonstrates basic features such as flags and arguments
     type: parent
+    aliases:
+      - basic
+      - b
     commands:
       # Demonstrates the use of arguments and flags, mixing in arguments for main
       # functionality and flags for optional behavior changes.
@@ -93,13 +94,7 @@ commands:
           
             echo "Hello world"
           fi
-          
 
-  - name: exec
-    description: Demonstrate exec features
-    type: parent
-
-    commands:
       # The confirm_prompt will require user enters y/n before running the command,
       # it will also add --no-prompt as an option to skip the prompt from within scripts
       - name: confirm
@@ -107,7 +102,7 @@ commands:
         type: exec
         # adds a specific cheat accessible as "sample cheat exec"
         cheat:
-          label: exec
+          label: confirm
           cheat: |
             # to be asked a confirmation
             sample exec confirm
@@ -129,6 +124,21 @@ commands:
           >>>
         command: echo "Command output"
 
+  - name: exec
+    description: Demonstrate exec features
+    type: parent
+    aliases:
+      - e
+    commands:
+      - name: hello
+        description: Basic exec example
+        type: exec
+        arguments:
+          - name: name
+            description: Who to greet
+            required: true
+        command: echo "Hello {{ .Arguments.name }}"
+
       # Here we set an environment variable from a input argument and access it in the script
       - name: env
         description: Demonstrates setting custom environment variables from a required argument
@@ -142,6 +152,14 @@ commands:
         script: |
           echo "The supplied value set in APPVAR: ${APPVAR?}"
 
+  - name: transforms
+    description: Demonstrate transform features
+    type: parent
+    aliases:
+      - transform
+      - trans
+      - t
+    commands:
       # This fetches the latest release information from GitHub
       # and transform the JSON response using JQ to show latest
       # release and release notes.
@@ -171,12 +189,21 @@ commands:
               else
                 "Release lookup failed: " + .message + "\n\n"
               end
-        command: | 
+        command: |
           curl -s https://api.github.com/repos/{{ .Arguments.owner }}/{{ .Arguments.repo }}/releases/latest
 
+      # This fetches weather forecast from wttr.in and draws the
+      # hourly forecast via a transform pipeline involving JQ to
+      # extract the data and a line graph to draw it
+      #
+      # It requires curl in your PATH and access to the internet.
       - name: linegraph
         description: Draws an ASCII line graph
         type: exec
+        banner: |
+          >>> 
+          >>> This command uses curl to fetch data from wttr.in
+          >>>
         flags:
           - name: caption
             description: The graph caption
@@ -193,9 +220,18 @@ commands:
         command: |
           curl -s wttr.in/?format=j1
 
+      # This fetches release information from GitHub, uses a pipeline
+      # to extract the assets using JQ and then a bar graph to draw
+      # release asset sizes by asset name
+      #
+      # It requires curl in your PATH and access to the internet.
       - name: bargraph
         description: Draws an ASCII bar graph
         type: exec
+        banner: |
+          >>> 
+          >>> This command uses curl to fetch data from GitHub
+          >>>
         flags:
           - name: caption
             description: The graph caption
@@ -209,4 +245,5 @@ commands:
                 caption: "{{.Flags.caption}}"
                 bytes: true
         command: |
-           curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+          curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+

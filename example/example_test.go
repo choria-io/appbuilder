@@ -52,10 +52,9 @@ var _ = Describe("Example Application", func() {
 		It("Should have the correct help", func() {
 			cmd.MustParseWithUsage(strings.Fields(""))
 			out := usageBuf.String()
-			Expect(out).To(ContainSubstring("example: error: command not specified"))
 			Expect(out).To(ContainSubstring("A sample application demonstrating App Builder features"))
 			Expect(out).To(ContainSubstring("Use 'example cheat' to access cheat sheet style help"))
-			Expect(out).To(ContainSubstring("Demonstrates transforming data using jq"))
+			Expect(out).To(ContainSubstring("basics      Demonstrates basic features such as flags and arguments"))
 		})
 	})
 
@@ -66,7 +65,7 @@ var _ = Describe("Example Application", func() {
 		})
 
 		It("Should have command cheats", func() {
-			cmd.MustParseWithUsage(strings.Fields("cheat exec"))
+			cmd.MustParseWithUsage(strings.Fields("cheat confirm"))
 			Expect(usageBuf.String()).To(ContainSubstring("to be asked a confirmation"))
 		})
 	})
@@ -136,40 +135,42 @@ var _ = Describe("Example Application", func() {
 				Expect(usageBuf.String()).To(HaveLen(0))
 			})
 		})
-	})
 
-	Describe("exec", func() {
 		Describe("confirm", func() {
 			It("Should be able to override confirmation", func() {
-				cmd.MustParseWithUsage(strings.Fields("exec confirm --no-prompt"))
+				cmd.MustParseWithUsage(strings.Fields("basics confirm --no-prompt"))
 				Expect(usageBuf.String()).To(ContainSubstring("execution confirmed"))
 			})
 		})
 
 		Describe("banner", func() {
 			It("Should print the banner and command output", func() {
-				cmd.MustParseWithUsage(strings.Fields("exec banner"))
+				cmd.MustParseWithUsage(strings.Fields("basics banner"))
 				out := usageBuf.String()
 				Expect(out).To(ContainSubstring("This is a banner"))
 				Expect(out).To(ContainSubstring("Command output"))
 			})
 		})
+	})
 
+	Describe("exec", func() {
 		Describe("env", func() {
 			It("Should set the environment variable", func() {
 				cmd.MustParseWithUsage(strings.Fields("exec env GINKGO"))
 				Expect(usageBuf.String()).To(ContainSubstring("The supplied value set in APPVAR: \"GINKGO\""))
 			})
 		})
+	})
 
+	Describe("transforms", func() {
 		Describe("jq", func() {
 			It("Should get the data for known repos", func() {
-				cmd.MustParseWithUsage(strings.Fields("exec jq"))
+				cmd.MustParseWithUsage(strings.Fields("transforms jq"))
 				Expect(usageBuf.String()).To(ContainSubstring("The latest release is: Release"))
 			})
 
 			It("Should accept arguments and handle failure", func() {
-				cmd.MustParseWithUsage(strings.Fields("exec jq ripienaar"))
+				cmd.MustParseWithUsage(strings.Fields("t jq ripienaar"))
 				Expect(usageBuf.String()).To(ContainSubstring("Release lookup failed"))
 			})
 		})
