@@ -17,4 +17,4 @@ The core features are stable, and we've hit a point of feature stability and com
 
 The Go API for embedding builder in other applications is not yet stable.
 
-There is a [video introducing the idea behind it](https://youtu.be/wbu3N63WY7Y).
+There is a [video introducing the idea behind it](https://youtu.be/-IUwoXEJK0c).

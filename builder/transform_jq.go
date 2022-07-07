@@ -52,7 +52,7 @@ func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[strin
 	}
 
 	out := bytes.NewBuffer([]byte{})
-	input := map[string]interface{}{}
+	var input interface{}
 
 	err = json.Unmarshal(j, &input)
 	if err != nil {
