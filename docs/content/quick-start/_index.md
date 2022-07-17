@@ -14,8 +14,8 @@ If your editor supports it there is a [JSON Schema for the definition](https://c
 We publish OS X and Linux homebrew packages:
 
 ```nohighlight
-$ brew tap choria-io/tap
-$ brew install choria-io/tap/appbuilder
+brew tap choria-io/tap
+brew install choria-io/tap/appbuilder
 ```
 
 ## Hello World
@@ -25,11 +25,11 @@ We will make a little command that invokes `cowsay` to demonstrate some of the c
 We want to be able to run this command and it should invoke `cowsay`, `cowthink` or if configured to do so use `animalsay` instead of `cowsay`
 
 ```nohighlight
-$ demo say "hello world"
-$ demo think "hello world"
+demo say "hello world"
+demo think "hello world"
 ```
 
-First we have to write a YAML file that describes our demo application, we have reference sections in the wiki for all the options, so this being an introduction, will be short on details.
+First we have to write a YAML file (demo-app.yaml) that describes our demo application, we have reference sections in the wiki for all the options, so this being an introduction, will be short on details.
 
 ```
 name: demo
@@ -60,7 +60,8 @@ commands:
 Place this file in either `/etc/appbuilder/demo-app.yaml` or `~/.config/appbuilder/demo-app.yaml` (`~/Library/Application Support/appbuilder/demo-app.yaml` on a Mac).
 
 ```nohighlight
-$ sudo mkdir -p /etc/appbuilder/demo-app.yaml
+$ sudo mkdir -p /etc/appbuilder
+$ sudo cp demo-app.yaml /etc/appbuilder/
 $ sudo ln -s /usr/local/bin/appbuilder /usr/bin/demo
 $ demo say "hello world"
  _____________
