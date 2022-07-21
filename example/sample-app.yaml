@@ -247,3 +247,38 @@ commands:
         command: |
           curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
 
+      # This uses a template transform with sprig functions to transform
+      # JSON input into a textual format
+      - name: template
+        type: exec
+        description: Demonstrates template processing of JSON input
+        command: |
+          echo '{"name": "James", "surname":"Bond"}'
+        transform:
+          template:
+            contents: |
+              Hello {{ .Input.name }} {{ .Input.surname | swapcase }}
+
+      # This fetches latest releases from github and uses the report transform to
+      # turn that into a tabular report of downloads including a total downloads counter
+      - name: report
+        type: exec
+        description: Demonstrates using a report writer transform
+        command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+        transform:
+          report:
+            name: Asset Report
+            initial_query: assets
+            header: |+
+              @|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+              data.name
+              --------------------------------------------------------------------------------
+
+            body: |
+              Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @##
+              row.name, row.size,              row.download_count
+            footer: |+2
+              
+                                                                          ====================
+                                                                          Total Downloads: @##
+              report.summary.download_count

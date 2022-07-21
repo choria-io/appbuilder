@@ -42,6 +42,7 @@ type templateState struct {
 	Arguments interface{}
 	Flags     interface{}
 	Config    interface{}
+	Input     interface{}
 }
 
 // AppBuilder is the main runner and configuration handler
