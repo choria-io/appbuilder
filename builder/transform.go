@@ -28,6 +28,12 @@ type Transform struct {
 
 	// Pipeline is a series of transforms to pass the data through
 	Pipeline []Transform `json:"pipeline,omitempty"`
+
+	// Template parses input through Go templates
+	Template *templateTransform `json:"template,omitempty"`
+
+	// Report turns row orientated data into a paged report
+	Report *reportTransform `json:"report,omitempty"`
 }
 
 type transformer interface {
@@ -47,6 +53,12 @@ func (t *Transform) transformerForQuery() (transformer, error) {
 
 	case t.BarGraph != nil:
 		return newBarGraphTransform(t)
+
+	case t.Template != nil:
+		return newTemplateTransform(t)
+
+	case t.Report != nil:
+		return newReportTransform(t)
 
 	case len(t.Pipeline) > 0:
 		return newPipelineTransform(t)

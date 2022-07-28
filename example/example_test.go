@@ -174,5 +174,12 @@ var _ = Describe("Example Application", func() {
 				Expect(usageBuf.String()).To(ContainSubstring("Release lookup failed"))
 			})
 		})
+
+		Describe("Templates", func() {
+			It("Should parse and render the template and should include sprig functions", func() {
+				cmd.MustParseWithUsage(strings.Fields("transforms template"))
+				Expect(usageBuf.String()).To(ContainSubstring("Hello James bOND"))
+			})
+		})
 	})
 })

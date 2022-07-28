@@ -163,7 +163,98 @@ The transform supports a few options, all are optional:
 | `height`    | The height of the graph, defaults to 20                                    |
 | `precision` | The decimal precision to consider and render                               |
 | `json`      | When true expects JSON input like `[1,2,3,4]` rather than a float per line |
-| `caption`   | The cpation to show above the graph, supports [Templating](../templating)  |
+| `caption`   | The caption to show above the graph, supports [Templating](../templating)  |
+
+## Templates
+
+The `template` transform uses Golang templates and the [sprig](http://masterminds.github.io/sprig/) functions
+to facilitate creation of text output using a template language.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.3.0
+{{% /notice %}}
+
+```yaml
+name: template
+type: exec
+description: Demonstrates template processing of JSON input
+command: |
+  echo '{"name": "James", "surname":"Bond"}'
+transform:
+  template:
+    contents: |
+      Hello {{ .Input.name }} {{ .Input.surname | swapcase }}
+```
+
+| Option     | Description                                                                                   |
+|------------|-----------------------------------------------------------------------------------------------|
+| `contents` | The body of the template embedded in the application yaml file                                |
+| `source`   | The file name holding the template, the file name is parsed using [Templating](../templating) |
+
+## Row orientated Reports
+
+These reports allow you to produce text reports for data found in JSON files.  It reports on Array data and produce 
+paginated reports with optional headers and footers.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.3.0
+{{% /notice %}}
+
+```yaml
+name: report
+type: exec
+description: Demonstrates using a report writer transform
+command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+transform:
+  report:
+    name: Asset Report
+    initial_query: assets
+    header: |+
+      @|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+      data.name
+      --------------------------------------------------------------------------------
+
+    body: |
+      Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @##
+      row.name, row.size,              row.download_count
+    footer: |+2
+      
+                                                                  ====================
+                                                                  Total Downloads: @##
+      report.summary.download_count
+```
+
+Here we fetch the latest release information from GitHub and produce a report with header,
+footer and body. Since the JSON data from GitHub is a object we use the `assets` GJSON 
+query to find the rows of data to report on.
+
+See the [goform](https://github.com/choria-io/goform) project for a full reference to
+the formatting language.
+
+```nohighlight
+                                 Release 0.2.1                                  
+--------------------------------------------------------------------------------
+
+Name: appbuilder-0.2.1-amd64.deb                   Size: 2.3 MiB  Downloads: 2  
+Name: appbuilder-0.2.1-arm6.deb                    Size: 2.2 MiB  Downloads: 0  
+Name: appbuilder-0.2.1-arm6.rpm                    Size: 2.1 MiB  Downloads: 0  
+....
+Name: appbuilder-0.2.1-windows-arm7.zip            Size: 2.1 MiB  Downloads: 0  
+Name: appbuilder-0.2.1-x86_64.rpm                  Size: 2.2 MiB  Downloads: 2    
+
+                                                            ====================
+                                                            Total Downloads: 20 
+```
+
+| Option          | Description                                                                                                                                                |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`          | The name of the report, parsed using [Templating](../templating)                                                                                           |
+| `header`        | The report header                                                                                                                                          |
+| `body`          | The report body                                                                                                                                            |
+| `footer`        | The report footer                                                                                                                                          |
+| `rows_per_page` | How many rows to print per page, pages each have `header` and `footer`                                                                                     |
+| `initial_query` | The initial GJSON query to use to find the row orientated data to report                                                                                   |
+| `source_file`   | A file holding the report rather than inline, `name`, `header`, `body` and `footer` are read from here. File name parsed using [Templating](../templating) |
 
 ## Pipelines
 

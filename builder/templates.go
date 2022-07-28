@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"text/template"
 
+	"github.com/Masterminds/sprig/v3"
 	"gopkg.in/alessio/shellescape.v1"
 )
 
@@ -30,6 +31,59 @@ func dereferenceArgsOrFlags(input map[string]interface{}) map[string]interface{}
 	return res
 }
 
+func templateFuncs(all bool) template.FuncMap {
+	funcs := map[string]interface{}{}
+	if all {
+		funcs = sprig.TxtFuncMap()
+	}
+
+	funcs["require"] = func(v interface{}, reason string) (interface{}, error) {
+		err := errors.New("value required")
+		if reason != "" {
+			err = errors.New(reason)
+		}
+
+		switch val := v.(type) {
+		case string:
+			if val == "" {
+				return "", err
+			}
+		default:
+			if v == nil {
+				return "", err
+			}
+		}
+
+		return v, nil
+	}
+
+	funcs["escape"] = func(v string) string {
+		return shellescape.Quote(v)
+	}
+
+	funcs["read_file"] = func(v string) (string, error) {
+		b, err := os.ReadFile(v)
+		if err != nil {
+			return "", err
+		}
+
+		return string(b), nil
+	}
+
+	funcs["default"] = func(v interface{}, dflt string) string {
+		switch c := v.(type) {
+		case string:
+			if c != "" {
+				return c
+			}
+		}
+
+		return dflt
+	}
+
+	return funcs
+}
+
 // ParseStateTemplate parses body as a go text template with supplied values exposed to the user
 func ParseStateTemplate(body string, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (string, error) {
 	state := templateState{
@@ -38,53 +92,7 @@ func ParseStateTemplate(body string, args map[string]interface{}, flags map[stri
 		Config:    cfg,
 	}
 
-	funcs := map[string]interface{}{
-		"require": func(v interface{}, reason string) (interface{}, error) {
-			err := errors.New("value required")
-			if reason != "" {
-				err = errors.New(reason)
-			}
-
-			switch val := v.(type) {
-			case string:
-				if val == "" {
-					return "", err
-				}
-			default:
-				if v == nil {
-					return "", err
-				}
-			}
-
-			return v, nil
-		},
-
-		"escape": func(v string) string {
-			return shellescape.Quote(v)
-		},
-
-		"read_file": func(v string) (string, error) {
-			b, err := os.ReadFile(v)
-			if err != nil {
-				return "", err
-			}
-
-			return string(b), nil
-		},
-
-		"default": func(v interface{}, dflt string) string {
-			switch c := v.(type) {
-			case string:
-				if c != "" {
-					return c
-				}
-			}
-
-			return dflt
-		},
-	}
-
-	temp, err := template.New("choria").Funcs(funcs).Parse(body)
+	temp, err := template.New("choria").Funcs(templateFuncs(false)).Parse(body)
 	if err != nil {
 		return "", err
 	}
