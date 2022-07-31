@@ -34,6 +34,9 @@ type Transform struct {
 
 	// Report turns row orientated data into a paged report
 	Report *reportTransform `json:"report,omitempty"`
+
+	// WriteFile writes data to a file
+	WriteFile *writeFileTransform `json:"write_file,omitempty"`
 }
 
 type transformer interface {
@@ -59,6 +62,9 @@ func (t *Transform) transformerForQuery() (transformer, error) {
 
 	case t.Report != nil:
 		return newReportTransform(t)
+
+	case t.WriteFile != nil:
+		return newWriteFileTransform(t)
 
 	case len(t.Pipeline) > 0:
 		return newPipelineTransform(t)
