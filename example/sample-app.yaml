@@ -263,22 +263,32 @@ commands:
       # turn that into a tabular report of downloads including a total downloads counter
       - name: report
         type: exec
+        banner: |
+          >>
+          >> This fetches information about the latest appbuilder release
+          >> and generates a report of asset sizes and downloads.
+          >>
+          >> The report is also saved to /tmp/report.txt.
+          >>
         description: Demonstrates using a report writer transform
         command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
         transform:
-          report:
-            name: Asset Report
-            initial_query: assets
-            header: |+
-              @|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-              data.name
-              --------------------------------------------------------------------------------
+          pipeline:
+            - report:
+                name: Asset Report
+                initial_query: assets
+                header: |+
+                  @|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                  data.name
+                  --------------------------------------------------------------------------------
 
-            body: |
-              Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @##
-              row.name, row.size,              row.download_count
-            footer: |+2
-              
-                                                                          ====================
-                                                                          Total Downloads: @##
-              report.summary.download_count
+                body: |
+                  Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @##
+                  row.name, row.size,              row.download_count
+                footer: |+2
+                  
+                                                                              ====================
+                                                                              Total Downloads: @##
+                  report.summary.download_count
+            - write_file:
+                file: /tmp/report.txt

@@ -191,6 +191,49 @@ transform:
 | `contents` | The body of the template embedded in the application yaml file                                |
 | `source`   | The file name holding the template, the file name is parsed using [Templating](../templating) |
 
+## Writing to a file
+
+Data entering a the `write_file` transform is written to disk and also returned, but optionally a message can be
+returned.
+
+```yaml
+name: template
+type: exec
+description: Demonstrates template processing of JSON input
+command: |
+  echo '{"name": "James", "surname":"Bond"}'
+transform:
+  pipeline:
+    - write_file:
+        file: /tmp/name.txt
+        replace: true
+
+    - template:
+      contents: |
+        Hello {{ .Input.name }} {{ .Input.surname | swapcase }}
+```
+
+Above the `/tmp/name.txt` would hold the initial JSON data.
+
+If the `write_file` is the only transform or in a pipeline like here the data received is simply passed on to the next 
+step, this can be annoying when writing large files as they will be dumped to the screen.
+
+```yaml
+transform:
+  - write_file:
+    file: /tmp/report.txt
+    replace: true
+    message: Wrote {{.IBytes}} to {{.Target}}
+```
+
+In this case the message `Wrote 1.8 KiB to /tmp/report.txt` would be printed. You can use `.Bytes`, `.IBytes`, `.Target` and `.Contents` in the `message`.
+
+| Option    | Description                                                                  |
+|-----------|------------------------------------------------------------------------------|
+| `file`    | The file to write, the file name is parsed using [Templating](../templating) |
+| `message` | A message to emit from the transform instead of the contents recieved by it  |
+| `replace` | Set to `true` to always overwrite the file                                   |
+
 ## Row orientated Reports
 
 These reports allow you to produce text reports for data found in JSON files.  It reports on Array data and produce 
