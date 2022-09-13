@@ -15,8 +15,8 @@ import (
 	"gopkg.in/alessio/shellescape.v1"
 )
 
-func dereferenceArgsOrFlags(input map[string]interface{}) map[string]interface{} {
-	res := map[string]interface{}{}
+func dereferenceArgsOrFlags(input map[string]any) map[string]any {
+	res := map[string]any{}
 	for k, v := range input {
 		e := reflect.ValueOf(v).Elem()
 
@@ -32,12 +32,12 @@ func dereferenceArgsOrFlags(input map[string]interface{}) map[string]interface{}
 }
 
 func templateFuncs(all bool) template.FuncMap {
-	funcs := map[string]interface{}{}
+	funcs := map[string]any{}
 	if all {
 		funcs = sprig.TxtFuncMap()
 	}
 
-	funcs["require"] = func(v interface{}, reason string) (interface{}, error) {
+	funcs["require"] = func(v any, reason string) (any, error) {
 		err := errors.New("value required")
 		if reason != "" {
 			err = errors.New(reason)
@@ -70,7 +70,7 @@ func templateFuncs(all bool) template.FuncMap {
 		return string(b), nil
 	}
 
-	funcs["default"] = func(v interface{}, dflt string) string {
+	funcs["default"] = func(v any, dflt string) string {
 		switch c := v.(type) {
 		case string:
 			if c != "" {
@@ -85,7 +85,7 @@ func templateFuncs(all bool) template.FuncMap {
 }
 
 // ParseStateTemplate parses body as a go text template with supplied values exposed to the user
-func ParseStateTemplate(body string, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (string, error) {
+func ParseStateTemplate(body string, args map[string]any, flags map[string]any, cfg any) (string, error) {
 	state := templateState{
 		Arguments: dereferenceArgsOrFlags(args),
 		Flags:     dereferenceArgsOrFlags(flags),

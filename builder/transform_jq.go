@@ -45,14 +45,14 @@ func (t *jqTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
+func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
 	j, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 
 	out := bytes.NewBuffer([]byte{})
-	var input interface{}
+	var input any
 
 	err = json.Unmarshal(j, &input)
 	if err != nil {

@@ -37,7 +37,7 @@ func (rt *reportTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
+func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
 	j, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[
 
 	out := bytes.NewBuffer([]byte{})
 	if rt.InitialQuery != "" {
-		var input interface{}
+		var input any
 		err = json.Unmarshal(j, &input)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON input for report: %v", err)
@@ -76,7 +76,7 @@ func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[
 			return nil, fmt.Errorf("could not generated nested data report: %v", err)
 		}
 	} else {
-		var input []interface{}
+		var input []any
 		err = json.Unmarshal(j, &input)
 		if err != nil {
 			return nil, fmt.Errorf("invalid JSON input for report: %v", err)

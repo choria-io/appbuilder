@@ -35,7 +35,7 @@ func (wf *writeFileTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
+func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
 	input, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args m
 			return nil, fmt.Errorf("invalid message template: %v", err)
 		}
 		out := bytes.NewBuffer([]byte{})
-		t.Execute(out, map[string]interface{}{
+		t.Execute(out, map[string]any{
 			"Target":   target,
 			"Contents": input,
 			"Bytes":    len(input),
