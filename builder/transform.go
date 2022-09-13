@@ -40,7 +40,7 @@ type Transform struct {
 }
 
 type transformer interface {
-	Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error)
+	Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error)
 	Validate(Logger) error
 }
 
@@ -83,7 +83,7 @@ func (t *Transform) Validate(log Logger) error {
 	return trans.Validate(log)
 }
 
-func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) ([]byte, error) {
+func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[string]any, flags map[string]any, cfg any) ([]byte, error) {
 	res, err := t.Transform(ctx, bytes.NewReader(r), args, flags, cfg)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[strin
 	return io.ReadAll(res)
 }
 
-func (t *Transform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
+func (t *Transform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
 	trans, err := t.transformerForQuery()
 	if err != nil {
 		return nil, err

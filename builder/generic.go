@@ -84,21 +84,21 @@ type GenericArgument struct {
 
 // GenericFlag is a standard command line flag
 type GenericFlag struct {
-	Name        string      `json:"name"`
-	Description string      `json:"description"`
-	Required    bool        `json:"required"`
-	PlaceHolder string      `json:"placeholder"`
-	Enum        []string    `json:"enum"`
-	Default     interface{} `json:"default"`
-	Bool        bool        `json:"bool"`
-	EnvVar      string      `json:"env"`
-	Short       string      `json:"short"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Required    bool     `json:"required"`
+	PlaceHolder string   `json:"placeholder"`
+	Enum        []string `json:"enum"`
+	Default     any      `json:"default"`
+	Bool        bool     `json:"bool"`
+	EnvVar      string   `json:"env"`
+	Short       string   `json:"short"`
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
-func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
+func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]any, flags map[string]any, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
 	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, b, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
@@ -178,7 +178,7 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 	return cmd
 }
 
-func runWrapper(cmd GenericCommand, arguments map[string]interface{}, flags map[string]interface{}, b *AppBuilder, handler fisk.Action) fisk.Action {
+func runWrapper(cmd GenericCommand, arguments map[string]any, flags map[string]any, b *AppBuilder, handler fisk.Action) fisk.Action {
 	return func(pc *fisk.ParseContext) error {
 		f := dereferenceArgsOrFlags(flags)
 

@@ -32,7 +32,7 @@ func newLineGraphTransform(trans *Transform) (*lineGraphTransform, error) {
 
 func (lg *lineGraphTransform) Validate(_ Logger) error { return nil }
 
-func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
+func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
 	out := bytes.NewBuffer([]byte{})
 	var input []float64
 

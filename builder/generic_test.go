@@ -46,7 +46,7 @@ var _ = Describe("GenericCommand", func() {
 				{Name: "arg1", Description: "help1", Default: "default1", Enum: []string{"default1", "default2"}, Required: true},
 			}
 
-			cmd := CreateGenericCommand(fisk.New("app", "app"), def, map[string]interface{}{}, nil, nil, cb)
+			cmd := CreateGenericCommand(fisk.New("app", "app"), def, map[string]any{}, nil, nil, cb)
 			model := cmd.Model()
 			Expect(model.Args).To(HaveLen(1))
 			Expect(model.Args[0].Name).To(Equal("arg1"))
@@ -59,7 +59,7 @@ var _ = Describe("GenericCommand", func() {
 				{Name: "flag1", Description: "help1", Default: "default1", Enum: []string{"default1", "default2"}, Required: true},
 			}
 
-			cmd := CreateGenericCommand(fisk.New("app", "app"), def, nil, map[string]interface{}{}, nil, cb)
+			cmd := CreateGenericCommand(fisk.New("app", "app"), def, nil, map[string]any{}, nil, cb)
 			model := cmd.Model()
 			Expect(model.Flags).To(HaveLen(1))
 			Expect(model.Flags[0].Name).To(Equal("flag1"))

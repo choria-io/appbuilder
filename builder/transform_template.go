@@ -36,8 +36,8 @@ func (tt *templateTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args map[string]interface{}, flags map[string]interface{}, cfg interface{}) (io.Reader, error) {
-	var input interface{}
+func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+	var input any
 
 	j, err := io.ReadAll(r)
 	if err != nil {

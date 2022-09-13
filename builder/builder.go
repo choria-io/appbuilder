@@ -39,10 +39,10 @@ type Command interface {
 }
 
 type templateState struct {
-	Arguments interface{}
-	Flags     interface{}
-	Config    interface{}
-	Input     interface{}
+	Arguments any
+	Flags     any
+	Config    any
+	Input     any
 }
 
 // AppBuilder is the main runner and configuration handler
@@ -51,7 +51,7 @@ type AppBuilder struct {
 	def           *Definition
 	name          string
 	appPath       string
-	cfg           map[string]interface{}
+	cfg           map[string]any
 	cfgSources    []string
 	stdOut        io.Writer
 	stdErr        io.Writer
@@ -82,7 +82,7 @@ Contact: %s
 // New creates a new CLI Builder
 func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) {
 	builder := &AppBuilder{
-		cfg:    make(map[string]interface{}),
+		cfg:    make(map[string]any),
 		ctx:    ctx,
 		name:   name,
 		stdOut: os.Stdout,
@@ -117,7 +117,7 @@ func (b *AppBuilder) Stderr() io.Writer {
 }
 
 // Configuration is the loaded configuration, valid only after LoadConfig() is called, usually done during RunCommand()
-func (b *AppBuilder) Configuration() map[string]interface{} {
+func (b *AppBuilder) Configuration() map[string]any {
 	return b.cfg
 }
 
@@ -348,7 +348,7 @@ func (b *AppBuilder) createCommands(d *Definition, defs []json.RawMessage) error
 }
 
 // LoadConfig loads the configuration if possible, does not error if nothing is found only if loading fails
-func (b *AppBuilder) LoadConfig() (map[string]interface{}, error) {
+func (b *AppBuilder) LoadConfig() (map[string]any, error) {
 	fname := fmt.Sprintf(appCfgPatten, b.name)
 
 	source, err := b.findConfigFile(fname, "")
@@ -371,7 +371,7 @@ func (b *AppBuilder) LoadConfig() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	cfg := map[string]interface{}{}
+	cfg := map[string]any{}
 
 	err = json.Unmarshal(cfgj, &cfg)
 	if err != nil {

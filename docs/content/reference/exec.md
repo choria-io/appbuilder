@@ -54,3 +54,37 @@ script: |
     echo "hello world"
   done
 ```
+
+## Retrying failed executions
+
+Failing executions can be tried based on a backoff policy, here we configure a maximum of 10 attempts with varying sleep
+times that would include randomized jitter.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.4.0
+{{% /notice %}}
+
+```yaml
+name: script
+description: A shell script
+type: exec
+shell: /bin/zsh
+backoff:
+  # Maximum amount of retries, required
+  max_attempts: 10
+  # Maximum sleep time + jitter, optional
+  max_sleep: 20s
+  # Minimum sleep time + jitter, optional
+  min_sleep: 1s
+  # Number of steps in the backoff policy, once the max is reached
+  # further retries will jitter around max_sleep, optional
+  steps: 5
+script: |
+  for i in {1..5}
+  do
+    echo "hello world"
+  done
+```
+
+Only the `max_attempts` setting is required, `min_sleep` defaults to `500ms` and `max_sleep` defaults to `20s` with steps
+defaulting to `max_attempts`.
