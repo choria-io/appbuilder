@@ -12,11 +12,19 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/fisk"
 	"github.com/kballard/go-shellquote"
 )
+
+type Backoff struct {
+	MaxAttempts uint   `json:"max_attempts"`
+	PolicySteps uint   `json:"steps"`
+	PolicyMin   string `json:"min_sleep"`
+	PolicyMax   string `json:"max_sleep"`
+}
 
 type Command struct {
 	Command     string             `json:"command"`
@@ -24,6 +32,7 @@ type Command struct {
 	Transform   *builder.Transform `json:"transform"`
 	Script      string             `json:"script"`
 	Shell       string             `json:"shell"`
+	Backoff     *Backoff           `json:"backoff"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -36,6 +45,7 @@ type Exec struct {
 	def       *Command
 	ctx       context.Context
 	log       builder.Logger
+	bo        *policy
 	b         *builder.AppBuilder
 }
 
@@ -68,7 +78,44 @@ func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 		return nil, fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
 	}
 
+	err = exec.configureBackoff()
+	if err != nil {
+		return nil, err
+	}
+
 	return exec, nil
+}
+
+func (r *Exec) configureBackoff() error {
+	if r.def.Backoff == nil {
+		return nil
+	}
+
+	if r.def.Backoff.PolicyMin == "" {
+		r.def.Backoff.PolicyMin = "500ms"
+	}
+	if r.def.Backoff.PolicyMax == "" {
+		r.def.Backoff.PolicyMax = "20s"
+	}
+	if r.def.Backoff.PolicySteps == 0 {
+		r.def.Backoff.PolicySteps = r.def.Backoff.MaxAttempts
+	}
+
+	min, err := time.ParseDuration(r.def.Backoff.PolicyMin)
+	if err != nil {
+		return err
+	}
+	max, err := time.ParseDuration(r.def.Backoff.PolicyMax)
+	if err != nil {
+		return err
+	}
+
+	r.bo, err = newPolicy(r.def.Backoff.PolicySteps, min, max)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *Exec) String() string { return fmt.Sprintf("%s (exec)", r.def.Name) }
@@ -102,6 +149,12 @@ func (r *Exec) Validate(log builder.Logger) error {
 		err := r.def.Transform.Validate(log)
 		if err != nil {
 			errs = append(errs, err.Error())
+		}
+	}
+
+	if r.def.Backoff != nil {
+		if r.def.Backoff.PolicySteps < 2 {
+			errs = append(errs, fmt.Sprintf("invalid backoff policy steps: '%d'", r.def.Backoff.PolicySteps))
 		}
 	}
 
@@ -249,9 +302,36 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 		env = append(env, v)
 	}
 
-	if r.def.Transform == nil {
-		return r.runInTerminal(parts[0], parts[1:], env)
-	} else {
-		return r.runWithTransform(parts[0], parts[1:], env)
+	try := 1
+	for {
+		if r.def.Transform == nil {
+			err = r.runInTerminal(parts[0], parts[1:], append(env, fmt.Sprintf("BUILDER_TRY=%d", try)))
+		} else {
+			err = r.runWithTransform(parts[0], parts[1:], append(env, fmt.Sprintf("BUILDER_TRY=%d", try)))
+		}
+
+		// if it was good or we dont have backoff just return whatever is there
+		if err == nil || r.def.Backoff == nil {
+			return err
+		}
+
+		// we only retry on ExitError, others are returned
+		if !errors.Is(err, ErrorExecutionFailed) {
+			return err
+		}
+
+		d := r.bo.duration(try)
+		r.log.Warnf("Execution failed on try %d / %d, retrying after %v based on backoff policy: %v", try, r.def.Backoff.MaxAttempts, d, err)
+
+		if uint(try) >= r.def.Backoff.MaxAttempts {
+			r.log.Errorf("Failing after %d tries", try)
+			return err
+		}
+
+		err = r.bo.sleep(r.ctx, d)
+		if err != nil {
+			return err
+		}
+		try++
 	}
 }
