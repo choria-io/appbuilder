@@ -64,11 +64,13 @@ times that would include randomized jitter.
 Added in version 0.4.0
 {{% /notice %}}
 
+Scripts can detect if they are running in a retry by inspecting the `BUILDER_TRY` environment variable.
+
 ```yaml
-name: script
-description: A shell script
+name: retry
+description: A shell script execution with backoff retries
 type: exec
-shell: /bin/zsh
+command: ./script.sh
 backoff:
   # Maximum amount of retries, required
   max_attempts: 10
@@ -79,11 +81,6 @@ backoff:
   # Number of steps in the backoff policy, once the max is reached
   # further retries will jitter around max_sleep, optional
   steps: 5
-script: |
-  for i in {1..5}
-  do
-    echo "hello world"
-  done
 ```
 
 Only the `max_attempts` setting is required, `min_sleep` defaults to `500ms` and `max_sleep` defaults to `20s` with steps
