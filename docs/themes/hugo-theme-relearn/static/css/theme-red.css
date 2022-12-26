@@ -8,9 +8,9 @@
 :root {
     --MAIN-TEXT-color: #323232; /* Color of text by default */
     --MAIN-TITLES-TEXT-color: #5e5e5e; /* Color of titles h2-h3-h4-h5-h6 */
+    --MAIN-TITLES-H1-color: #222222; /* text color of h1 titles */
     --MAIN-LINK-color: #f31c1c; /* Color of links */
     --MAIN-LINK-HOVER-color: #d01616; /* Color of hovered links */
-    --MAIN-ANCHOR-color: #f31c1c; /* color of anchors on titles */
     --MAIN-BG-color: #ffffff; /* color of text by default */
 
     /* adjusted to base16-snazzy chroma style */
@@ -22,8 +22,8 @@
     --CODE-INLINE-BG-color: #fffae9; /* color for inline code background */
     --CODE-INLINE-BORDER-color: #f8e8c8; /* color of inline code border */
 
-    --MENU-HOME-LINK-color: #ccc; /* Color of the home button text */
-    --MENU-HOME-LINK-HOVER-color: #e6e6e6; /* Color of the hovered home button text */
+    --MENU-HOME-LINK-color: #382b2b; /* Color of the home button text */
+    --MENU-HOME-LINK-HOVER-color: #000000; /* Color of the hovered home button text */
 
     --MENU-HEADER-BG-color: #dc1010; /* Background color of menu header */
     --MENU-HEADER-BORDER-color: #e23131; /*Color of menu header border */
@@ -39,7 +39,7 @@
     --MENU-SECTION-ACTIVE-CATEGORY-color: #777; /* Color of active category text */
     --MENU-SECTION-ACTIVE-CATEGORY-BG-color: #fff; /* Color of background for the active category (only) */
 
-    --MENU-VISITED-color: #ff3333; /* Color of 'page visited' icons in menu */
+    --MENU-VISITED-color: #f31c1c; /* Color of 'page visited' icons in menu */
     --MENU-SECTION-HR-color: #2b2020; /* Color of <hr> separator in menu */
 
     /* base styling for boxes */

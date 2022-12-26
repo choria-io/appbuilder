@@ -15,6 +15,7 @@ disableLanguageSwitchingButton = true
 themeVariant = "my-custom-variant"
 disableInlineCopyToClipBoard = true
 alwaysopen = true
+externalLinkTargetc= "_self"
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-fw fa-github'></i> GitHub"
