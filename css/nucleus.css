@@ -68,10 +68,6 @@ strong {
 dfn {
   font-style: italic; }
 
-mark {
-  background: #FFFF27;
-  color: #333; }
-
 sub,
 sup {
   font-size: 0.8rem;
@@ -174,13 +170,13 @@ th, td {
   padding: 0.425rem 0; }
 
 th {
-  text-align: left; }
+  text-align: start; }
 
 body {
   font-size: 1rem;
   line-height: 1.5; }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, .article-subheading, h4, h5, h6 {
   margin: 0.85rem 0 1rem 0;
   text-rendering: optimizeLegibility; }
 
@@ -190,7 +186,7 @@ h1 {
 h2 {
   font-size: 2.55rem; }
 
-h3 {
+h3, .article-subheading {
   font-size: 2.15rem; }
 
 h4 {
@@ -214,7 +210,7 @@ ul, ol {
 
 blockquote {
   margin: 1.5rem 0;
-  padding-left: 0.85rem; }
+  padding-inline-start: 0.85rem; }
 
 cite {
   display: block;
