@@ -5,6 +5,7 @@
 package builder
 
 import (
+	"bytes"
 	"os"
 )
 
@@ -18,4 +19,18 @@ func fileExist(path string) bool {
 	}
 
 	return true
+}
+
+func isJSON(data []byte) bool {
+	d := bytes.TrimSpace(data)
+
+	if bytes.HasPrefix(d, []byte("{")) && bytes.HasSuffix(d, []byte("}")) {
+		return true
+	}
+
+	if bytes.HasPrefix(d, []byte("[")) && bytes.HasSuffix(d, []byte("]")) {
+		return true
+	}
+
+	return false
 }

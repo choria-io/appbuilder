@@ -259,6 +259,38 @@ commands:
             contents: |
               Hello {{ .Input.name }} {{ .Input.surname | swapcase }}
 
+      # This fetches latest releases from github and uses the to_yaml transform
+      # to show it as yaml instead of JSON
+      - name: to_yaml
+        type: exec
+        banner: |
+          >>
+          >> This fetches information about the latest appbuilder release
+          >> rendered in YAML format
+        description: Demonstrates using a to_yaml transform
+        command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+        transform:
+          pipeline:
+            - to_yaml: {}
+            - write_file:
+                file: /tmp/report.yaml
+
+      # This fetches latest releases from github and uses the to_json transform
+      # to compact it into unindented json
+      - name: to_json
+        type: exec
+        banner: |
+          >>
+          >> This fetches information about the latest appbuilder release
+          >> rendered in unindented JSON format
+        description: Demonstrates using a to_json transform
+        command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+        transform:
+          pipeline:
+            - to_json: {}
+            - write_file:
+                file: /tmp/report.json
+
       # This fetches latest releases from github and uses the report transform to
       # turn that into a tabular report of downloads including a total downloads counter
       - name: report
