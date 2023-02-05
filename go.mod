@@ -1,6 +1,6 @@
 module github.com/choria-io/appbuilder
 
-go 1.18
+go 1.19
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.6
@@ -13,8 +13,8 @@ require (
 	github.com/guptarohit/asciigraph v0.5.5
 	github.com/itchyny/gojq v0.12.11
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/onsi/ginkgo/v2 v2.7.0
-	github.com/onsi/gomega v1.25.0
+	github.com/onsi/ginkgo/v2 v2.8.0
+	github.com/onsi/gomega v1.26.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/tidwall/gjson v1.14.4
 	github.com/xlab/tablewriter v0.0.0-20160610135559-80b567a11ad5
@@ -47,7 +47,7 @@ require (
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/term v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
-	golang.org/x/tools v0.4.0 // indirect
+	golang.org/x/tools v0.5.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

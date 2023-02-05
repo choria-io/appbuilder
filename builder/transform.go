@@ -37,6 +37,12 @@ type Transform struct {
 
 	// WriteFile writes data to a file
 	WriteFile *writeFileTransform `json:"write_file,omitempty"`
+
+	// ToJSON converts from YAML or JSON into JSON
+	ToJSON *toJSONTransform `json:"to_json"`
+
+	// ToYAML converts from JSON to YAML
+	ToYAML *toYAMLTransform `json:"to_yaml"`
 }
 
 type transformer interface {
@@ -68,6 +74,12 @@ func (t *Transform) transformerForQuery() (transformer, error) {
 
 	case len(t.Pipeline) > 0:
 		return newPipelineTransform(t)
+
+	case t.ToJSON != nil:
+		return newToJSONTransform(t)
+
+	case t.ToYAML != nil:
+		return newToYAMLTransform(t)
 
 	default:
 		return nil, fmt.Errorf("%w: no transform", ErrInvalidTransform)

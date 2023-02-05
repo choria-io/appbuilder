@@ -11,11 +11,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/ghodss/yaml"
 	"github.com/itchyny/gojq"
 )
 
 type jqTransform struct {
-	Query string `json:"query"`
+	Query     string `json:"query"`
+	YAMLInput bool   `json:"yaml_input"`
 
 	def *Transform
 }
@@ -46,7 +48,7 @@ func (t *jqTransform) Validate(_ Logger) error {
 }
 
 func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
-	j, err := io.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +56,16 @@ func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[strin
 	out := bytes.NewBuffer([]byte{})
 	var input any
 
-	err = json.Unmarshal(j, &input)
+	if t.YAMLInput {
+		data, err = yaml.YAMLToJSON(data)
+		if err != nil {
+			return nil, fmt.Errorf("yaml input parse error: %v", err)
+		}
+	}
+
+	err = json.Unmarshal(data, &input)
 	if err != nil {
-		return nil, fmt.Errorf("json output parse error: %v", err)
+		return nil, fmt.Errorf("json input parse error: %v", err)
 	}
 
 	query, err := ParseStateTemplate(t.Query, args, flags, cfg)

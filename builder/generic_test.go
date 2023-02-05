@@ -94,7 +94,7 @@ var _ = Describe("GenericTransform", func() {
 			Expect(trans.Validate(nil)).To(Succeed())
 
 			_, err = trans.TransformBytes(context.Background(), []byte(`{`), nil, nil, nil)
-			Expect(err).To(MatchError("json output parse error: unexpected end of JSON input"))
+			Expect(err).To(MatchError("json input parse error: unexpected end of JSON input"))
 
 			res, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"}`), nil, nil, nil)
 			Expect(err).ToNot(HaveOccurred())

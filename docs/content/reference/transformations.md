@@ -37,26 +37,54 @@ The `jq` transform uses a dialect of JQ called [GoJQ](https://github.com/itchyny
 
 ```yaml
 transform:
-  query: .description
-```
-
-Is the same as (added in `0.2.0`):
-
-```yaml
-transform:
   jq:
     query: .description
 ```
 
-The `query` parameter is all that is supported. The `query` supports [Templating](../templating).
+The `query` supports [Templating](../templating). 
+
+Since version `0.5.0` an optional `yaml_input` boolean can be set true to allow YAML input to be processed using JQ.
+
+## To JSON Transform
+
+The `to_json` transform can convert YAML or JSON format input into JSON format output. By default the output JSON will be compact unindented JSON, prefix and indent strings can be configured.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.5.0
+{{% /notice %}}
+
+```yaml
+# unindented JSON output
+transform:
+  to_json: {}
+```
+
+```yaml
+# Indented JSON output with a custom prefix
+transform:
+  to_json:
+    indent: "  "
+    prefix: "  "
+```
+
+## To YAML Transform
+
+The `to_yaml` transform can convert JSON format input into YAML format output.
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.5.0
+{{% /notice %}}
+
+```yaml
+transform:
+  to_yaml: {}
+```
+
+The `to_yaml` transform has no options.
 
 ## Bar Graph Transform
 
 This transform takes a JSON document like `{"x": 1, "y": 2}` as input and renders bars for the values.
-
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.2.0
-{{% /notice %}}
 
 Here is an example that draws the sizes of the assets of the latest release:
 
@@ -115,10 +143,6 @@ The transform supports a few options, all are optional:
 
 This transform takes input of floats per line or a JSON document (array of floats) and turns it into a line graph.
 
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.2.0
-{{% /notice %}}
-
 Here we find the hourly forecast for our location and graph it:
 
 ```yaml
@@ -169,10 +193,6 @@ The transform supports a few options, all are optional:
 
 The `template` transform uses Golang templates and the [sprig](http://masterminds.github.io/sprig/) functions
 to facilitate creation of text output using a template language.
-
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.3.0
-{{% /notice %}}
 
 ```yaml
 name: template
@@ -239,10 +259,6 @@ In this case the message `Wrote 1.8 KiB to /tmp/report.txt` would be printed. Yo
 These reports allow you to produce text reports for data found in JSON files.  It reports on Array data and produce 
 paginated reports with optional headers and footers.
 
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.3.0
-{{% /notice %}}
-
 ```yaml
 name: report
 type: exec
@@ -302,10 +318,6 @@ Name: appbuilder-0.2.1-x86_64.rpm                  Size: 2.2 MiB  Downloads: 2
 ## Pipelines
 
 We've seen a few example transform pipelines above, like this one here:
-
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.2.0
-{{% /notice %}}
 
 ```yaml
 type: exec
