@@ -91,7 +91,7 @@ func (p *Parent) SubCommands() []json.RawMessage {
 	return p.def.Commands
 }
 
-func (p *Parent) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error) {
+func (p *Parent) CreateCommand(app builder.FiskCommand) (*fisk.CmdClause, error) {
 	p.cmd = app.Command(p.def.Name, p.def.Description)
 	for _, a := range p.def.Aliases {
 		p.cmd.Alias(a)

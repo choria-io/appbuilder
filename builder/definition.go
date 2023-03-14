@@ -42,7 +42,7 @@ func (d *Definition) Validate(log Logger) error {
 	if d.Name == "" {
 		errs = append(errs, "name is required")
 	}
-	if d.Description == "" {
+	if requireDescription && d.Description == "" {
 		errs = append(errs, "description is required")
 	}
 	if matched, err := regexp.MatchString(semverVerifier, d.Version); !matched || err != nil {

@@ -21,7 +21,7 @@ import (
 	"github.com/xlab/tablewriter"
 )
 
-type KingpinCommand interface {
+type FiskCommand interface {
 	Flag(name, help string) *fisk.FlagClause
 	Command(name, help string) *fisk.CmdClause
 }
@@ -29,7 +29,7 @@ type KingpinCommand interface {
 // Command is the interface a command plugin should implement
 type Command interface {
 	// CreateCommand should add all the flags, sub commands, arguments and more to the app
-	CreateCommand(app KingpinCommand) (*fisk.CmdClause, error)
+	CreateCommand(app FiskCommand) (*fisk.CmdClause, error)
 	// SubCommands is the list of defined sub commands, nil if none
 	SubCommands() []json.RawMessage
 	// Validate should validate the properties of the command after creation
@@ -71,9 +71,12 @@ var (
 	Commit  = "unknown"
 	Date    = "unknown"
 
-	appDefPattern  = "%s-app.yaml"
-	appCfgPatten   = "%s-cfg.yaml"
-	descriptionFmt = `%s
+	requireDescription   = true
+	appDefPattern        = "%s-app.yaml"
+	appCfgPatten         = "%s-cfg.yaml"
+	defaultDescription   = ""
+	defaultUsageTemplate = fisk.CompactMainUsageTemplate
+	descriptionFmt       = `%s
 
 Contact: %s
 `
@@ -131,7 +134,7 @@ func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
-func (b *AppBuilder) CreateBuilderApp(cmd KingpinCommand) {
+func (b *AppBuilder) CreateBuilderApp(cmd FiskCommand) {
 	validate := cmd.Command("validate", "Validates a application definition").Action(b.validateAction)
 	validate.Arg("definition", "Path to the definition to validate").Required().ExistingFileVar(&b.appPath)
 
@@ -278,7 +281,12 @@ func (b *AppBuilder) validateAction(_ *fisk.ParseContext) error {
 
 // HasDefinition determines if the named definition can be found on the node
 func (b *AppBuilder) HasDefinition() bool {
-	source, _ := b.findConfigFile(fmt.Sprintf(appDefPattern, b.name), b.appPath)
+	name := appDefPattern
+	if strings.Contains(name, "%") {
+		name = fmt.Sprintf(appDefPattern, b.name)
+	}
+
+	source, _ := b.findConfigFile(name, b.appPath)
 	if source == "" {
 		return false
 	}
@@ -308,7 +316,12 @@ func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
 
 // LoadDefinition loads the definition for the name from file, creates the command structure and validates everything
 func (b *AppBuilder) LoadDefinition() (*Definition, error) {
-	source, err := b.findConfigFile(fmt.Sprintf(appDefPattern, b.name), b.appPath)
+	name := appDefPattern
+	if strings.Contains(appDefPattern, "%") {
+		name = fmt.Sprintf(appDefPattern, b.name)
+	}
+
+	source, err := b.findConfigFile(name, b.appPath)
 	if err != nil {
 		return nil, ErrDefinitionNotfound
 	}
@@ -349,7 +362,10 @@ func (b *AppBuilder) createCommands(d *Definition, defs []json.RawMessage) error
 
 // LoadConfig loads the configuration if possible, does not error if nothing is found only if loading fails
 func (b *AppBuilder) LoadConfig() (map[string]any, error) {
-	fname := fmt.Sprintf(appCfgPatten, b.name)
+	fname := appCfgPatten
+	if strings.Contains(appCfgPatten, "%") {
+		fname = fmt.Sprintf(appCfgPatten, b.name)
+	}
 
 	source, err := b.findConfigFile(fname, "")
 	if err != nil || source == "" {
@@ -382,7 +398,19 @@ func (b *AppBuilder) LoadConfig() (map[string]any, error) {
 }
 
 func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
-	cmd := fisk.New(b.name, fmt.Sprintf(descriptionFmt, b.def.Description, b.def.Author))
+	description := b.def.Description
+	if description == "" {
+		description = defaultDescription
+	}
+
+	matches := strings.Count(descriptionFmt, "%")
+	if matches == 1 {
+		description = fmt.Sprintf(descriptionFmt, description)
+	} else if matches == 2 {
+		description = fmt.Sprintf(descriptionFmt, description, b.def.Author)
+	}
+
+	cmd := fisk.New(b.name, description)
 	cmd.Version(b.def.Version)
 	cmd.Author(b.def.Author)
 	cmd.HelpFlag.Hidden()
@@ -394,14 +422,17 @@ func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 
 	switch strings.TrimSpace(strings.ToLower(b.def.HelpTemplate)) {
 	case "", "default":
+		cmd.UsageTemplate(defaultUsageTemplate)
+		cmd.ErrorUsageTemplate(defaultUsageTemplate)
+	case "compact":
 		cmd.UsageTemplate(fisk.CompactMainUsageTemplate)
 		cmd.ErrorUsageTemplate(fisk.CompactMainUsageTemplate)
-	case "compact":
-		cmd.UsageTemplate(fisk.CompactUsageTemplate)
 	case "short":
 		cmd.UsageTemplate(fisk.ShorterMainUsageTemplate)
+		cmd.ErrorUsageTemplate(fisk.ShorterMainUsageTemplate)
 	case "long":
 		cmd.UsageTemplate(fisk.KingpinDefaultUsageTemplate)
+		cmd.ErrorUsageTemplate(fisk.KingpinDefaultUsageTemplate)
 	}
 
 	cheats := b.def.Cheats
@@ -519,7 +550,7 @@ func (b *AppBuilder) validateCommands(bread []string, errs chan string, cmds ...
 	}
 }
 
-func (b *AppBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error {
+func (b *AppBuilder) registerCommands(cli FiskCommand, cmds ...Command) error {
 	bread := []string{"root"}
 
 	for _, c := range cmds {

@@ -169,7 +169,7 @@ func (r *Exec) SubCommands() []json.RawMessage {
 	return r.def.Commands
 }
 
-func (r *Exec) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error) {
+func (r *Exec) CreateCommand(app builder.FiskCommand) (*fisk.CmdClause, error) {
 	r.cmd = builder.CreateGenericCommand(app, &r.def.GenericCommand, r.arguments, r.flags, r.b, r.runCommand)
 
 	return r.cmd, nil

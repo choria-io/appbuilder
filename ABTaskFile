@@ -1,0 +1,60 @@
+name: Build Tasks
+commands:
+    - name: dependencies
+      type: parent
+      description: Manage dependencies
+      aliases: [d]
+      commands:
+        - name: update
+          description: Update dependencies
+          type: exec
+          aliases: [up]
+          flags:
+            - name: verbose
+              description: Log verbosely
+              bool: true
+          banner: |
+              >>>
+              >>> Updating all dependencies
+              >>>
+          script: |
+            for i in $(go list -f '{{ "{{if not .Indirect}}{{.Path}}{{end}}" }}' -m all|grep -v appbuilder)
+            do
+                echo $i
+                go get -u -n -a {{- if .Flags.verbose }} -d -x {{ end }} $i
+            done
+
+            go mod tidy
+
+    - name: build
+      type: parent
+      description: Code build steps
+      commands:
+        - name: binary
+          description: Build a basic test binary
+          type: exec
+          banner: |
+              >>>
+              >>> Building 'appbuilder' and 'abtask' locally {{ if .Flags.target }}for target '{{ .Flags.target }}'{{ end }}
+              >>>
+          flags:
+            - name: target
+              description: Target platform to build for
+              enum: ["linux/amd64"]
+              short: T
+          script: |
+            {{ if eq .Flags.target "linux/amd64" }}
+                export GOOS=linux
+                export GOARCH=amd64
+            {{ end }}
+
+            go build -o appbuilder
+            go build -o abtask
+
+            ls -l appbuilder abtask
+
+        - name: snapshot
+          description: Goreleaser snapshot
+          type: exec
+          script: |
+            goreleaser release --snapshot --clean

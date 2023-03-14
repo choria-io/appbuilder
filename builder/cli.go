@@ -6,7 +6,9 @@ package builder
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/choria-io/fisk"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,6 +16,42 @@ import (
 
 	"github.com/sirupsen/logrus"
 )
+
+func RunTaskCLI(ctx context.Context, watchInterrupts bool, opts ...Option) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	if opts == nil {
+		opts = []Option{}
+	}
+
+	bldr, err := createBuilder(ctx, os.Args[0], nil, opts...)
+	if err != nil {
+		return err
+	}
+
+	if watchInterrupts {
+		go interruptWatcher(ctx, cancel, bldr.log)
+	}
+
+	requireDescription = false
+	appCfgPatten = ".env"
+	appDefPattern = "ABTaskFile"
+	defaultUsageTemplate = fisk.CompactUsageTemplate
+	descriptionFmt = `%s
+
+Help: https://choria-io.github.io/appbuilder`
+
+	defaultDescription = "App Builder Task"
+	bldr.cfgSources = []string{"abtasks"}
+
+	err = bldr.RunCommand()
+	if errors.Is(err, ErrDefinitionNotfound) {
+		return fmt.Errorf("could not find ./ABTaskFile")
+	}
+
+	return err
+}
 
 func RunBuilderCLI(ctx context.Context, watchInterrupts bool, opts ...Option) error {
 	ctx, cancel := context.WithCancel(ctx)
@@ -88,6 +126,7 @@ func createBuilder(ctx context.Context, name string, log Logger, opts ...Option)
 	if log != nil {
 		opts = append([]Option{WithLogger(log)}, opts...)
 	}
+
 	return New(ctx, name, opts...)
 }
 
