@@ -52,6 +52,7 @@ brews:
       system "#{bin}/appbuilder --version"
     install: |
       bin.install "appbuilder"
+      bin.install_symlink "appbuilder" => "abtask"
 
 checksum:
   name_template: "SHA256SUMS"
