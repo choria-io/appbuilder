@@ -21,7 +21,7 @@ import (
 	"github.com/xlab/tablewriter"
 )
 
-type FiskCommand interface {
+type KingpinCommand interface {
 	Flag(name, help string) *fisk.FlagClause
 	Command(name, help string) *fisk.CmdClause
 }
@@ -29,7 +29,7 @@ type FiskCommand interface {
 // Command is the interface a command plugin should implement
 type Command interface {
 	// CreateCommand should add all the flags, sub commands, arguments and more to the app
-	CreateCommand(app FiskCommand) (*fisk.CmdClause, error)
+	CreateCommand(app KingpinCommand) (*fisk.CmdClause, error)
 	// SubCommands is the list of defined sub commands, nil if none
 	SubCommands() []json.RawMessage
 	// Validate should validate the properties of the command after creation
@@ -134,7 +134,7 @@ func (b *AppBuilder) RunCommand() error {
 	return b.runCLI()
 }
 
-func (b *AppBuilder) CreateBuilderApp(cmd FiskCommand) {
+func (b *AppBuilder) CreateBuilderApp(cmd KingpinCommand) {
 	validate := cmd.Command("validate", "Validates a application definition").Action(b.validateAction)
 	validate.Arg("definition", "Path to the definition to validate").Required().ExistingFileVar(&b.appPath)
 
@@ -550,7 +550,7 @@ func (b *AppBuilder) validateCommands(bread []string, errs chan string, cmds ...
 	}
 }
 
-func (b *AppBuilder) registerCommands(cli FiskCommand, cmds ...Command) error {
+func (b *AppBuilder) registerCommands(cli KingpinCommand, cmds ...Command) error {
 	bread := []string{"root"}
 
 	for _, c := range cmds {
