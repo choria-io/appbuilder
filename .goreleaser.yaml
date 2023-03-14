@@ -71,6 +71,10 @@ nfpms:
     contents:
       - dst: /etc/appbuilder
         type: dir
+
+      - dst: /usr/bin/abtask
+        src: /usr/bin/appbuilder
+        type: symlink
     overrides:
       rpm:
         replacements:

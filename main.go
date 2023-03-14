@@ -27,6 +27,8 @@ func main() {
 
 	if strings.HasPrefix(name, "appbuilder") {
 		err = builder.RunBuilderCLI(context.Background(), true, builder.WithContextualUsageOnError())
+	} else if strings.HasPrefix(name, "abtask") {
+		err = builder.RunTaskCLI(context.Background(), true, builder.WithContextualUsageOnError())
 	} else {
 		err = builder.RunStandardCLI(context.Background(), name, true, nil, builder.WithContextualUsageOnError())
 	}
