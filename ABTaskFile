@@ -26,6 +26,16 @@ commands:
 
             go mod tidy
 
+    - name: test
+      type: exec
+      description: Perform unit tests
+      arguments:
+        - name: dir
+          description: Directory to test
+          default: .
+      script: |
+        ginkgo -r {{ .Arguments.dir | escape }}
+
     - name: build
       type: parent
       description: Code build steps

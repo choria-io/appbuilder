@@ -98,7 +98,7 @@ type GenericFlag struct {
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
-func CreateGenericCommand(app FiskCommand, sc *GenericCommand, arguments map[string]any, flags map[string]any, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
+func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]any, flags map[string]any, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
 	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, b, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
