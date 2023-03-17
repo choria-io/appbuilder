@@ -57,6 +57,10 @@ func templateFuncs(all bool) template.FuncMap {
 		return v, nil
 	}
 
+	funcs["env"] = func(v string) string {
+		return os.Getenv(v)
+	}
+
 	funcs["escape"] = func(v string) string {
 		return shellescape.Quote(v)
 	}
@@ -84,15 +88,20 @@ func templateFuncs(all bool) template.FuncMap {
 	return funcs
 }
 
-// ParseStateTemplate parses body as a go text template with supplied values exposed to the user
-func ParseStateTemplate(body string, args map[string]any, flags map[string]any, cfg any) (string, error) {
+// ParseStateTemplateWithFuncMap parses body as a go text template with supplied values exposed to the user with additional functions available to the template
+func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[string]any, cfg any, funcMap template.FuncMap) (string, error) {
 	state := templateState{
 		Arguments: dereferenceArgsOrFlags(args),
 		Flags:     dereferenceArgsOrFlags(flags),
 		Config:    cfg,
 	}
 
-	temp, err := template.New("choria").Funcs(templateFuncs(false)).Parse(body)
+	funcs := templateFuncs(false)
+	for n, f := range funcMap {
+		funcs[n] = f
+	}
+
+	temp, err := template.New("choria").Funcs(funcs).Parse(body)
 	if err != nil {
 		return "", err
 	}
@@ -104,4 +113,9 @@ func ParseStateTemplate(body string, args map[string]any, flags map[string]any, 
 	}
 
 	return b.String(), nil
+}
+
+// ParseStateTemplate parses body as a go text template with supplied values exposed to the user
+func ParseStateTemplate(body string, args map[string]any, flags map[string]any, cfg any) (string, error) {
+	return ParseStateTemplateWithFuncMap(body, args, flags, cfg, nil)
 }

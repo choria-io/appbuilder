@@ -11,6 +11,7 @@ import (
 	"github.com/choria-io/fisk"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -35,19 +36,16 @@ func RunTaskCLI(ctx context.Context, watchInterrupts bool, opts ...Option) error
 	}
 
 	requireDescription = false
-	appCfgPatten = ".env"
-	appDefPattern = "ABTaskFile"
 	defaultUsageTemplate = fisk.CompactUsageTemplate
 	descriptionFmt = `%s
 
 Help: https://choria-io.github.io/appbuilder`
 
 	defaultDescription = "App Builder Task"
-	bldr.cfgSources = []string{"abtasks"}
 
-	err = bldr.RunCommand()
+	err = bldr.runTaskCLI()
 	if errors.Is(err, ErrDefinitionNotfound) {
-		return fmt.Errorf("could not find ./ABTaskFile")
+		return fmt.Errorf("could not find a valid task file called any of %s", strings.Join(taskFileNames, ", "))
 	}
 
 	return err

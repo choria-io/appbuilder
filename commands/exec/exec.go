@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/choria-io/appbuilder/builder"
@@ -33,12 +34,15 @@ type Command struct {
 	Script      string             `json:"script"`
 	Shell       string             `json:"shell"`
 	Backoff     *Backoff           `json:"backoff"`
+	WorkingDir  string             `json:"dir"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
 }
 
 type Exec struct {
+	defnDir   string
+	userDir   string
 	arguments map[string]any
 	flags     map[string]any
 	cmd       *fisk.CmdClause
@@ -67,6 +71,8 @@ func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 	exec := &Exec{
 		def:       &Command{},
 		ctx:       b.Context(),
+		defnDir:   b.DefinitionDirectory(),
+		userDir:   b.UserWorkingDirectory(),
 		b:         b,
 		log:       log,
 		arguments: map[string]any{},
@@ -199,6 +205,7 @@ func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
 	run.Stdin = os.Stdin
 	run.Stdout = r.b.Stdout()
 	run.Stderr = r.b.Stderr()
+	run.Dir = r.def.WorkingDir
 
 	err := run.Run()
 	if err != nil {
@@ -220,6 +227,7 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 
 	run.Stdin = os.Stdin
 	run.Stderr = r.b.Stderr()
+	run.Dir = r.def.WorkingDir
 
 	out, err := run.Output()
 	if err != nil {
@@ -260,13 +268,29 @@ func (r *Exec) findShell() []string {
 	return []string{"/bin/sh", "-c"}
 }
 
+func (r *Exec) funcMap() template.FuncMap {
+	return template.FuncMap{
+		"UserWorkingDir": func() string {
+			return r.userDir
+		},
+		"AppDir": func() string {
+			return r.defnDir
+		},
+		"TaskDir": func() string {
+			fmt.Printf("%#v\n", r)
+
+			return r.defnDir
+		},
+	}
+}
+
 func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	var cmd string
 	var err error
 	var parts []string
 
 	if r.def.Command != "" {
-		cmd, err = builder.ParseStateTemplate(r.def.Command, r.arguments, r.flags, r.b.Configuration())
+		cmd, err = builder.ParseStateTemplateWithFuncMap(r.def.Command, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -281,12 +305,20 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 			return fmt.Errorf("cannot determine shell, set SHELL or shell property")
 		}
 
-		script, err := builder.ParseStateTemplate(r.def.Script, r.arguments, r.flags, r.b.Configuration())
+		script, err := builder.ParseStateTemplateWithFuncMap(r.def.Script, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
 
 		parts = append(shell, script)
+	}
+
+	if r.def.WorkingDir != "" {
+		r.def.WorkingDir, err = builder.ParseStateTemplateWithFuncMap(r.def.WorkingDir, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
+		if err != nil {
+			return err
+		}
+		r.log.Debugf("Running command in directory %s", r.def.WorkingDir)
 	}
 
 	if len(parts) == 0 {
@@ -295,7 +327,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 
 	var env []string
 	for _, e := range r.def.Environment {
-		v, err := builder.ParseStateTemplate(e, r.arguments, r.flags, r.b.Configuration())
+		v, err := builder.ParseStateTemplateWithFuncMap(e, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
