@@ -47,16 +47,18 @@ type templateState struct {
 
 // AppBuilder is the main runner and configuration handler
 type AppBuilder struct {
-	ctx           context.Context
-	def           *Definition
-	name          string
-	appPath       string
-	cfg           map[string]any
-	cfgSources    []string
-	stdOut        io.Writer
-	stdErr        io.Writer
-	log           Logger
-	exitWithUsage bool
+	ctx            context.Context
+	def            *Definition
+	name           string
+	appPath        string
+	definitionPath string
+	userWorkingDir string
+	cfg            map[string]any
+	cfgSources     []string
+	stdOut         io.Writer
+	stdErr         io.Writer
+	log            Logger
+	exitWithUsage  bool
 }
 
 var (
@@ -68,8 +70,14 @@ var (
 	ErrInvalidDefinition  = errors.New("invalid definition")
 
 	Version = "development"
-	Commit  = "unknown"
-	Date    = "unknown"
+
+	taskFileNames = []string{
+		"ABTaskFile.dist.yaml",
+		"ABTaskFile.dist.yml",
+		"ABTaskFile.yaml",
+		"ABTaskFile.yml",
+		"ABTAskFile",
+	}
 
 	requireDescription   = true
 	appDefPattern        = "%s-app.yaml"
@@ -97,9 +105,16 @@ func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) 
 		},
 	}
 
+	var err error
+
+	builder.userWorkingDir, err = os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, opt := range opts {
 		if opt != nil {
-			err := opt(builder)
+			err = opt(builder)
 			if err != nil {
 				return nil, err
 			}
@@ -107,6 +122,20 @@ func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) 
 	}
 
 	return builder, nil
+}
+
+// UserWorkingDirectory is the user is in when executing the command
+func (b *AppBuilder) UserWorkingDirectory() string {
+	return b.userWorkingDir
+}
+
+// DefinitionDirectory is the directory where the definition is stored
+func (b *AppBuilder) DefinitionDirectory() string {
+	if b.definitionPath == "" {
+		return ""
+	}
+
+	return filepath.Dir(b.definitionPath)
 }
 
 // Stdout is the target for writing errors
@@ -295,6 +324,10 @@ func (b *AppBuilder) HasDefinition() bool {
 }
 
 func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
+	if b.log != nil {
+		b.log.Debugf("Loading application definition %v", source)
+	}
+
 	cfg, err := os.ReadFile(source)
 	if err != nil {
 		return nil, err
@@ -311,6 +344,13 @@ func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
 		return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
 	}
 
+	err = b.createCommands(d, d.Commands)
+	if err != nil {
+		return nil, err
+	}
+
+	b.definitionPath = source
+
 	return d, nil
 }
 
@@ -326,16 +366,7 @@ func (b *AppBuilder) LoadDefinition() (*Definition, error) {
 		return nil, ErrDefinitionNotfound
 	}
 
-	if b.log != nil {
-		b.log.Debugf("Loading application definition %v", source)
-	}
-
 	d, err := b.loadDefinition(source)
-	if err != nil {
-		return nil, err
-	}
-
-	err = b.createCommands(d, d.Commands)
 	if err != nil {
 		return nil, err
 	}
@@ -375,7 +406,15 @@ func (b *AppBuilder) LoadConfig() (map[string]any, error) {
 		}
 	}
 
+	return b.loadConfigFile(source)
+}
+
+func (b *AppBuilder) loadConfigFile(source string) (map[string]any, error) {
 	b.log.Debugf("Loading configuration file %s", source)
+
+	if !fileExist(source) {
+		return nil, ErrConfigNotFound
+	}
 
 	cfgb, err := os.ReadFile(source)
 	if err != nil {
@@ -474,18 +513,43 @@ func (b *AppBuilder) FiskApplication() (*fisk.Application, error) {
 	return b.createAppCLI()
 }
 
-func (b *AppBuilder) runCLI() error {
-	var err error
+func (b *AppBuilder) runTaskCLI() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
 
-	b.cfg, err = b.LoadConfig()
+	tf, err := b.findFirstTaskFile(wd)
+	if err != nil {
+		return err
+	}
+
+	b.cfg, err = b.loadConfigFile(".abtenv")
 	if err != nil && !errors.Is(err, ErrConfigNotFound) {
 		return err
 	}
 
-	b.def, err = b.LoadDefinition()
+	b.def, err = b.loadDefinition(tf)
 	if err != nil {
 		return err
 	}
+
+	cmd, err := b.createAppCLI()
+	if err != nil {
+		return err
+	}
+
+	if b.exitWithUsage {
+		cmd.MustParseWithUsage(os.Args[1:])
+		return nil
+	}
+
+	_, err = cmd.Parse(os.Args[1:])
+	return err
+}
+
+func (b *AppBuilder) runCLI() error {
+	var err error
 
 	cmd, err := b.FiskApplication()
 	if err != nil {
@@ -499,6 +563,24 @@ func (b *AppBuilder) runCLI() error {
 
 	_, err = cmd.Parse(os.Args[1:])
 	return err
+}
+
+func (b *AppBuilder) findFirstTaskFile(path string) (string, error) {
+	for _, f := range taskFileNames {
+		tf := filepath.Join(path, f)
+		b.log.Debugf("Looking for task file %s", tf)
+		if fileExist(tf) {
+			return tf, nil
+		}
+	}
+
+	parent := filepath.Dir(path)
+
+	if parent != path {
+		return b.findFirstTaskFile(parent)
+	}
+
+	return "", ErrDefinitionNotfound
 }
 
 func (b *AppBuilder) findConfigFile(name string, override string) (string, error) {

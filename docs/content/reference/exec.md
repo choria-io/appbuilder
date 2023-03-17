@@ -19,6 +19,8 @@ name: say
 description: Says something using the cowsay command
 type: exec
 
+dir: /tmp
+
 environment:
   - "MESSAGE={{ .Arguments.message}}"
 
@@ -35,7 +37,9 @@ The `command` is how the shell command is specified and we show some [templating
 
 We also show how to set environment variables using `environment`, this too will be templated.
 
-Since version `0.0.9` setting environment variable `BUILDER_DRY_RUN` to any value will enable debug logging, log the command and terminate without calling your command.
+Since version `0.9.0` setting `dir` will execute the command in that directory. This setting supports [templating](../templating) and has an sets extra variables `UserWorkingDir` for the directory the user is in before running the command, `AppDir` and `TaskDir` indicating the directory the definition is in.
+
+Setting environment variable `BUILDER_DRY_RUN` to any value will enable debug logging, log the command and terminate without calling your command.
 
 ## Shell scripts
 

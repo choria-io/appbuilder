@@ -29,6 +29,7 @@ commands:
     - name: test
       type: exec
       description: Perform unit tests
+      dir: "{{ TaskDir }}"
       arguments:
         - name: dir
           description: Directory to test
@@ -43,6 +44,7 @@ commands:
         - name: binary
           description: Build a basic test binary
           type: exec
+          dir: "{{ TaskDir }}"
           banner: |
               >>>
               >>> Building 'appbuilder' and 'abtask' locally {{ if .Flags.target }}for target '{{ .Flags.target }}'{{ end }}
@@ -66,5 +68,6 @@ commands:
         - name: snapshot
           description: Goreleaser snapshot
           type: exec
+          dir: "{{ TaskDir }}"
           script: |
             goreleaser release --snapshot --clean
