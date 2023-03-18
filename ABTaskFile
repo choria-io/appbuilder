@@ -37,6 +37,20 @@ commands:
       script: |
         ginkgo -r {{ .Arguments.dir | escape }}
 
+    - name: docs
+      type: parent
+      description: Documentation related commands
+      commands:
+        - name: serve
+          description: Serves documentation locally
+          type: exec
+          dir: "{{ TaskDir }}/docs"
+          flags:
+            - name: port
+              description: The port to listen on
+              default: "8081"
+          command: hugo serve -p {{ .Flags.port }}
+
     - name: build
       type: parent
       description: Code build steps
