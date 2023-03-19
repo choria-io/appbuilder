@@ -64,10 +64,6 @@ script: |
 Failing executions can be tried based on a backoff policy, here we configure a maximum of 10 attempts with varying sleep
 times that would include randomized jitter.
 
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.4.0
-{{% /notice %}}
-
 Scripts can detect if they are running in a retry by inspecting the `BUILDER_TRY` environment variable.
 
 ```yaml
