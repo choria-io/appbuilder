@@ -49,10 +49,6 @@ Since version `0.5.0` an optional `yaml_input` boolean can be set true to allow 
 
 The `to_json` transform can convert YAML or JSON format input into JSON format output. By default the output JSON will be compact unindented JSON, prefix and indent strings can be configured.
 
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.5.0
-{{% /notice %}}
-
 ```yaml
 # unindented JSON output
 transform:
@@ -70,10 +66,6 @@ transform:
 ## To YAML Transform
 
 The `to_yaml` transform can convert JSON format input into YAML format output.
-
-{{% notice secondary "Version Hint" code-branch %}}
-Added in version 0.5.0
-{{% /notice %}}
 
 ```yaml
 transform:

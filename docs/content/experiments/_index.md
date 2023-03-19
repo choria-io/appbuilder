@@ -67,7 +67,7 @@ of the working directory the user is in.
 
 An example can be found in the source repository for this project.
 
-## Configuration
+### Configuration
 
 Configuration is looked for in the local directory in the `.abtenv` file.  At present this is not searched for in parent
 directories.
