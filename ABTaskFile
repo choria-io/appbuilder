@@ -18,11 +18,7 @@ commands:
               >>> Updating all dependencies
               >>>
           script: |
-            for i in $(go list -f '{{ "{{if not .Indirect}}{{.Path}}{{end}}" }}' -m all|grep -v appbuilder)
-            do
-                echo $i
-                go get -u -n -a {{- if .Flags.verbose }} -d -x {{ end }} $i
-            done
+            go get -u -n -a -t {{- if .Flags.verbose }} -d -x {{ end }} ./...
 
             go mod tidy
 

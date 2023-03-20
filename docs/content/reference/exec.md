@@ -59,6 +59,45 @@ script: |
   done
 ```
 
+## Common helper functions
+
+We provide a basic helper shell script that can be used to echo text to the screen in various ways. To use this you can 
+source the script:
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.6.3
+{{% /notice %}}
+
+```yaml
+name: script
+description: A shell script
+type: exec
+shell: /bin/zsh
+script: |
+  set -e
+
+  . "{{ BashHelperPath }}"
+  
+  ab_announce Hello World
+```
+
+This will output:
+
+```nohighlight
+>>> Hello World
+```
+
+It provides a few functions:
+
+ * `ab_say` prefix the message using a single prefix `>>>`
+ * `ab_announce` prefix the message with `>>>` with a line of `>>>` before and after the message
+ * `ab_error` prefix the message with `!!!`
+ * `ab_panic` prefix the message with `!!!` and exit the script with code 1
+
+The `>>>` can be configured by setting `AB_SAY_PREFIX` and the `!!!` by setting `AB_ERROR_PREFIX` after sourcing the helper.
+
+The output can have time stamps added to the lines by setting `AB_HELPER_TIME_STAMP` shell variable to `T` for time and `D` for time and date prefixes.
+
 ## Retrying failed executions
 
 Failing executions can be tried based on a backoff policy, here we configure a maximum of 10 attempts with varying sleep

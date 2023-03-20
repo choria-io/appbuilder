@@ -152,6 +152,17 @@ commands:
         script: |
           echo "The supplied value set in APPVAR: ${APPVAR?}"
 
+      - name: shell_helper
+        type: exec
+        description: Demonstrates using shell helper functions
+        script: |
+          set -e
+          
+          . "{{ BashHelperPath }}"
+          AB_SAY_PREFIX="???"
+          
+          ab_announce Demonstrates using the shell helper
+
   - name: transforms
     description: Demonstrate transform features
     type: parent

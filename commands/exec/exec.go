@@ -6,6 +6,7 @@ package exec
 
 import (
 	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,6 +20,9 @@ import (
 	"github.com/choria-io/fisk"
 	"github.com/kballard/go-shellquote"
 )
+
+//go:embed bash_helpers.sh
+var bashHelper []byte
 
 type Backoff struct {
 	MaxAttempts uint   `json:"max_attempts"`
@@ -35,22 +39,24 @@ type Command struct {
 	Shell       string             `json:"shell"`
 	Backoff     *Backoff           `json:"backoff"`
 	WorkingDir  string             `json:"dir"`
+	NoHelper    bool               `json:"no_helper"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
 }
 
 type Exec struct {
-	defnDir   string
-	userDir   string
-	arguments map[string]any
-	flags     map[string]any
-	cmd       *fisk.CmdClause
-	def       *Command
-	ctx       context.Context
-	log       builder.Logger
-	bo        *policy
-	b         *builder.AppBuilder
+	defnDir    string
+	userDir    string
+	arguments  map[string]any
+	flags      map[string]any
+	cmd        *fisk.CmdClause
+	def        *Command
+	ctx        context.Context
+	log        builder.Logger
+	bo         *policy
+	helperPath string
+	b          *builder.AppBuilder
 }
 
 func Register() error {
@@ -65,6 +71,7 @@ var (
 	ErrorInvalidCommand  = errors.New("invalid command")
 	ErrorTemplateFailed  = errors.New("template error")
 	ErrorExecutionFailed = errors.New("execution failed")
+	ErrorHelperFailed    = errors.New("saving helper script failed")
 )
 
 func NewExecCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger) (builder.Command, error) {
@@ -277,9 +284,10 @@ func (r *Exec) funcMap() template.FuncMap {
 			return r.defnDir
 		},
 		"TaskDir": func() string {
-			fmt.Printf("%#v\n", r)
-
 			return r.defnDir
+		},
+		"BashHelperPath": func() string {
+			return r.helperPath
 		},
 	}
 }
@@ -288,6 +296,21 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	var cmd string
 	var err error
 	var parts []string
+
+	if !r.def.NoHelper {
+		tf, err := os.CreateTemp(r.userDir, "appbuilder-*")
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorHelperFailed, err)
+		}
+		defer os.Remove(tf.Name())
+
+		_, err = tf.Write(bashHelper)
+		if err != nil {
+			return fmt.Errorf("%w: %v", ErrorHelperFailed, err)
+		}
+		tf.Close()
+		r.helperPath = tf.Name()
+	}
 
 	if r.def.Command != "" {
 		cmd, err = builder.ParseStateTemplateWithFuncMap(r.def.Command, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
