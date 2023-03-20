@@ -160,6 +160,13 @@ var _ = Describe("Example Application", func() {
 				Expect(usageBuf.String()).To(ContainSubstring("The supplied value set in APPVAR: \"GINKGO\""))
 			})
 		})
+
+		Describe("Shell helpers", func() {
+			It("Should support exposing it to scripts and commands", func() {
+				cmd.MustParseWithUsage(strings.Fields("exec shell_helper"))
+				Expect(usageBuf.String()).To(ContainSubstring("???\n??? Demonstrates using the shell helper\n???"))
+			})
+		})
 	})
 
 	Describe("transforms", func() {
