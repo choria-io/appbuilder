@@ -71,9 +71,9 @@ commands:
             {{ end }}
 
             go build -o appbuilder
-            go build -o abtask
+            go build -o abt
 
-            ls -l appbuilder abtask
+            ls -l appbuilder abt
 
         - name: snapshot
           description: Goreleaser snapshot

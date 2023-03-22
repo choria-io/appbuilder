@@ -76,7 +76,7 @@ var (
 		"ABTaskFile.dist.yml",
 		"ABTaskFile.yaml",
 		"ABTaskFile.yml",
-		"ABTAskFile",
+		"ABTaskFile",
 	}
 
 	requireDescription   = true
