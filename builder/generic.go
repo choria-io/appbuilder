@@ -82,6 +82,25 @@ type GenericArgument struct {
 	Default     string   `json:"default"`
 }
 
+// AddToFiskCommand adds an argument to a command
+func (a *GenericArgument) AddToFiskCommand(cmd *fisk.CmdClause, arguments map[string]any) {
+	arg := cmd.Arg(a.Name, a.Description)
+	if a.Required {
+		arg.Required()
+	}
+
+	if a.Default != "" {
+		arg.Default(a.Default)
+	}
+
+	switch {
+	case len(a.Enum) > 0:
+		arguments[a.Name] = arg.Enum(a.Enum...)
+	default:
+		arguments[a.Name] = arg.String()
+	}
+}
+
 // GenericFlag is a standard command line flag
 type GenericFlag struct {
 	Name        string   `json:"name"`
@@ -93,6 +112,43 @@ type GenericFlag struct {
 	Bool        bool     `json:"bool"`
 	EnvVar      string   `json:"env"`
 	Short       string   `json:"short"`
+}
+
+// AddToFiskCommand adds a flag to a command
+func (f *GenericFlag) AddToFiskCommand(cmd *fisk.CmdClause, flags map[string]any) {
+	flag := cmd.Flag(f.Name, f.Description)
+	if f.Required {
+		flag.Required()
+	}
+
+	if f.PlaceHolder != "" {
+		flag.PlaceHolder(f.PlaceHolder)
+	}
+
+	if f.Default != nil {
+		flag.Default(fmt.Sprintf("%v", f.Default))
+	}
+
+	if f.EnvVar != "" {
+		flag.Envar(f.EnvVar)
+	}
+
+	if f.Short != "" {
+		flag.Short([]rune(f.Short)[0])
+	}
+
+	switch {
+	case len(f.Enum) > 0:
+		flags[f.Name] = flag.Enum(f.Enum...)
+	case f.Bool:
+		if f.Default == true || f.Default == "true" {
+			flags[f.Name] = flag.Bool()
+		} else {
+			flags[f.Name] = flag.UnNegatableBool()
+		}
+	default:
+		flags[f.Name] = flag.String()
+	}
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
@@ -119,59 +175,13 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 
 	if arguments != nil {
 		for _, a := range sc.Arguments {
-			arg := cmd.Arg(a.Name, a.Description)
-			if a.Required {
-				arg.Required()
-			}
-
-			if a.Default != "" {
-				arg.Default(a.Default)
-			}
-
-			switch {
-			case len(a.Enum) > 0:
-				arguments[a.Name] = arg.Enum(a.Enum...)
-			default:
-				arguments[a.Name] = arg.String()
-			}
+			a.AddToFiskCommand(cmd, arguments)
 		}
 	}
 
 	if flags != nil {
 		for _, f := range sc.Flags {
-			flag := cmd.Flag(f.Name, f.Description)
-			if f.Required {
-				flag.Required()
-			}
-
-			if f.PlaceHolder != "" {
-				flag.PlaceHolder(f.PlaceHolder)
-			}
-
-			if f.Default != nil {
-				flag.Default(fmt.Sprintf("%v", f.Default))
-			}
-
-			if f.EnvVar != "" {
-				flag.Envar(f.EnvVar)
-			}
-
-			if f.Short != "" {
-				flag.Short([]rune(f.Short)[0])
-			}
-
-			switch {
-			case len(f.Enum) > 0:
-				flags[f.Name] = flag.Enum(f.Enum...)
-			case f.Bool:
-				if f.Default == true || f.Default == "true" {
-					flags[f.Name] = flag.Bool()
-				} else {
-					flags[f.Name] = flag.UnNegatableBool()
-				}
-			default:
-				flags[f.Name] = flag.String()
-			}
+			f.AddToFiskCommand(cmd, flags)
 		}
 	}
 
