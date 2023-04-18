@@ -159,7 +159,7 @@ commands:
           set -e
           
           . "{{ BashHelperPath }}"
-          AB_SAY_PREFIX="???"
+          AB_ANNOUNCE_PREFIX="???"
           
           ab_announce Demonstrates using the shell helper
 
