@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 AB_SAY_PREFIX=">>>"
+AB_ANNOUNCE_PREFIX=">>>"
 AB_ERROR_PREFIX="!!!"
 
 function ab_prefix() {
@@ -30,7 +31,7 @@ function ab_say() {
 function ab_announce() {
   local p
 
-  p=$(ab_prefix "${AB_SAY_PREFIX}")
+  p=$(ab_prefix "${AB_ANNOUNCE_PREFIX}")
 
   echo "${p}"
   echo "${p} $*"

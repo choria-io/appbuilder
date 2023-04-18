@@ -87,11 +87,24 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 		fmt.Fprintln(out)
 	}
 
-	steps := (max - min) / float64(bg.Width)
+	var steps float64
+	if max == min {
+		steps = float64(bg.Width)
+	} else {
+		steps = (max - min) / float64(bg.Width)
+	}
+
 	longestLine := 0
 	for _, k := range keys {
 		v := input[k]
-		blocks := (v - min) / steps
+
+		var blocks float64
+		if v == min {
+			blocks = steps
+		} else {
+			blocks = (v - min) / steps
+		}
+
 		i := int(blocks)
 
 		var h string
