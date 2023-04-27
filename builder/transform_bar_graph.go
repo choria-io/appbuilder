@@ -89,7 +89,7 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 
 	var steps float64
 	if max == min {
-		steps = float64(bg.Width)
+		steps = max / float64(bg.Width)
 	} else {
 		steps = (max - min) / float64(bg.Width)
 	}
@@ -98,14 +98,12 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 	for _, k := range keys {
 		v := input[k]
 
-		var blocks float64
-		if v == min {
-			blocks = steps
+		var blocks int
+		if v-min == 0 {
+			blocks = bg.Width
 		} else {
-			blocks = (v - min) / steps
+			blocks = int((v - min) / steps)
 		}
-
-		i := int(blocks)
 
 		var h string
 		if bg.Bytes {
@@ -114,8 +112,8 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 			h = humanize.Commaf(v)
 		}
 
-		bar := strings.Repeat("█", i)
-		if i == 0 {
+		bar := strings.Repeat("█", blocks)
+		if blocks == 0 {
 			bar = "▏"
 		}
 
