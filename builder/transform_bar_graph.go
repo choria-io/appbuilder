@@ -99,9 +99,17 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 		v := input[k]
 
 		var blocks int
-		if v-min == 0 {
+		switch {
+		case v == 0:
+			// value 0 is always 0
+			blocks = 0
+		case len(keys) == 1:
+			// one entry, so we show full width
 			blocks = bg.Width
-		} else {
+		case min == max:
+			// all entries have same value, so we show full width
+			blocks = bg.Width
+		default:
 			blocks = int((v - min) / steps)
 		}
 
