@@ -30,8 +30,22 @@ commands:
         - name: dir
           description: Directory to test
           default: .
+      flags:
+        - name: update
+          description: Updates the ginkgo runtime
+          bool: true
       script: |
-        ginkgo -r {{ .Arguments.dir | escape }}
+        set -e
+
+        . "{{ BashHelperPath }}"
+
+        {{ if .Flags.update }}
+        ab_say Updating ginkgo binary
+        go install github.com/onsi/ginkgo/v2/ginkgo
+        {{ end }}
+
+        ginkgo -r --skip Integration {{ .Arguments.dir | escape }}
+
 
     - name: docs
       type: parent
