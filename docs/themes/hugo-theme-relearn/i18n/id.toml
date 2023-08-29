@@ -7,6 +7,9 @@ other = "Telusuri"
 [Search-placeholder]
 other = "Telusuri..."
 
+[Clear-search]
+other = "Hapus pencarian"
+
 [No-results-found]
 other = "Tidak ada hasil yang ditemukan untuk \"{0}\""
 
@@ -20,7 +23,7 @@ other = "Bersihkan Riwayat"
 other = "Lampiran"
 
 [title-404]
-other = "Kesalahan"
+other = "Tidak terletak"
 
 [message-404]
 other = "Oops. Sepertinya halaman ini tidak ada ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "Submenu {{.}}"
 
 [Subsections]
 other = "Subbagian {{.}}"
+
+[tags]
+other = "Tag"
+
+[tag]
+other = "Tag"
+
+[categories]
+other = "Kategori"
+
+[category]
+other = "Kategori"

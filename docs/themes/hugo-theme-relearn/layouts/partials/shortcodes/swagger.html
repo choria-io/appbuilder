@@ -1,33 +1,11 @@
-{{- $context := .context }}
-{{- $src := .src }}
-{{- with $context }}
-{{- with .Page.Resources.Match $src }}
-	{{- range . }}
-		{{- $src = .RelPermalink }}
-	{{- end }}
+{{ warnf "%q: DEPRECATED shortcode `swagger`found, use `openapi` instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#5130" .context.File.Path }}
+{{- $page := .page }}
+{{- if and (not $page) .context }}
+  {{- $page = .context }}
+  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'swagger' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#5180" $page.File.Path }}
 {{- end }}
-<rapi-doc
-{{- if eq (partial "output-format.hugo" .Page) "print" }}
-  allow-spec-file-download="false"
-  allow-server-selection="false"
-  allow-try="false"
-  font-size="default"
-  render-style="read"
-{{- else }}
-  allow-spec-file-download="true"
-  allow-server-selection="true"
-  allow-try="true"
-  font-size="largest"
-  render-style="view"
-{{- end }}
-  default-schema-tab="example"
-  layout="column"
-  load-fonts="false"
-  schema-description-expanded="true"
-  schema-style="table"
-  show-header="false"
-  spec-url="{{ $src }}"
-  sort-tags="true"
-></rapi-doc>
-{{- .Page.Store.Set "hasSwagger" true }}
-{{- end }}
+{{- partial "shortcodes/openapi.html" (dict
+  "page"    $page
+  "src"     .src
+  "id"      .id
+) }}

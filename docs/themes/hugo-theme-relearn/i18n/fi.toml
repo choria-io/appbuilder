@@ -7,6 +7,9 @@ other = "Etsi"
 [Search-placeholder]
 other = "Etsi..."
 
+[Clear-search]
+other = "Tyhjennä haku"
+
 [No-results-found]
 other = "Ei tuloksia haulle \"{0}\""
 
@@ -20,7 +23,7 @@ other = "Tyhjennä historia"
 other = "Liitteet"
 
 [title-404]
-other = "Virhe"
+other = "Paikantamaton"
 
 [message-404]
 other = "Sivua ei ole ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "Alavalikko {{.}}"
 
 [Subsections]
 other = "Osa {{.}}"
+
+[tags]
+other = "Tunnisteet"
+
+[tag]
+other = "Tag"
+
+[categories]
+other = "Luokat"
+
+[category]
+other = "Kategoria"

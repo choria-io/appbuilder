@@ -4,24 +4,24 @@ licenselink = "https://github.com/McShelby/hugo-theme-relearn/blob/main/LICENSE"
 description = "A theme for Hugo designed for documentation"
 homepage = "https://github.com/McShelby/hugo-theme-relearn"
 demosite = "https://mcshelby.github.io/hugo-theme-relearn"
-tags = ["dark", "docs", "light", "multilingual", "responsive"]
+tags = ["dark", "dark mode", "docs", "light", "multilingual", "responsive"]
 features = ["badges", "breadcrumbs", "boxes", "buttons",
   "chemical formulae", "customizable", "color variants",
-  "dark", "docs", "documentation",
+  "dark", "dark mode", "docs", "documentation",
   "expand",
-  "favicon", "file inclusion", "file system support", "font awesome",
+  "favicon", "file inclusion", "file system support", "font awesome", "front matter cms",
   "gfm",
   "hidden pages",
   "i18n", "icons", "ie11", "image resizing", "include", "internet explorer",
   "light", "lightbox", "logo",
   "math", "mathjax", "menu", "mermaid", "multilingual", "mobile",
   "nested sections", "notice",
-  "openapi specification", "oas", "offline usable",
+  "openapi", "oas", "offline usable",
   "print", "printable",
   "responsive", "rss", "rtl",
   "sidebar", "sitemap",
   "search", "search page", "subtheme", "swagger", "swaggerui", "syntax highlighting",
-  "table of contents", "tabs", "tags", "themeable", "themes", "toc"]
+  "table of contents", "tab", "tabs", "tags", "themeable", "themes", "toc"]
 
 [module]
   [module.hugoVersion]

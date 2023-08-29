@@ -7,6 +7,9 @@ other = "Suchen"
 [Search-placeholder]
 other = "Suchen..."
 
+[Clear-search]
+other = "Suche löschen"
+
 [No-results-found]
 other = "Keine Ergebnisse gefunden für \"{0}\""
 
@@ -20,7 +23,7 @@ other = "Verlauf löschen"
 other = "Anhänge"
 
 [title-404]
-other = "Fehler"
+other = "Nicht gefunden"
 
 [message-404]
 other = "Huch. Diese Seite scheint nicht zu existieren ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "Untermenu {{.}}"
 
 [Subsections]
 other = "Unterabschnitte von {{.}}"
+
+[tags]
+other = "Stichworte"
+
+[tag]
+other = "Stichwort"
+
+[categories]
+other = "Kategorien"
+
+[category]
+other = "Kategorie"

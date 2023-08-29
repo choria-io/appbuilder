@@ -7,6 +7,9 @@ other = "Ara"
 [Search-placeholder]
 other = "Ara..."
 
+[Clear-search]
+other = "Aramayı temizle"
+
 [No-results-found]
 other = "\"{0}\" için sonuç bulunamadı"
 
@@ -20,7 +23,7 @@ other = "Geçmişi Temizle"
 other = "Ekler"
 
 [title-404]
-other = "Hata"
+other = "Konumsuz"
 
 [message-404]
 other = "Uups. Görünüşe göre böyle bir sayfa yok ¯\\_(ツ)_/¯"
@@ -93,3 +96,15 @@ other = "Alt menü {{.}}"
 
 [Subsections]
 other = "{{.}} alt bölümleri"
+
+[tags]
+other = "Etiketler"
+
+[tag]
+other = "Etiket"
+
+[categories]
+other = "Kategoriler"
+
+[category]
+other = "Kategori"

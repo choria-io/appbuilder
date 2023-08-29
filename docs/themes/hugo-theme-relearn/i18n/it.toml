@@ -7,6 +7,9 @@ other = "Cerca"
 [Search-placeholder]
 other = "Cerca..."
 
+[Clear-search]
+other = "Cancella ricerca"
+
 [No-results-found]
 other = "Nessun risultato trovato per \"{0}\""
 
@@ -20,7 +23,7 @@ other = "Reimposta storico"
 other = "Allegati"
 
 [title-404]
-other = "Errore"
+other = "Non localizzato"
 
 [message-404]
 other = "Oh no! Sembra che la pagina da te cercata non esista ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "Sottomenu {{.}}"
 
 [Subsections]
 other = "Sottosezioni di {{.}}"
+
+[tags]
+other = "Tag"
+
+[tag]
+other = "Tag"
+
+[categories]
+other = "Categorie"
+
+[category]
+other = "Categoria"

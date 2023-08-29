@@ -1,5 +1,8 @@
+{{- if (.Get "showfirstheading") }}
+  {{- warnf "%q: UNSUPPORTED parameter 'showfirstheading' for shortcode 'include' found, use 'hidefirstheading' instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#420" .Page.File.Path }}
+{{- end }}
 {{- partial "shortcodes/include.html" (dict
-  "context" .
+  "page"             .Page
   "file"             (.Get "file" | default (.Get 0))
   "hidefirstheading" (.Get "hidefirstheading" | default (.Get 1))
 ) }}
