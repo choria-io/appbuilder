@@ -38,7 +38,7 @@ type Command interface {
 	String() string
 }
 
-type templateState struct {
+type TemplateState struct {
 	Arguments any
 	Flags     any
 	Config    any

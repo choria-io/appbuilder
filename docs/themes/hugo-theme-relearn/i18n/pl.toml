@@ -7,6 +7,9 @@ other = "Szukaj"
 [Search-placeholder]
 other = "Szukaj..."
 
+[Clear-search]
+other = "Wyczyść wyszukiwanie"
+
 [No-results-found]
 other = "Nie znaleziono wyników dla \"{0}\""
 
@@ -20,7 +23,7 @@ other = "Wyczyść historię"
 other = "Załączniki"
 
 [title-404]
-other = "Błąd"
+other = "Niezlokalizowany"
 
 [message-404]
 other = "Ups. Wygląda na to, że strona nie istnieje ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "Podmenu {{.}}"
 
 [Subsections]
 other = "Podsekcje z {{.}}"
+
+[tags]
+other = "Tagi"
+
+[tag]
+other = "Tag"
+
+[categories]
+other = "Kategorie"
+
+[category]
+other = "Kategoria"

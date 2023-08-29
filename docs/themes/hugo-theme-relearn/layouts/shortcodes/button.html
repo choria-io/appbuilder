@@ -1,7 +1,11 @@
 {{- $_hugo_config := `{ "version": 1 }` }}
+{{- if (.Get "icon-position") }}
+  {{- warnf "%q: DEPRECATED parameter 'icon-position' for shortcode 'button' found, use 'iconposition' instead" .Page.File.Path }}
+{{- end }}
 {{- partial "shortcodes/button.html" (dict
-  "context" .
-  "content" .Inner
+  "page"          .Page
+  "color"         (.Get "color")
+  "content"       .Inner
   "href"          (.Get "href")
   "icon"          (.Get "icon")
   "iconposition"  ((.Get "iconposition") | default (.Get "icon-position"))

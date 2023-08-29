@@ -1,6 +1,22 @@
+{{- $unused := .Inner }}
+{{- $version := split hugo.Version "." }}
+{{- $major := int (index $version 0) }}
+{{- $minor := int (index $version 1) }}
+{{- $color   := (.Get "color") }}
+{{- $groupid := ((.Get "groupid") | default (.Get "groupId")) }}
+{{- if (.Get "groupId") }}
+  {{- warnf "%q: DEPRECATED parameter 'groupId' for shortcode 'tabs' found, use 'groupid' instead" .Page.File.Path }}
+{{- end }}
+{{- $icon    := (.Get "icon") }}
+{{- $style   := (.Get "style") }}
+{{- $title   := (.Get "title") }}
+{{- $tabs    := (.Scratch.Get "tabs") }}
 {{- partial "shortcodes/tabs.html" (dict
-  "context" .
-  "content" .Inner
-  "groupid" ((.Get "groupid") | default (.Get "groupId"))
-  "tabs"    (.Scratch.Get "tabs")
+  "page"    .Page
+  "color"   $color
+  "content" $tabs
+  "groupid" $groupid
+  "icon"    $icon
+  "style"   $style
+  "title"   $title
 ) }}

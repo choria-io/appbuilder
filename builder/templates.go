@@ -31,7 +31,7 @@ func dereferenceArgsOrFlags(input map[string]any) map[string]any {
 	return res
 }
 
-func templateFuncs(all bool) template.FuncMap {
+func TemplateFuncs(all bool) template.FuncMap {
 	funcs := map[string]any{}
 	if all {
 		funcs = sprig.TxtFuncMap()
@@ -88,15 +88,18 @@ func templateFuncs(all bool) template.FuncMap {
 	return funcs
 }
 
-// ParseStateTemplateWithFuncMap parses body as a go text template with supplied values exposed to the user with additional functions available to the template
-func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[string]any, cfg any, funcMap template.FuncMap) (string, error) {
-	state := templateState{
+func NewTemplateState(args map[string]any, flags map[string]any, cfg any, input any) *TemplateState {
+	return &TemplateState{
 		Arguments: dereferenceArgsOrFlags(args),
 		Flags:     dereferenceArgsOrFlags(flags),
 		Config:    cfg,
+		Input:     input,
 	}
+}
 
-	funcs := templateFuncs(false)
+// ParseStateTemplateWithFuncMap parses body as a go text template with supplied values exposed to the user with additional functions available to the template
+func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[string]any, cfg any, funcMap template.FuncMap) (string, error) {
+	funcs := TemplateFuncs(false)
 	for n, f := range funcMap {
 		funcs[n] = f
 	}
@@ -107,7 +110,7 @@ func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[s
 	}
 
 	var b bytes.Buffer
-	err = temp.Execute(&b, state)
+	err = temp.Execute(&b, NewTemplateState(args, flags, cfg, nil))
 	if err != nil {
 		return "", err
 	}

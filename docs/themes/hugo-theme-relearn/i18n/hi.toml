@@ -7,6 +7,9 @@ other = "खोजे"
 [Search-placeholder]
 other = "खोजे..."
 
+[Clear-search]
+other = "खोज साफ़ करें"
+
 [No-results-found]
 other = "\"{0}\" के लिए कोई परिणाम नहीं मिला"
 
@@ -20,7 +23,7 @@ other = "इतिहास मिटाएँ"
 other = "संलग्नंक (अटैचमेंट)"
 
 [title-404]
-other = "त्रुटि"
+other = "अनवस्थित"
 
 [message-404]
 other = "यह पृष्ठ अभि अनुपलब्ध है!"
@@ -93,3 +96,15 @@ other = "सबमेनू {{.}}"
 
 [Subsections]
 other = "{{.}} के उपखंड"
+
+[tags]
+other = "टैग"
+
+[tag]
+other = "उपनाम"
+
+[categories]
+other = "श्रेणियाँ"
+
+[category]
+other = "वर्ग"

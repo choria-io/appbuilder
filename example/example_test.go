@@ -14,6 +14,7 @@ import (
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/appbuilder/commands/exec"
 	"github.com/choria-io/appbuilder/commands/parent"
+	"github.com/choria-io/appbuilder/commands/scaffold"
 	"github.com/choria-io/fisk"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -33,6 +34,7 @@ var _ = Describe("Example Application", func() {
 	BeforeEach(func() {
 		exec.Register()
 		parent.Register()
+		scaffold.Register()
 
 		app, err = builder.New(context.Background(), "example",
 			builder.WithAppDefinitionFile("sample-app.yaml"),

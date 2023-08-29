@@ -1,7 +1,15 @@
-{{- $context := .context }}
+{{- $page := .page }}
+{{- if and (not $page) .context }}
+  {{- $page = .context }}
+  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'button' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#5180" $page.File.Path }}
+{{- end }}
+{{- $color := .color | default "" }}
 {{- $content := .content }}
 {{- $href := (trim .href " ") | default "" }}
-{{- $style := .style | default "transparent" }}
+{{- $style := .style | default "default" }}
+{{- if and (not $color) (eq (len $color) 0) }}
+  {{- $style = .style | default "transparent" }}
+{{- end }}
 {{- $target := .target | default "" }}
 {{- $type := .type | default "" }}
 {{- $isButton := false }}
@@ -13,8 +21,8 @@
   {{- end }}
 {{- else if and (eq (len $target) 0) (or (strings.HasPrefix $href "http://") (strings.HasPrefix $href "https://") ) }}
   {{- $target = "_blank" }}
-  {{- if isset $context.Site.Params "externallinktarget" }}
-    {{- $target = $context.Site.Params.externalLinkTarget }}
+  {{- if isset $page.Site.Params "externallinktarget" }}
+    {{- $target = $page.Site.Params.externalLinkTarget }}
   {{- end }}
 {{- end }}
 {{- $title := .title | default ($content) | default ($style | T) }}
@@ -31,18 +39,18 @@
   {{- $icon = printf "fa-fw fas fa-%s" $icon }}
 {{- end }}
 {{- $iconposition := .iconposition | default "left" }}
-{{- with $context }}
-<span class="btn cstyle {{ $style }}">
+{{- with $page }}
+<span class="btn cstyle {{ $style }}"{{ if $color }} style="--VARIABLE-BOX-color: {{ $color }};"{{ end }}>
   {{- if $isButton }}
   <button{{ if $href }} onclick="{{ $href | safeJS }}"{{ end }}{{ if gt (len $type) 0 }} type="{{ $type }}"{{ end }}>
   {{- else }}
   <a{{ if $href }} href="{{ $href }}"{{ if gt (len $target) 0 }} target="{{ $target }}"{{ end }}{{ end }}>
   {{- end }}
-    {{- if and $icon (eq $iconposition "left") }}
+  {{- if and $icon (eq $iconposition "left") }}
     <i class="{{ $icon }}"></i>
-    {{- end }}
-    {{ $title }}
-    {{- if and $icon (eq $iconposition "right") }}
+  {{- end }}
+    {{ $title | safeHTML }}
+  {{- if and $icon (eq $iconposition "right") }}
     <i class="{{ $icon }}"></i>
     {{- end }}
   {{- if $isButton }}

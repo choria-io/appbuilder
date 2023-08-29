@@ -7,6 +7,9 @@ other = "البحث"
 [Search-placeholder]
 other = "...البحث"
 
+[Clear-search]
+other = "مسح البحث"
+
 [No-results-found]
 other = "لم يتم العثور على نتائج لـ \"{0}\""
 
@@ -20,7 +23,7 @@ other = "مسح السجل"
 other = "مرفقات"
 
 [title-404]
-other = "خطأ"
+other = "غير محدد"
 
 [message-404]
 other = ".¯\\_(ツ)_/¯أوبس. يبدو أن هذه الصفحة غير موجودة"
@@ -93,3 +96,15 @@ other = "{{.}} القائمة الفرعية"
 
 [Subsections]
 other = "{{.}} الأقسام الفرعية"
+
+[tags]
+other = "الكلمات الدالة"
+
+[tag]
+other = "كلمة رئيسية"
+
+[categories]
+other = "فئات"
+
+[category]
+other = "فئة"

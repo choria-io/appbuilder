@@ -15,11 +15,13 @@ import (
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/appbuilder/commands/exec"
 	"github.com/choria-io/appbuilder/commands/parent"
+	"github.com/choria-io/appbuilder/commands/scaffold"
 )
 
 func main() {
 	parent.MustRegister()
 	exec.MustRegister()
+	scaffold.MustRegister()
 
 	name := filepath.Base(os.Args[0])
 

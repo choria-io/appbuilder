@@ -7,6 +7,9 @@ other = "検索"
 [Search-placeholder]
 other = "検索..."
 
+[Clear-search]
+other = "検索をクリア"
+
 [No-results-found]
 other = "\"{0}\" の結果が見つかりません"
 
@@ -20,7 +23,7 @@ other = "履歴削除"
 other = "添付"
 
 [title-404]
-other = "エラー"
+other = "未配置"
 
 [message-404]
 other = "おっと。ページが見当たりません。 ¯\\_(ツ)_/¯."
@@ -93,3 +96,15 @@ other = "サブメニュー {{.}}"
 
 [Subsections]
 other = "{{.}}のサブセクション"
+
+[tags]
+other = "タグ"
+
+[tag]
+other = "タグ"
+
+[categories]
+other = "カテゴリー"
+
+[category]
+other = "カテゴリー"

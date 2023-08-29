@@ -53,6 +53,6 @@ In the example above one can run commands like `natsctl report servers` or `nats
 
 The `natscl service state` command invokes a Choria RPC API in a subset of fleet nodes and pass the result through a JQ query `.replies | .[] | select(.statuscode==0) | .sender + ": " + .data.state` to transform the API output.
 
-It is much nicer to just wrap it in `natsctl report servers` or `natsctl service state` and be able to manage the detail seperately.  You can mention `natsctl report servers` in wikis and if it ever changes, you only change the app model.
+It is much nicer to just wrap it in `natsctl report servers` or `natsctl service state` and be able to manage the detail separately.  You can mention `natsctl report servers` in wikis and if it ever changes, you only change the app model.
 
 These sub commands all have help and integration with bash and zsh is provided.
