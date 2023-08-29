@@ -92,7 +92,7 @@ func (r *Scaffold) Validate(log builder.Logger) error {
 	if r.def.SourceDirectory != "" {
 		_, err := os.Stat(r.def.SourceDirectory)
 		if err != nil {
-			errs = append(errs, fmt.Sprintf("cannot read source directory: %w", err))
+			errs = append(errs, fmt.Sprintf("cannot read source directory: %v", err))
 		}
 	}
 
