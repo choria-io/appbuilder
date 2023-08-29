@@ -50,7 +50,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	}
 
 	templ := template.New("builder")
-	templ.Funcs(templateFuncs(true))
+	templ.Funcs(TemplateFuncs(true))
 
 	switch {
 	case tt.Source != "":
@@ -69,12 +69,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	}
 
 	out := bytes.NewBuffer([]byte{})
-	state := templateState{
-		Arguments: dereferenceArgsOrFlags(args),
-		Flags:     dereferenceArgsOrFlags(flags),
-		Config:    cfg,
-		Input:     input,
-	}
+	state := NewTemplateState(args, flags, cfg, input)
 
 	err = templ.Execute(out, state)
 	if err != nil {

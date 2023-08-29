@@ -19,6 +19,10 @@ type Logger interface {
 // Default console logger
 type defaultLogger struct{}
 
+func NewDefaultLogger() Logger {
+	return &defaultLogger{}
+}
+
 func (l *defaultLogger) Infof(format string, v ...any) {
 	log.Printf(format, v...)
 }

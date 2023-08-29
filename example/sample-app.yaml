@@ -124,6 +124,53 @@ commands:
           >>>
         command: echo "Command output"
 
+  - name: scaffold
+    description: Demonstrate scaffold features by creating some go files and processing with goimports and gofmt
+    type: scaffold
+    arguments:
+      - name: author
+        description: Who to create a file for
+        required: true
+      - name: package
+        description: The package URL to create
+        required: true
+      - name: target
+        description: The target to create the files in
+        required: true
+    flags:
+      - name: goversion
+        description: The version of Go to require
+        default: "1.21.0"
+
+    banner: |
+      >>> 
+      >>> Creating basic go package {{.Arguments.package}} for Go {{.Flags.goversion}} in {{.Arguments.target}} run 'go mod tidy' to get started
+      >>>
+
+    target: "{{ .Arguments.target }}"
+    source:
+      "cmd":
+        "cmd.go": |
+          // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
+          
+          package cmd
+          func Run() {
+          fmt.Println("Scaffolded using App Builder")
+          }
+      "main.go": |
+        // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
+        
+        package main
+        import "{{ .Arguments.package }}/cmd"
+        func main() {cmd.Run()}
+      "go.mod": |
+        module {{.Arguments.package }}
+        
+        go {{.Flags.goversion}}
+    post:
+      - "*.go": "gofmt -w"
+      - "*.go": "goimports -w '{}'"
+
   - name: exec
     description: Demonstrate exec features
     type: parent
