@@ -183,7 +183,7 @@ func runWrapper(cmd GenericCommand, arguments map[string]any, flags map[string]a
 		f := dereferenceArgsOrFlags(flags)
 
 		if cmd.Banner != "" {
-			txt, err := ParseStateTemplate(cmd.Banner, arguments, flags, b.Configuration())
+			txt, err := ParseStateTemplateWithFuncMap(cmd.Banner, arguments, flags, b.Configuration(), b.TemplateFuncs(true))
 			if err != nil {
 				return err
 			}

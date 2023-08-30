@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"os"
 	"path/filepath"
@@ -98,7 +99,7 @@ func New(ctx context.Context, name string, opts ...Option) (*AppBuilder, error) 
 		name:   name,
 		stdOut: os.Stdout,
 		stdErr: os.Stderr,
-		log:    &defaultLogger{},
+		log:    NewDefaultLogger(),
 		cfgSources: []string{
 			filepath.Join(xdg.ConfigHome, "appbuilder"),
 			"/etc/appbuilder",
@@ -684,4 +685,20 @@ func (b *AppBuilder) createCommand(def json.RawMessage) (Command, error) {
 	}
 
 	return cmd, nil
+}
+
+// TemplateFuncs returns standard template funcs, set all to also include sprig functions
+func (b *AppBuilder) TemplateFuncs(all bool) template.FuncMap {
+	funcs := TemplateFuncs(all)
+
+	funcs["UserWorkingDir"] = func() string {
+		return b.UserWorkingDirectory()
+	}
+
+	funcs["AppDir"] = func() string {
+		return b.DefinitionDirectory()
+	}
+	funcs["TaskDir"] = funcs["AppDir"]
+
+	return funcs
 }

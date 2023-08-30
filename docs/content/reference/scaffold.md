@@ -103,3 +103,72 @@ As shown the same pattern can be matched multiple times to run multiple commands
 
 If the string `{}` is in the file it will be replaced with the full path to the file otherwise the path is set as 
 last argument. When using this format it's suggested you use quotes like in the example.
+
+## Conditional rendering
+
+By default all files are rendered even when the result is empty, by setting `skip_empty: true` any file that results in
+empty content will be skipped.
+
+```yaml
+name: scaffold
+description: Demonstrate scaffold features by creating some go files
+type: scaffold
+arguments:
+- name: target
+  description: The target to create the files in
+  required: true
+flags:
+- name: gitignore
+  description: Create a .gitignore file
+  bool: true
+  default: true
+  
+target: "{{ .Arguments.target }}"
+source_directory: /usr/local/templates/default
+skip_empty: true
+```
+
+We can now create a template for the `.gitignore` file like this:
+
+```
+{{ if .Flags.gitignore }}
+# content here
+{{ end }}
+```
+
+This will result in a file that is empty - or rather just white space in this case - this file will be ignored and not
+written to disk. 
+
+## Custom template delimiter
+
+When generating Go projects you might find you want to place template tags into the final project, for example when
+generating a `ABTaskFile`.
+
+With the final `ABTaskFile` having the same template delimiters will cause havoc.
+
+You can change the delimiters of the template source to avoid this:
+
+```yaml
+name: scaffold
+description: Demonstrate scaffold features by creating some go files
+type: scaffold
+arguments:
+- name: target
+  description: The target to create the files in
+  required: true
+  
+target: "{{ .Arguments.target }}"
+source_directory: /usr/local/templates/default
+skip_empty: true
+left_delimiter: "[["
+right_delimiter: "]]"
+```
+
+Our earlier .gitignore would now be:
+
+```
+[[ if .Flags.gitignore ]]
+# content here {{ these will not be changed }}
+[[ end ]]
+```
+

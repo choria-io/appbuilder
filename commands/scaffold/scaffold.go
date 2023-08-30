@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
@@ -18,10 +17,13 @@ import (
 )
 
 type Command struct {
-	Target          string              `json:"target"`
-	SourceDirectory string              `json:"source_directory"`
-	Source          map[string]any      `json:"source"`
-	Post            []map[string]string `json:"post"`
+	Target               string              `json:"target"`
+	SourceDirectory      string              `json:"source_directory"`
+	Source               map[string]any      `json:"source"`
+	Post                 []map[string]string `json:"post"`
+	SkipEmpty            bool                `json:"skip_empty"`
+	CustomLeftDelimiter  string              `json:"left_delimiter"`
+	CustomRightDelimiter string              `json:"right_delimiter"`
 
 	builder.GenericSubCommands
 	builder.GenericCommand
@@ -89,17 +91,6 @@ func (r *Scaffold) Validate(log builder.Logger) error {
 		errs = append(errs, "no sources provided")
 	}
 
-	if r.def.SourceDirectory != "" {
-		_, err := os.Stat(r.def.SourceDirectory)
-		if err != nil {
-			errs = append(errs, fmt.Sprintf("cannot read source directory: %v", err))
-		}
-	}
-
-	if _, err := os.Stat(r.def.Target); !os.IsNotExist(err) {
-		errs = append(errs, "target directory exist")
-	}
-
 	if len(errs) > 0 {
 		return errors.New(strings.Join(errs, ", "))
 	}
@@ -119,25 +110,28 @@ func (r *Scaffold) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, e
 
 func (r *Scaffold) runCommand(_ *fisk.ParseContext) error {
 	cfg := scaffold.Config{
-		Source: r.def.Source,
-		Post:   r.def.Post,
+		Source:               r.def.Source,
+		Post:                 r.def.Post,
+		SkipEmpty:            r.def.SkipEmpty,
+		CustomLeftDelimiter:  r.def.CustomLeftDelimiter,
+		CustomRightDelimiter: r.def.CustomRightDelimiter,
 	}
 
 	var err error
 
-	if cfg.SourceDirectory != "" {
-		cfg.SourceDirectory, err = builder.ParseStateTemplate(r.def.SourceDirectory, r.arguments, r.flags, r.b.Configuration())
+	if r.def.SourceDirectory != "" {
+		cfg.SourceDirectory, err = builder.ParseStateTemplateWithFuncMap(r.def.SourceDirectory, r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
 		if err != nil {
 			return err
 		}
 	}
 
-	cfg.TargetDirectory, err = builder.ParseStateTemplate(r.def.Target, r.arguments, r.flags, r.b.Configuration())
+	cfg.TargetDirectory, err = builder.ParseStateTemplateWithFuncMap(r.def.Target, r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
 	if err != nil {
 		return err
 	}
 
-	s, err := scaffold.New(cfg, builder.TemplateFuncs(true))
+	s, err := scaffold.New(cfg, r.b.TemplateFuncs(true))
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrorInvalidConfiguration, err)
 	}

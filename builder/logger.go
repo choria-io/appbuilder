@@ -6,6 +6,7 @@ package builder
 
 import (
 	"log"
+	"os"
 )
 
 // Logger is a pluggable logger interface
@@ -17,26 +18,30 @@ type Logger interface {
 }
 
 // Default console logger
-type defaultLogger struct{}
+type defaultLogger struct {
+	log *log.Logger
+}
 
 func NewDefaultLogger() Logger {
-	return &defaultLogger{}
+	return &defaultLogger{
+		log: log.New(os.Stdout, ">>> ", log.Ltime),
+	}
 }
 
 func (l *defaultLogger) Infof(format string, v ...any) {
-	log.Printf(format, v...)
+	l.log.Printf(format, v...)
 }
 
 func (l *defaultLogger) Warnf(format string, v ...any) {
-	log.Printf(format, v...)
+	l.log.Printf(format, v...)
 }
 
 func (l *defaultLogger) Errorf(format string, v ...any) {
-	log.Printf(format, v...)
+	l.log.Printf(format, v...)
 }
 
 func (l *defaultLogger) Debugf(format string, v ...any) {
-	log.Printf(format, v...)
+	l.log.Printf(format, v...)
 }
 
 type NoopLogger struct{}
