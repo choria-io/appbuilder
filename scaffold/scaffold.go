@@ -5,6 +5,8 @@
 package scaffold
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -16,7 +18,7 @@ import (
 	"github.com/kballard/go-shellquote"
 )
 
-// Config comfigures a scaffolding operation
+// Config configures a scaffolding operation
 type Config struct {
 	// TargetDirectory is where to place the resulting rendered files, must not exist
 	TargetDirectory string `yaml:"target"`
@@ -26,12 +28,20 @@ type Config struct {
 	Source map[string]any `yaml:"source"`
 	// Post configures post processing of files using filepath globs
 	Post []map[string]string `yaml:"post"`
+	// SkipEmpty skips files that are 0 bytes after rendering
+	SkipEmpty bool `yaml:"skip_empty"`
+	// Sets a custom template delimiter, useful for generating templates from templates
+	CustomLeftDelimiter string `yaml:"left_delimiter"`
+	// Sets a custom template delimiter, useful for generating templates from templates
+	CustomRightDelimiter string `yaml:"right_delimiter"`
 }
 
 type Logger interface {
 	Debugf(format string, v ...any)
 	Infof(format string, v ...any)
 }
+
+var errSkippedEmpty = errors.New("skipped rendering")
 
 type Scaffold struct {
 	cfg   *Config
@@ -121,20 +131,19 @@ func (c *Scaffold) createTempDirForSource() (string, error) {
 }
 
 func (c *Scaffold) renderFile(out string, t string, data any) error {
-	f, err := os.OpenFile(out, os.O_CREATE|os.O_WRONLY, 0755)
-	if err != nil {
-		return err
+	buf := bytes.NewBuffer([]byte{})
+	templ := template.New(filepath.Base(out))
+	if c.funcs != nil {
+		templ.Funcs(c.funcs)
 	}
-	defer f.Close()
+
+	if c.cfg.CustomLeftDelimiter != "" && c.cfg.CustomRightDelimiter != "" {
+		templ.Delims(c.cfg.CustomLeftDelimiter, c.cfg.CustomRightDelimiter)
+	}
 
 	td, err := os.ReadFile(t)
 	if err != nil {
 		return err
-	}
-
-	templ := template.New("x")
-	if c.funcs != nil {
-		templ.Funcs(c.funcs)
 	}
 
 	templ, err = templ.Parse(string(td))
@@ -142,7 +151,16 @@ func (c *Scaffold) renderFile(out string, t string, data any) error {
 		return fmt.Errorf("parsing template %v failed: %w", t, err)
 	}
 
-	return templ.Execute(f, data)
+	err = templ.Execute(buf, data)
+	if err != nil {
+		return err
+	}
+
+	if c.cfg.SkipEmpty && len(bytes.TrimSpace(buf.Bytes())) == 0 {
+		return errSkippedEmpty
+	}
+
+	return os.WriteFile(out, buf.Bytes(), 0755)
 }
 
 func (c *Scaffold) postFile(f string) error {
@@ -226,7 +244,14 @@ func (c *Scaffold) Render(data any) error {
 
 		case d.Type().IsRegular():
 			err = c.renderFile(out, path, data)
-			if err != nil {
+			switch {
+			case errors.Is(err, errSkippedEmpty):
+				if c.log != nil {
+					c.log.Infof("Skipping empty file %v", out)
+				}
+
+				return nil
+			case err != nil:
 				return err
 			}
 

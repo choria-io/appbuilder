@@ -276,20 +276,12 @@ func (r *Exec) findShell() []string {
 }
 
 func (r *Exec) funcMap() template.FuncMap {
-	return template.FuncMap{
-		"UserWorkingDir": func() string {
-			return r.userDir
-		},
-		"AppDir": func() string {
-			return r.defnDir
-		},
-		"TaskDir": func() string {
-			return r.defnDir
-		},
-		"BashHelperPath": func() string {
-			return r.helperPath
-		},
+	funcs := r.b.TemplateFuncs(true)
+	funcs["BashHelperPath"] = func() string {
+		return r.helperPath
 	}
+
+	return funcs
 }
 
 func (r *Exec) runCommand(_ *fisk.ParseContext) error {
