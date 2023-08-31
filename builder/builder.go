@@ -324,16 +324,7 @@ func (b *AppBuilder) HasDefinition() bool {
 	return fileExist(source)
 }
 
-func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
-	if b.log != nil {
-		b.log.Debugf("Loading application definition %v", source)
-	}
-
-	cfg, err := os.ReadFile(source)
-	if err != nil {
-		return nil, err
-	}
-
+func (b *AppBuilder) loadDefinitionBytes(cfg []byte, path string) (*Definition, error) {
 	d := &Definition{}
 	cfgj, err := yaml.YAMLToJSON(cfg)
 	if err != nil {
@@ -350,9 +341,22 @@ func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
 		return nil, err
 	}
 
-	b.definitionPath = source
+	b.definitionPath = path
 
 	return d, nil
+}
+
+func (b *AppBuilder) loadDefinition(source string) (*Definition, error) {
+	if b.log != nil {
+		b.log.Debugf("Loading application definition %v", source)
+	}
+
+	cfg, err := os.ReadFile(source)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.loadDefinitionBytes(cfg, source)
 }
 
 // LoadDefinition loads the definition for the name from file, creates the command structure and validates everything

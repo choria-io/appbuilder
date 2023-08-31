@@ -27,6 +27,15 @@ func WithLogger(logger Logger) Option {
 	}
 }
 
+// WithAppDefinitionBytes uses a provided app definition rather than load one from disk
+func WithAppDefinitionBytes(def []byte) Option {
+	return func(b *AppBuilder) (err error) {
+		b.def, err = b.loadDefinitionBytes(def, "embedded")
+
+		return err
+	}
+}
+
 // WithAppDefinitionFile sets a file where the definition should be loaded from
 func WithAppDefinitionFile(f string) Option {
 	return func(b *AppBuilder) error {
