@@ -8,12 +8,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/choria-io/fisk"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/choria-io/fisk"
 
 	"github.com/sirupsen/logrus"
 )
@@ -69,6 +70,21 @@ func RunBuilderCLI(ctx context.Context, watchInterrupts bool, opts ...Option) er
 	}
 
 	return bldr.RunBuilderCLI()
+}
+
+// MountAsCommand takes the given definition and mounts it on app using name
+func MountAsCommand(ctx context.Context, app KingpinCommand, definition []byte, log Logger) error {
+	bldr, err := createBuilder(ctx, "builder", log, WithAppDefinitionBytes(definition))
+	if err != nil {
+		return err
+	}
+
+	bldr.cfg, err = bldr.LoadConfig()
+	if err != nil && !errors.Is(err, ErrConfigNotFound) {
+		return err
+	}
+
+	return bldr.registerCommands(app, bldr.def.commands...)
 }
 
 // RunStandardCLI runs a standard command line instance with shutdown watchers etc. If log is nil a logger will be created

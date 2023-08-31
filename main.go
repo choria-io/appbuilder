@@ -13,19 +13,15 @@ import (
 	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
-	"github.com/choria-io/appbuilder/commands/exec"
-	"github.com/choria-io/appbuilder/commands/parent"
-	"github.com/choria-io/appbuilder/commands/scaffold"
+	"github.com/choria-io/appbuilder/commands"
 )
 
 func main() {
-	parent.MustRegister()
-	exec.MustRegister()
-	scaffold.MustRegister()
-
 	name := filepath.Base(os.Args[0])
 
 	var err error
+
+	commands.MustRegisterStandardCommands()
 
 	if strings.HasPrefix(name, "appbuilder") {
 		err = builder.RunBuilderCLI(context.Background(), true, builder.WithContextualUsageOnError())
