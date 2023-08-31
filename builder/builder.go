@@ -465,8 +465,8 @@ func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 		cmd.UsageTemplate(defaultUsageTemplate)
 		cmd.ErrorUsageTemplate(defaultUsageTemplate)
 	case "compact":
-		cmd.UsageTemplate(fisk.CompactMainUsageTemplate)
-		cmd.ErrorUsageTemplate(fisk.CompactMainUsageTemplate)
+		cmd.UsageTemplate(fisk.CompactUsageTemplate)
+		cmd.ErrorUsageTemplate(fisk.CompactUsageTemplate)
 	case "short":
 		cmd.UsageTemplate(fisk.ShorterMainUsageTemplate)
 		cmd.ErrorUsageTemplate(fisk.ShorterMainUsageTemplate)
