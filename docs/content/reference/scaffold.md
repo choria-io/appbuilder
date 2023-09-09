@@ -139,6 +139,61 @@ We can now create a template for the `.gitignore` file like this:
 This will result in a file that is empty - or rather just white space in this case - this file will be ignored and not
 written to disk. 
 
+## Rendering partials
+
+We support partials that can be reused, any files in the `_partials` directory will be skipped for normal processing,
+you can reference these files from other files:
+
+{{% notice secondary "Version Hint" code-branch %}}
+This was added in version 0.7.4
+{{% /notice %}}
+
+```
+{{ render "_partials/go_copyright" . }}
+
+package main
+
+func main() {
+}
+```
+
+If you now made a file `_partials/go_copyright` in your source templates holding the following:
+
+```
+// Copyright {{ .Arguments.author }} {{ now | date "2006" }}
+```
+
+You can easily reuse the content of the Copyright strings and update all in one place later.
+
+## Rendering files from templates
+
+It's often the case that you need to create new files that is not in the actual template source.  Perhaps you ask a
+user how many of a certain thing they need and then you need to create that many files.  This means you will likely
+have a Partial that can be used to make the file and need to invoke it many times.
+
+{{% notice secondary "Version Hint" code-branch %}}
+This was added in version 0.7.4
+{{% /notice %}}
+
+To use this you can store a template in the `_partials` directory and then render files like this:
+
+```
+{{- $flags := .Flags }}
+{{- range $cluster := $flags.Clusters | atoi | seq | split " " }}
+{{- $config :=  cat "cluster-" $cluster ".conf" | nospace }} 
+{{- render "_partials/cluster.conf" $flags | write $config  }}
+{{- end }}
+```
+
+This will render and, using the `write` helper, save `cluster-{1,2,3,...}.conf` for how many ever clusters you had in 
+Flags. The file will be post processed as normal and written relative to the target directory.
+
+We save `.Flags` in `$flags` because within the `range` the `.` will not point to the top anymore, so this ensures we
+can access the passed in flags in the `_partials/cluster.conf` template.
+
+If you place this loop in a file that is only there to generate these other files then the resulting empty 
+file can be ignored using `skip_empty: true` in the scaffold definition.
+
 ## Custom template delimiter
 
 When generating Go projects you might find you want to place template tags into the final project, for example when

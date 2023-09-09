@@ -45,38 +45,38 @@ func NewParentCommand(_ *builder.AppBuilder, j json.RawMessage, _ builder.Logger
 	return parent, nil
 }
 
-func (r *Parent) String() string { return fmt.Sprintf("%s (parent)", r.def.Name) }
+func (p *Parent) String() string { return fmt.Sprintf("%s (parent)", p.def.Name) }
 
-func (r *Parent) Validate(log builder.Logger) error {
-	if r.def.Type != "parent" {
+func (p *Parent) Validate(log builder.Logger) error {
+	if p.def.Type != "parent" {
 		return fmt.Errorf("not a parent command")
 	}
 
 	var errs []string
 
-	err := r.def.GenericCommand.Validate(log)
+	err := p.def.GenericCommand.Validate(log)
 	if err != nil {
 		errs = append(errs, err.Error())
 	}
 
-	err = r.def.GenericSubCommands.Validate(log)
+	err = p.def.GenericSubCommands.Validate(log)
 	if err != nil {
 		errs = append(errs, err.Error())
 	}
 
-	if len(r.def.Flags) > 0 {
+	if len(p.def.Flags) > 0 {
 		errs = append(errs, "parent commands can not have flags")
 	}
 
-	if len(r.def.Arguments) > 0 {
+	if len(p.def.Arguments) > 0 {
 		errs = append(errs, "parent commands can not have arguments")
 	}
 
-	if len(r.def.Commands) == 0 {
+	if len(p.def.Commands) == 0 {
 		errs = append(errs, "parent requires sub commands")
 	}
 
-	if r.def.ConfirmPrompt != "" {
+	if p.def.ConfirmPrompt != "" {
 		errs = append(errs, "parents do not accept confirm prompts")
 	}
 

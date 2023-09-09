@@ -7,7 +7,9 @@ package example
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -47,6 +49,7 @@ var _ = Describe("Example Application", func() {
 		Expect(err).ToNot(HaveOccurred())
 		cmd.Terminate(func(int) {})
 
+		usageBuf.Reset()
 		cmd.Writer(usageBuf)
 	})
 
@@ -188,6 +191,37 @@ var _ = Describe("Example Application", func() {
 			It("Should parse and render the template and should include sprig functions", func() {
 				cmd.MustParseWithUsage(strings.Fields("transforms template"))
 				Expect(usageBuf.String()).To(ContainSubstring("Hello James bOND"))
+			})
+		})
+
+		Describe("Scaffold", func() {
+			It("Should render the correct files", func() {
+				td, err := os.MkdirTemp("", "")
+				Expect(err).ToNot(HaveOccurred())
+				os.Remove(td)
+				defer os.RemoveAll(td)
+
+				cmd.MustParseWithUsage(strings.Fields(fmt.Sprintf("scaffold Ginkgo example.net/test %s", td)))
+
+				fmt.Println(usageBuf.String())
+
+				readFile := func(f string) string {
+					b, err := os.ReadFile(filepath.Join(td, f))
+					if err != nil {
+						Fail(fmt.Sprintf("Reading %s failed: %v", f, err))
+					}
+					return string(b)
+				}
+
+				Expect(readFile("main.go")).To(SatisfyAll(
+					ContainSubstring("// Copyright Ginkgo 2023"),
+					ContainSubstring("cmd.Run()"),
+				))
+				Expect(readFile("README.md")).To(ContainSubstring("## Copyright Ginkgo 2023"))
+				Expect(readFile("cmd/cmd.go")).To(SatisfyAll(
+					ContainSubstring("// Copyright Ginkgo 2023"),
+					ContainSubstring(`fmt.Println("Scaffolded using App Builder")`),
+				))
 			})
 		})
 	})
