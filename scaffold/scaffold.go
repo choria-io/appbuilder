@@ -44,15 +44,23 @@ type Logger interface {
 var errSkippedEmpty = errors.New("skipped rendering")
 
 type Scaffold struct {
-	cfg   *Config
-	funcs template.FuncMap
-	log   Logger
+	cfg           *Config
+	funcs         template.FuncMap
+	log           Logger
+	workingSource string
+	currentDir    string
 }
 
 // New creates a new scaffold instance
 func New(cfg Config, funcs template.FuncMap) (*Scaffold, error) {
 	if cfg.TargetDirectory == "" {
 		return nil, fmt.Errorf("target is required")
+	}
+
+	var err error
+	cfg.TargetDirectory, err = filepath.Abs(cfg.TargetDirectory)
+	if err != nil {
+		return nil, fmt.Errorf("invalid target %s: %v", cfg.TargetDirectory, err)
 	}
 
 	if len(cfg.Source) == 0 && cfg.SourceDirectory == "" {
@@ -130,37 +138,117 @@ func (c *Scaffold) createTempDirForSource() (string, error) {
 	return td, nil
 }
 
-func (c *Scaffold) renderFile(out string, t string, data any) error {
+func (c *Scaffold) saveAndPostFile(f string, data string) error {
+	err := c.saveFile(f, data)
+	if err != nil {
+		return err
+	}
+
+	return c.postFile(f)
+}
+
+func (c *Scaffold) renderAndPostFile(out string, t string, data any) error {
+	err := c.renderFile(out, t, data)
+	switch {
+	case errors.Is(err, errSkippedEmpty):
+		if c.log != nil {
+			c.log.Infof("Skipping empty file %v", out)
+		}
+
+		return nil
+	case err != nil:
+		return err
+	}
+
+	err = c.postFile(out)
+	if err != nil {
+		return err
+	}
+
+	if c.log != nil {
+		c.log.Infof("Rendered %s", out)
+	}
+
+	return nil
+}
+
+func (c *Scaffold) templateFuncs() template.FuncMap {
+	if c.funcs == nil {
+		return nil
+	}
+
+	funcs := template.FuncMap{}
+	for k, v := range c.funcs {
+		funcs[k] = v
+	}
+
+	funcs["write"] = func(out string, content string) (string, error) {
+		err := c.saveAndPostFile(filepath.Join(c.cfg.TargetDirectory, out), content)
+		return "", err
+	}
+
+	funcs["render"] = func(templ string, data any) (string, error) {
+		res, err := c.renderTemplateFile(filepath.Join(c.workingSource, templ), data)
+		return string(res), err
+	}
+
+	return funcs
+}
+
+func (c *Scaffold) renderTemplateFile(tmpl string, data any) ([]byte, error) {
 	buf := bytes.NewBuffer([]byte{})
-	templ := template.New(filepath.Base(out))
-	if c.funcs != nil {
-		templ.Funcs(c.funcs)
+	templ := template.New(filepath.Base(tmpl))
+	funcs := c.templateFuncs()
+	if funcs != nil {
+		templ.Funcs(funcs)
 	}
 
 	if c.cfg.CustomLeftDelimiter != "" && c.cfg.CustomRightDelimiter != "" {
 		templ.Delims(c.cfg.CustomLeftDelimiter, c.cfg.CustomRightDelimiter)
 	}
 
-	td, err := os.ReadFile(t)
+	td, err := os.ReadFile(tmpl)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	templ, err = templ.Parse(string(td))
 	if err != nil {
-		return fmt.Errorf("parsing template %v failed: %w", t, err)
+		return nil, fmt.Errorf("parsing template %v failed: %w", tmpl, err)
 	}
 
 	err = templ.Execute(buf, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if c.cfg.SkipEmpty && len(bytes.TrimSpace(buf.Bytes())) == 0 {
-		return errSkippedEmpty
+		return nil, errSkippedEmpty
 	}
 
-	return os.WriteFile(out, buf.Bytes(), 0755)
+	return buf.Bytes(), nil
+}
+
+func (c *Scaffold) saveFile(out string, content string) error {
+	absOut, err := filepath.Abs(out)
+	if err != nil {
+		return err
+	}
+
+	if !strings.HasPrefix(absOut, c.cfg.TargetDirectory) {
+		return fmt.Errorf("%s is not in target directory %s", out, c.cfg.TargetDirectory)
+	}
+
+	return os.WriteFile(out, []byte(content), 0755)
+}
+
+func (c *Scaffold) renderFile(out string, t string, data any) error {
+	res, err := c.renderTemplateFile(t, data)
+	if err != nil {
+		return err
+	}
+
+	return c.saveFile(out, string(res))
 }
 
 func (c *Scaffold) postFile(f string) error {
@@ -212,28 +300,49 @@ func (c *Scaffold) Render(data any) error {
 		return err
 	}
 
-	source := c.cfg.SourceDirectory
-
-	if source == "" {
-		// move the memory source to temp dir
-		source, err = c.createTempDirForSource()
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(source)
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
 	}
 
+	err = os.Chdir(c.cfg.TargetDirectory)
+	if err != nil {
+		return err
+	}
+	defer os.Chdir(cwd)
+
+	c.workingSource = c.cfg.SourceDirectory
+
+	if c.workingSource == "" {
+		// move the memory source to temp dir
+		c.workingSource, err = c.createTempDirForSource()
+		if err != nil {
+			return err
+		}
+		defer func() {
+			os.RemoveAll(c.workingSource)
+			c.workingSource = ""
+		}()
+	}
+
+	c.currentDir = c.cfg.TargetDirectory
+	defer func() { c.currentDir = "" }()
+
 	// now render both the same way
-	err = filepath.WalkDir(source, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(c.workingSource, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if path == source {
+		if path == c.workingSource {
 			return nil
 		}
 
-		out := filepath.Join(c.cfg.TargetDirectory, strings.TrimPrefix(path, source))
+		if d.Name() == "_partials" {
+			return filepath.SkipDir
+		}
+
+		out := filepath.Join(c.cfg.TargetDirectory, strings.TrimPrefix(path, c.workingSource))
 
 		switch {
 		case d.IsDir():
@@ -243,29 +352,14 @@ func (c *Scaffold) Render(data any) error {
 			}
 
 		case d.Type().IsRegular():
-			err = c.renderFile(out, path, data)
-			switch {
-			case errors.Is(err, errSkippedEmpty):
-				if c.log != nil {
-					c.log.Infof("Skipping empty file %v", out)
-				}
-
-				return nil
-			case err != nil:
-				return err
-			}
-
-			err = c.postFile(out)
+			c.currentDir = filepath.Dir(out)
+			err = c.renderAndPostFile(out, path, data)
 			if err != nil {
 				return err
 			}
 
 		default:
 			return fmt.Errorf("invalid file in source: %v", d.Name())
-		}
-
-		if c.log != nil {
-			c.log.Infof("Rendered %s", out)
 		}
 
 		return nil

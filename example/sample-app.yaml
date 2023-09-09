@@ -149,17 +149,19 @@ commands:
 
     target: "{{ .Arguments.target }}"
     source:
+      "_partials":
+        "go_copyright": // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
+        "md_copyright": '## Copyright {{ .Arguments.author }} {{ now | date "2006" }}'
       "cmd":
         "cmd.go": |
-          // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
-          
+          {{ render "_partials/go_copyright" . }}          
           package cmd
           func Run() {
           fmt.Println("Scaffolded using App Builder")
           }
       "main.go": |
-        // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
-        
+        {{ render "_partials/go_copyright" . }}
+        {{- render "_partials/md_copyright" . | write "README.md" }}
         package main
         import "{{ .Arguments.package }}/cmd"
         func main() {cmd.Run()}
@@ -169,7 +171,6 @@ commands:
         go {{.Flags.goversion}}
     post:
       - "*.go": "gofmt -w"
-      - "*.go": "goimports -w '{}'"
 
   - name: exec
     description: Demonstrate exec features
