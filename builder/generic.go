@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/choria-io/appbuilder/validator"
 	"github.com/choria-io/fisk"
 )
 
@@ -75,24 +76,26 @@ func (c *GenericCommand) Validate(logger Logger) error {
 
 // GenericArgument is a standard command line argument
 type GenericArgument struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Required    bool     `json:"required"`
-	Enum        []string `json:"enum"`
-	Default     string   `json:"default"`
+	Name                 string   `json:"name"`
+	Description          string   `json:"description"`
+	Required             bool     `json:"required"`
+	Enum                 []string `json:"enum"`
+	Default              string   `json:"default"`
+	ValidationExpression string   `json:"validate"`
 }
 
 // GenericFlag is a standard command line flag
 type GenericFlag struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	Required    bool     `json:"required"`
-	PlaceHolder string   `json:"placeholder"`
-	Enum        []string `json:"enum"`
-	Default     any      `json:"default"`
-	Bool        bool     `json:"bool"`
-	EnvVar      string   `json:"env"`
-	Short       string   `json:"short"`
+	Name                 string   `json:"name"`
+	Description          string   `json:"description"`
+	Required             bool     `json:"required"`
+	PlaceHolder          string   `json:"placeholder"`
+	Enum                 []string `json:"enum"`
+	Default              any      `json:"default"`
+	Bool                 bool     `json:"bool"`
+	EnvVar               string   `json:"env"`
+	Short                string   `json:"short"`
+	ValidationExpression string   `json:"validate"`
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
@@ -128,6 +131,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				arg.Default(a.Default)
 			}
 
+			if a.ValidationExpression != "" {
+				arg.Validator(validator.FiskValidator(a.ValidationExpression))
+			}
+
 			switch {
 			case len(a.Enum) > 0:
 				arguments[a.Name] = arg.Enum(a.Enum...)
@@ -158,6 +165,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 
 			if f.Short != "" {
 				flag.Short([]rune(f.Short)[0])
+			}
+
+			if f.ValidationExpression != "" {
+				flag.Validator(validator.FiskValidator(f.ValidationExpression))
 			}
 
 			switch {

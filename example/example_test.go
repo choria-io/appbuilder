@@ -75,6 +75,15 @@ var _ = Describe("Example Application", func() {
 		})
 	})
 
+	Describe("Validation", func() {
+		It("Should correctly validate options", func() {
+			usageBuf.Reset()
+
+			cmd.MustParseWithUsage(strings.Fields("basics required ginkgoginkgoginkgoginkgoginkgoginkgo"))
+			Expect(usageBuf.String()).To(ContainSubstring(`name: validation using "len(value) < 20" did not pass`))
+		})
+	})
+
 	Describe("Basics", func() {
 		Describe("required", func() {
 			It("Should require a name", func() {

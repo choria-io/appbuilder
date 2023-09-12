@@ -6,7 +6,8 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.3.7
 	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/adrg/xdg v0.4.0
-	github.com/choria-io/fisk v0.5.3
+	github.com/antonmedv/expr v1.15.2
+	github.com/choria-io/fisk v0.6.0
 	github.com/choria-io/goform v0.0.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/ghodss/yaml v1.0.0
@@ -28,7 +29,7 @@ require (
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/pprof v0.0.0-20230907193218-d3ddc7976beb // indirect
+	github.com/google/pprof v0.0.0-20230912144702-c363fe2c2ed8 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect

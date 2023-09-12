@@ -35,6 +35,7 @@ commands:
           - name: name
             description: The name of the person to greet
             required: true
+            validate: len(value) < 20
           - name: surname
             description: An optional surname of the person to greet
         # We add an optional flag to override the "Hello" greeting
