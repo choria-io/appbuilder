@@ -26,7 +26,7 @@ type Config struct {
 	SourceDirectory string `yaml:"source_directory"`
 	// Source reads templates from in-process memory
 	Source map[string]any `yaml:"source"`
-	// Post configures post processing of files using filepath globs
+	// Post configures post-processing of files using filepath globs
 	Post []map[string]string `yaml:"post"`
 	// SkipEmpty skips files that are 0 bytes after rendering
 	SkipEmpty bool `yaml:"skip_empty"`
@@ -86,7 +86,7 @@ func (s *Scaffold) Logger(log Logger) {
 	s.log = log
 }
 
-func (c *Scaffold) dumpSourceDir(source map[string]any, target string) error {
+func (s *Scaffold) dumpSourceDir(source map[string]any, target string) error {
 	for k, v := range source {
 		if strings.Contains(k, "..") {
 			return fmt.Errorf("invalid file name %v", k)
@@ -110,7 +110,7 @@ func (c *Scaffold) dumpSourceDir(source map[string]any, target string) error {
 				return err
 			}
 
-			err = c.dumpSourceDir(e, out)
+			err = s.dumpSourceDir(e, out)
 			if err != nil {
 				return err
 			}
@@ -123,13 +123,13 @@ func (c *Scaffold) dumpSourceDir(source map[string]any, target string) error {
 	return nil
 }
 
-func (c *Scaffold) createTempDirForSource() (string, error) {
+func (s *Scaffold) createTempDirForSource() (string, error) {
 	td, err := os.MkdirTemp("", "")
 	if err != nil {
 		return "", err
 	}
 
-	err = c.dumpSourceDir(c.cfg.Source, td)
+	err = s.dumpSourceDir(s.cfg.Source, td)
 	if err != nil {
 		os.RemoveAll(td)
 		return "", err
@@ -138,21 +138,30 @@ func (c *Scaffold) createTempDirForSource() (string, error) {
 	return td, nil
 }
 
-func (c *Scaffold) saveAndPostFile(f string, data string) error {
-	err := c.saveFile(f, data)
+func (s *Scaffold) saveAndPostFile(f string, data string) error {
+	err := s.saveFile(f, data)
 	if err != nil {
 		return err
 	}
 
-	return c.postFile(f)
+	err = s.postFile(f)
+	if err != nil {
+		return err
+	}
+
+	if s.log != nil {
+		s.log.Infof("Rendered %s", f)
+	}
+
+	return nil
 }
 
-func (c *Scaffold) renderAndPostFile(out string, t string, data any) error {
-	err := c.renderFile(out, t, data)
+func (s *Scaffold) renderAndPostFile(out string, t string, data any) error {
+	err := s.renderFile(out, t, data)
 	switch {
 	case errors.Is(err, errSkippedEmpty):
-		if c.log != nil {
-			c.log.Infof("Skipping empty file %v", out)
+		if s.log != nil {
+			s.log.Infof("Skipping empty file %v", out)
 		}
 
 		return nil
@@ -160,51 +169,51 @@ func (c *Scaffold) renderAndPostFile(out string, t string, data any) error {
 		return err
 	}
 
-	err = c.postFile(out)
+	err = s.postFile(out)
 	if err != nil {
 		return err
 	}
 
-	if c.log != nil {
-		c.log.Infof("Rendered %s", out)
+	if s.log != nil {
+		s.log.Infof("Rendered %s", out)
 	}
 
 	return nil
 }
 
-func (c *Scaffold) templateFuncs() template.FuncMap {
-	if c.funcs == nil {
+func (s *Scaffold) templateFuncs() template.FuncMap {
+	if s.funcs == nil {
 		return nil
 	}
 
 	funcs := template.FuncMap{}
-	for k, v := range c.funcs {
+	for k, v := range s.funcs {
 		funcs[k] = v
 	}
 
 	funcs["write"] = func(out string, content string) (string, error) {
-		err := c.saveAndPostFile(filepath.Join(c.cfg.TargetDirectory, out), content)
+		err := s.saveAndPostFile(filepath.Join(s.cfg.TargetDirectory, out), content)
 		return "", err
 	}
 
 	funcs["render"] = func(templ string, data any) (string, error) {
-		res, err := c.renderTemplateFile(filepath.Join(c.workingSource, templ), data)
+		res, err := s.renderTemplateFile(filepath.Join(s.workingSource, templ), data)
 		return string(res), err
 	}
 
 	return funcs
 }
 
-func (c *Scaffold) renderTemplateFile(tmpl string, data any) ([]byte, error) {
+func (s *Scaffold) renderTemplateFile(tmpl string, data any) ([]byte, error) {
 	buf := bytes.NewBuffer([]byte{})
 	templ := template.New(filepath.Base(tmpl))
-	funcs := c.templateFuncs()
+	funcs := s.templateFuncs()
 	if funcs != nil {
 		templ.Funcs(funcs)
 	}
 
-	if c.cfg.CustomLeftDelimiter != "" && c.cfg.CustomRightDelimiter != "" {
-		templ.Delims(c.cfg.CustomLeftDelimiter, c.cfg.CustomRightDelimiter)
+	if s.cfg.CustomLeftDelimiter != "" && s.cfg.CustomRightDelimiter != "" {
+		templ.Delims(s.cfg.CustomLeftDelimiter, s.cfg.CustomRightDelimiter)
 	}
 
 	td, err := os.ReadFile(tmpl)
@@ -222,37 +231,37 @@ func (c *Scaffold) renderTemplateFile(tmpl string, data any) ([]byte, error) {
 		return nil, err
 	}
 
-	if c.cfg.SkipEmpty && len(bytes.TrimSpace(buf.Bytes())) == 0 {
+	if s.cfg.SkipEmpty && len(bytes.TrimSpace(buf.Bytes())) == 0 {
 		return nil, errSkippedEmpty
 	}
 
 	return buf.Bytes(), nil
 }
 
-func (c *Scaffold) saveFile(out string, content string) error {
+func (s *Scaffold) saveFile(out string, content string) error {
 	absOut, err := filepath.Abs(out)
 	if err != nil {
 		return err
 	}
 
-	if !strings.HasPrefix(absOut, c.cfg.TargetDirectory) {
-		return fmt.Errorf("%s is not in target directory %s", out, c.cfg.TargetDirectory)
+	if !strings.HasPrefix(absOut, s.cfg.TargetDirectory) {
+		return fmt.Errorf("%s is not in target directory %s", out, s.cfg.TargetDirectory)
 	}
 
 	return os.WriteFile(out, []byte(content), 0755)
 }
 
-func (c *Scaffold) renderFile(out string, t string, data any) error {
-	res, err := c.renderTemplateFile(t, data)
+func (s *Scaffold) renderFile(out string, t string, data any) error {
+	res, err := s.renderTemplateFile(t, data)
 	if err != nil {
 		return err
 	}
 
-	return c.saveFile(out, string(res))
+	return s.saveFile(out, string(res))
 }
 
-func (c *Scaffold) postFile(f string) error {
-	for _, p := range c.cfg.Post {
+func (s *Scaffold) postFile(f string) error {
+	for _, p := range s.cfg.Post {
 		for g, v := range p {
 			matched, err := filepath.Match(g, filepath.Base(f))
 			if err != nil {
@@ -264,7 +273,7 @@ func (c *Scaffold) postFile(f string) error {
 			}
 
 			cmd := ""
-			args := []string{}
+			var args []string
 
 			parts, err := shellquote.Split(strings.ReplaceAll(v, "{}", f))
 			if err != nil {
@@ -279,8 +288,8 @@ func (c *Scaffold) postFile(f string) error {
 				args = append(args, f)
 			}
 
-			if c.log != nil {
-				c.log.Infof("Post processing using: %s %s", cmd, strings.Join(args, " "))
+			if s.log != nil {
+				s.log.Infof("Post processing using: %s %s", cmd, strings.Join(args, " "))
 			}
 
 			out, err := exec.Command(cmd, args...).CombinedOutput()
@@ -293,9 +302,9 @@ func (c *Scaffold) postFile(f string) error {
 	return nil
 }
 
-// Render creates the target directory and place all files into it after template processing and post processing
-func (c *Scaffold) Render(data any) error {
-	err := os.MkdirAll(c.cfg.TargetDirectory, 0770)
+// Render creates the target directory and place all files into it after template processing and post-processing
+func (s *Scaffold) Render(data any) error {
+	err := os.MkdirAll(s.cfg.TargetDirectory, 0770)
 	if err != nil {
 		return err
 	}
@@ -305,36 +314,36 @@ func (c *Scaffold) Render(data any) error {
 		return err
 	}
 
-	err = os.Chdir(c.cfg.TargetDirectory)
+	err = os.Chdir(s.cfg.TargetDirectory)
 	if err != nil {
 		return err
 	}
 	defer os.Chdir(cwd)
 
-	c.workingSource = c.cfg.SourceDirectory
+	s.workingSource = s.cfg.SourceDirectory
 
-	if c.workingSource == "" {
+	if s.workingSource == "" {
 		// move the memory source to temp dir
-		c.workingSource, err = c.createTempDirForSource()
+		s.workingSource, err = s.createTempDirForSource()
 		if err != nil {
 			return err
 		}
 		defer func() {
-			os.RemoveAll(c.workingSource)
-			c.workingSource = ""
+			os.RemoveAll(s.workingSource)
+			s.workingSource = ""
 		}()
 	}
 
-	c.currentDir = c.cfg.TargetDirectory
-	defer func() { c.currentDir = "" }()
+	s.currentDir = s.cfg.TargetDirectory
+	defer func() { s.currentDir = "" }()
 
 	// now render both the same way
-	err = filepath.WalkDir(c.workingSource, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(s.workingSource, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if path == c.workingSource {
+		if path == s.workingSource {
 			return nil
 		}
 
@@ -342,7 +351,7 @@ func (c *Scaffold) Render(data any) error {
 			return filepath.SkipDir
 		}
 
-		out := filepath.Join(c.cfg.TargetDirectory, strings.TrimPrefix(path, c.workingSource))
+		out := filepath.Join(s.cfg.TargetDirectory, strings.TrimPrefix(path, s.workingSource))
 
 		switch {
 		case d.IsDir():
@@ -352,8 +361,8 @@ func (c *Scaffold) Render(data any) error {
 			}
 
 		case d.Type().IsRegular():
-			c.currentDir = filepath.Dir(out)
-			err = c.renderAndPostFile(out, path, data)
+			s.currentDir = filepath.Dir(out)
+			err = s.renderAndPostFile(out, path, data)
 			if err != nil {
 				return err
 			}
