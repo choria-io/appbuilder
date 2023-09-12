@@ -4,7 +4,9 @@ weight = 35
 toc = true
 +++
 
-Use the `scaffold` command to create directories of files based on templates.
+Use the `scaffold` command to create directories of files based on templates. 
+
+The [Sprig](https://github.com/Masterminds/sprig) functions library is available to use in templates.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This was added in version 0.7.0
