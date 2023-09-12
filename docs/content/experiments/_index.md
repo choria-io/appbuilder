@@ -72,6 +72,39 @@ An example can be found in the source repository for this project.
 Configuration is looked for in the local directory in the `.abtenv` file.  At present this is not searched for in parent
 directories.
 
+## Argument and Flag Validations
+
+One might need to ensure that the input provided by a user passes some validation, for example when passing commands
+to shell scripts one has to be careful about [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
+
+We support custom validators on Arguments and Flags using the [Expr Language](https://expr.medv.io/docs/Language-Definition)
+
+{{% notice secondary "Version Hint" code-branch %}}
+This is available since version `0.8.0`.
+{{% /notice %}}
+
+Based on the Getting Started example that calls `cowsay` we might wish to limit the length of the message to what 
+would work well with `cowsay` and also ensure there is no shell escaping happening.
+
+```yaml
+arguments:
+ - name: message
+   description: The message to display
+   required: true
+   validate: len(value) < 20 && is_shellsafe(value)
+```
+We support the standard `expr` language grammar - that has a large number of functions that can assist the 
+validation needs - we then add a few extra functions that makes sense for operation teams.
+
+In each case accessing `value` would be the value passed from the user
+
+| Function              | Description                                                     |
+|-----------------------|-----------------------------------------------------------------|
+| `is_ip(value)`        | Checks if `value` is a IPv4 or IPv6 address                     |
+| `is_ipv4(value)`      | Checks if `value` is a IPv4 address                             |
+| `is_ipv6(value)`      | Checks if `value` is a IPv6 address                             |
+| `is_shellsafe(value)` | Checks if `value` is a attempting to to do shell escape attacks |
+
 ## Compiled Applications
 
 It's nice that you do not need to compile App Builder apps into binaries as it allows for fast iteration, but sometimes
@@ -113,7 +146,7 @@ func main() {
 When you compile this as a normal Go application your binary will be an executable version of the app.
 
 Here we mount the application at the top level of the `myapp` binary, but you could also mount it later on - perhaps you
-have other compiled in behaviours you wish to surface:
+have other compiled in behaviors you wish to surface:
 
 ```go
 func main() {
