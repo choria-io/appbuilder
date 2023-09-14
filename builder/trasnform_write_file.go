@@ -35,13 +35,13 @@ func (wf *writeFileTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	input, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
 
-	target, err := ParseStateTemplate(wf.File, args, flags, cfg)
+	target, err := ParseStateTemplate(wf.File, args, flags, b.Configuration())
 	if err != nil {
 		return nil, fmt.Errorf("invalid file name template: %v", err)
 	}

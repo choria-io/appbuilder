@@ -36,7 +36,7 @@ func (tt *templateTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	var input any
 
 	j, err := io.ReadAll(r)
@@ -55,7 +55,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	switch {
 	case tt.Source != "":
 		var source string
-		source, err = ParseStateTemplate(tt.Source, args, flags, cfg)
+		source, err = ParseStateTemplate(tt.Source, args, flags, b.Configuration())
 		if err != nil {
 			return nil, fmt.Errorf("invalid source template: %v", err)
 		}
@@ -69,7 +69,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	}
 
 	out := bytes.NewBuffer([]byte{})
-	state := NewTemplateState(args, flags, cfg, input)
+	state := NewTemplateState(args, flags, b.Configuration(), input)
 
 	err = templ.Execute(out, state)
 	if err != nil {

@@ -15,6 +15,7 @@ import (
 
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/appbuilder/commands/exec"
+	"github.com/choria-io/appbuilder/commands/form"
 	"github.com/choria-io/appbuilder/commands/parent"
 	"github.com/choria-io/appbuilder/commands/scaffold"
 	"github.com/choria-io/fisk"
@@ -37,6 +38,7 @@ var _ = Describe("Example Application", func() {
 		exec.Register()
 		parent.Register()
 		scaffold.Register()
+		form.Register()
 
 		app, err = builder.New(context.Background(), "example",
 			builder.WithAppDefinitionFile("sample-app.yaml"),

@@ -87,7 +87,7 @@ var _ = Describe("GenericTransform", func() {
 
 	Describe("Transform", func() {
 		It("Should transform using the query", func() {
-			_, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"`), nil, nil, nil)
+			_, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"`), nil, nil, &AppBuilder{cfg: map[string]any{}})
 			Expect(err).To(MatchError(ErrInvalidTransform))
 
 			trans.Query = ".hello"
@@ -96,7 +96,7 @@ var _ = Describe("GenericTransform", func() {
 			_, err = trans.TransformBytes(context.Background(), []byte(`{`), nil, nil, nil)
 			Expect(err).To(MatchError("json input parse error: unexpected end of JSON input"))
 
-			res, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"}`), nil, nil, nil)
+			res, err := trans.TransformBytes(context.Background(), []byte(`{"hello":"world"}`), nil, nil, &AppBuilder{cfg: map[string]any{}})
 			Expect(err).ToNot(HaveOccurred())
 			Expect(string(res)).To(Equal("world\n"))
 		})

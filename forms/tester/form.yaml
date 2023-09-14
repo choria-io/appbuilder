@@ -1,0 +1,58 @@
+name: Basic NATS Leafnode Configuration
+description: |
+  Creates a NATS Server configuration that connects acts as a local
+  edge server connected to a central network using a Leafnode connection
+  
+  See https://docs.nats.io/running-a-nats-service/configuration/leafnodes
+  for further information.
+
+properties:
+  - name: listen
+    description: The network address and port to listen on
+    required: true
+    default: 127.0.0.1:-1
+    help: Examples include localhost:4222, 192.168.1.1:4222 or 127.0.0.1:4222
+
+  - name: accounts
+    description: Multiple accounts
+    help: Sets up local accounts for user access.
+    type: object
+    empty: absent
+    properties:
+      - name: users
+        description: Users to add to the account
+        required: true
+        type: array
+        properties:
+          - name: user
+            description: The username to connect as
+            required: true
+          - name: password
+            description: The password to connect with
+            type: password
+            required: true
+
+  - name: leafnode
+    description: Leafnode connection details
+    required: true
+    help: |
+      Configures individual Leafnode connection properties
+      
+      See https://docs.nats.io/running-a-nats-service/configuration/leafnodes/leafnode_conf
+      for details about all possible values
+    properties:
+      - name: url
+        description: Connection URL
+        help: Choose the NGS endpoint location
+        enum:
+          - nats-leaf://connect.ngs.global:6222
+          - nats-leaf://whatever.eu.url
+      - name: credentials
+        description: NATS credentials file
+        help: Uses a credentials file to authenticate to the remote server
+        empty: absent
+        validation: hasPrefix(value, '/')
+  - name: thing
+    description: Adds a thing if accounts are set
+    empty: absent
+    conditional: Value.accounts != nil

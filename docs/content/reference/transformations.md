@@ -307,6 +307,30 @@ Name: appbuilder-0.2.1-x86_64.rpm                  Size: 2.2 MiB  Downloads: 2
 | `initial_query` | The initial GJSON query to use to find the row orientated data to report                                                                                   |
 | `source_file`   | A file holding the report rather than inline, `name`, `header`, `body` and `footer` are read from here. File name parsed using [Templating](../templating) |
 
+## Scaffold
+
+The `scaffold` transform takes JSON data and can generate multiple files using that output.
+
+This is essentially the [Scaffold Command](../scaffold/) in transform form, we suggest you read the Command 
+documentation for full details on the underlying feature.  Here we'll just cover what makes the transform unique.
+
+{{% notice secondary "Version Hint" code-branch %}}
+This was added in version 0.9.0
+{{% /notice %}}
+
+| Option            | Description                                  |
+|-------------------|----------------------------------------------|
+| `target`          | The directory to write the data into         |
+| `post`            | Post processing directives                   |
+| `skip_empty`      | Skips files that would be empty when written |
+| `left_delimiter`  | Custom template delimiter                    |
+| `right_delimiter` | Custom template delimiter                    |
+
+These settings all correspond to the same ones in the command so we won't cover them in full detail here.
+
+The `scaffold` transform returns the input JSON on its output.
+
+
 ## Pipelines
 
 We've seen a few example transform pipelines above, like this one here:
@@ -341,3 +365,4 @@ This runs the output of the `curl` command (JSON weather forecast data) through 
 We then feed that data into a `line_graph` and render it, the output from the `jq` transform is used as input to the `line_graph`.
 
 Any failure in the pipeline will terminate processing.
+

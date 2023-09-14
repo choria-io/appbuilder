@@ -25,7 +25,7 @@ func (t *toYAMLTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (t *toYAMLTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (t *toYAMLTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err

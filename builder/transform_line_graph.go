@@ -32,7 +32,7 @@ func newLineGraphTransform(trans *Transform) (*lineGraphTransform, error) {
 
 func (lg *lineGraphTransform) Validate(_ Logger) error { return nil }
 
-func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	out := bytes.NewBuffer([]byte{})
 	var input []float64
 
@@ -74,7 +74,7 @@ func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 		opts = append(opts, asciigraph.Precision(t.Precision))
 	}
 	if t.Caption != "" {
-		caption, err := ParseStateTemplate(t.Caption, args, flags, cfg)
+		caption, err := ParseStateTemplate(t.Caption, args, flags, b.Configuration())
 		if err != nil {
 			return nil, fmt.Errorf("invalid line graph caption: %v", err)
 		}
