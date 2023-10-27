@@ -118,19 +118,19 @@ The password to connect with
 The `form` command is a generic command with the only addition being an array of making up the questions `properties`, 
 these are defined as below:
 
-| Property      | Description                                                                                                |
-|---------------|------------------------------------------------------------------------------------------------------------|
-| `name`        | Unique name for each property, in objects this would be the name of the key in the object                  |
-| `description` | Information shown to the user before asking the questions                                                  |
-| `help`        | Help shown when the user enters `?` in the prompt                                                          |
-| `empty`       | What data to create when no values are given, one of `array`, `object`, `absent`, `nil`                    |
-| `type`        | The type of data to gather, one of `string`, `password`, `object` or `array`. Objects and Arrays will nest |
-| `conditional` | An `expr` expression that looks back at the already-entered data and can be used to skip certain questions |
-| `validation`  | A validation expression that will validate user input and ask the user to enter the value again on fail    |
-| `required`    | A value that is required cannot be skipped                                                                 |
-| `default`     | Default value to set                                                                                       |
-| `enum`        | Will only allow one of these values to be set, presented as a select list                                  |
-| `properties`  | Nested questions to ask, array of properties as described in this table                                    |
+| Property      | Description                                                                                                                            |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| `name`        | Unique name for each property, in objects this would be the name of the key in the object                                              |
+| `description` | Information shown to the user before asking the questions                                                                              |
+| `help`        | Help shown when the user enters `?` in the prompt                                                                                      |
+| `empty`       | What data to create when no values are given, one of `array`, `object`, `absent`                                                       |
+| `type`        | The type of data to gather, one of `string`, `integer`, `float`, `bool`, `password`, `object` or `array`. Objects and Arrays will nest |
+| `conditional` | An `expr` expression that looks back at the already-entered data and can be used to skip certain questions                             |
+| `validation`  | A validation expression that will validate user input and ask the user to enter the value again on fail                                |
+| `required`    | A value that is required cannot be skipped                                                                                             |
+| `default`     | Default value to set                                                                                                                   |
+| `enum`        | Will only allow one of these values to be set, presented as a select list                                                              |
+| `properties`  | Nested questions to ask, array of properties as described in this table                                                                |
 
 A full example can be seen in the `example` directory of the project.
 
@@ -173,12 +173,14 @@ validation needs - we then add a few extra functions that makes sense for operat
 
 In each case accessing `value` would be the value passed from the user
 
-| Function             | Description                                                     |
-|----------------------|-----------------------------------------------------------------|
-| `isIP(value)`        | Checks if `value` is a IPv4 or IPv6 address                     |
-| `isIPv4(value)`      | Checks if `value` is a IPv4 address                             |
-| `isIPv6(value)`      | Checks if `value` is a IPv6 address                             |
-| `isShellSafe(value)` | Checks if `value` is a attempting to to do shell escape attacks |
+| Function             | Description                                                   |
+|----------------------|---------------------------------------------------------------|
+| `isIP(value)`        | Checks if `value` is an IPv4 or IPv6 address                  |
+| `isIPv4(value)`      | Checks if `value` is an IPv4 address                          |
+| `isIPv6(value)`      | Checks if `value` is an IPv6 address                          |
+| `isInt(value)`       | Checks if `value` is an Integer                               |
+| `isFloat(value)`     | Checks if `value` is a Float                                  |
+| `isShellSafe(value)` | Checks if `value` is attempting to to do shell escape attacks |
 
 ## Compiled Applications
 

@@ -7,6 +7,7 @@ package validator
 import (
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/antonmedv/expr"
@@ -75,6 +76,8 @@ func Validate(value any, validation string) (bool, error) {
 	opts = append(opts, IPv4Validator()...)
 	opts = append(opts, IPv6Validator()...)
 	opts = append(opts, IPvValidator()...)
+	opts = append(opts, IntValidator()...)
+	opts = append(opts, FloatValidator()...)
 
 	program, err := expr.Compile(validation, opts...)
 	if err != nil {
@@ -87,6 +90,30 @@ func Validate(value any, validation string) (bool, error) {
 	}
 
 	return output.(bool), nil
+}
+
+func FloatValidator() []expr.Option {
+	f := func(params ...any) (any, error) {
+		_, err := strconv.ParseFloat(params[0].(string), 64)
+		return err == nil, nil
+	}
+
+	return []expr.Option{
+		expr.Function("isFloat", f, new(func(string) (bool, error))),
+		expr.Function("is_float", f, new(func(string) (bool, error))),
+	}
+}
+
+func IntValidator() []expr.Option {
+	f := func(params ...any) (any, error) {
+		_, err := strconv.Atoi(params[0].(string))
+		return err == nil, nil
+	}
+
+	return []expr.Option{
+		expr.Function("isInt", f, new(func(string) (bool, error))),
+		expr.Function("is_int", f, new(func(string) (bool, error))),
+	}
 }
 
 func IPvValidator() []expr.Option {

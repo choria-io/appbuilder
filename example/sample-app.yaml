@@ -251,31 +251,40 @@ commands:
           See https://docs.nats.io/running-a-nats-service/configuration/leafnodes/leafnode_conf
           for details about all possible values
         properties:
-          - name: url
-            description: Connection URL
-            help: Choose the NGS endpoint location
-            enum:
-              - nats-leaf://connect.ngs.global:6222
-              - nats-leaf://whatever.eu.url
-              - nats-leaf://apsoutheast2.aws.cloud.ngs.global
-              - nats-leaf://asiaeast1.gcp.cloud.ngs.global
-              - nats-leaf://australiaeast.az.cloud.ngs.global
-              - nats-leaf://europewest3.gcp.cloud.ngs.global
-              - nats-leaf://europewest.az.cloud.ngs.global
-              - nats-leaf://euwest1.aws.cloud.ngs.global
-              - nats-leaf://japaneast.az.cloud.ngs.global
-              - nats-leaf://uscentral1.gcp.cloud.ngs.global
-              - nats-leaf://useast1.gcp.cloud.ngs.global
-              - nats-leaf://useast2.aws.cloud.ngs.global
-              - nats-leaf://uswest1.gcp.cloud.ngs.global
-              - nats-leaf://uswest2.aws.cloud.ngs.global
-              - nats-leaf://uswest2.az.cloud.ngs.global
-
-          - name: credentials
-            description: NATS credentials file
-            help: Uses a credentials file to authenticate to the remote server
+          - name: listen
+            description: The network address and port to listen on
+            help: Examples include localhost:7422, 192.168.1.1:7422 or 127.0.0.1:7422
             empty: absent
-            validation: hasPrefix(value, '/')
+
+          - name: remotes
+            description: List of remotes to connect to
+            type: array
+            required: true
+            properties:
+              - name: url
+                description: Connection URL
+                help: Choose the NGS endpoint location
+                enum:
+                  - nats-leaf://connect.ngs.global:6222
+                  - nats-leaf://apsoutheast2.aws.cloud.ngs.global
+                  - nats-leaf://asiaeast1.gcp.cloud.ngs.global
+                  - nats-leaf://australiaeast.az.cloud.ngs.global
+                  - nats-leaf://europewest3.gcp.cloud.ngs.global
+                  - nats-leaf://europewest.az.cloud.ngs.global
+                  - nats-leaf://euwest1.aws.cloud.ngs.global
+                  - nats-leaf://japaneast.az.cloud.ngs.global
+                  - nats-leaf://uscentral1.gcp.cloud.ngs.global
+                  - nats-leaf://useast1.gcp.cloud.ngs.global
+                  - nats-leaf://useast2.aws.cloud.ngs.global
+                  - nats-leaf://uswest1.gcp.cloud.ngs.global
+                  - nats-leaf://uswest2.aws.cloud.ngs.global
+                  - nats-leaf://uswest2.az.cloud.ngs.global
+
+              - name: credentials
+                description: NATS credentials file
+                help: Uses a credentials file to authenticate to the remote server
+                empty: absent
+                validation: hasPrefix(value, '/')
       - name: thing
         description: Adds a thing if accounts are set
         empty: absent
