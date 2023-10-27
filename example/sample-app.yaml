@@ -212,6 +212,75 @@ commands:
           
           ab_announce Demonstrates using the shell helper
 
+
+  - name: form
+    type: form
+    description: Demonstrates use of the form based data generator
+    properties:
+      - name: listen
+        description: The network address and port to listen on
+        required: true
+        default: 127.0.0.1:-1
+        help: Examples include localhost:4222, 192.168.1.1:4222 or 127.0.0.1:4222
+      - name: accounts
+        description: Multiple accounts
+        help: |
+          Sets up local accounts for user access.
+        type: object
+        empty: absent
+        properties:
+          - name: users
+            description: Users to add to the account
+            required: true
+            type: array
+            properties:
+              - name: user
+                description: The username to connect as
+                required: true
+              - name: password
+                description: The password to connect with
+                type: password
+                required: true
+
+      - name: leafnode
+        description: Leafnode connection details
+        required: true
+        help: |
+          Configures individual leafnode connection properties
+          
+          See https://docs.nats.io/running-a-nats-service/configuration/leafnodes/leafnode_conf
+          for details about all possible values
+        properties:
+          - name: url
+            description: Connection URL
+            help: Choose the NGS endpoint location
+            enum:
+              - nats-leaf://connect.ngs.global:6222
+              - nats-leaf://whatever.eu.url
+              - nats-leaf://apsoutheast2.aws.cloud.ngs.global
+              - nats-leaf://asiaeast1.gcp.cloud.ngs.global
+              - nats-leaf://australiaeast.az.cloud.ngs.global
+              - nats-leaf://europewest3.gcp.cloud.ngs.global
+              - nats-leaf://europewest.az.cloud.ngs.global
+              - nats-leaf://euwest1.aws.cloud.ngs.global
+              - nats-leaf://japaneast.az.cloud.ngs.global
+              - nats-leaf://uscentral1.gcp.cloud.ngs.global
+              - nats-leaf://useast1.gcp.cloud.ngs.global
+              - nats-leaf://useast2.aws.cloud.ngs.global
+              - nats-leaf://uswest1.gcp.cloud.ngs.global
+              - nats-leaf://uswest2.aws.cloud.ngs.global
+              - nats-leaf://uswest2.az.cloud.ngs.global
+
+          - name: credentials
+            description: NATS credentials file
+            help: Uses a credentials file to authenticate to the remote server
+            empty: absent
+            validation: hasPrefix(value, '/')
+      - name: thing
+        description: Adds a thing if accounts are set
+        empty: absent
+        conditional: Input.accounts != nil
+
   - name: transforms
     description: Demonstrate transform features
     type: parent
@@ -363,24 +432,24 @@ commands:
           >> The report is also saved to /tmp/report.txt.
           >>
         description: Demonstrates using a report writer transform
-        command: curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
+        command: curl -s https://api.github.com/repos/nats-io/nats-server/releases/latest
         transform:
           pipeline:
             - report:
                 name: Asset Report
                 initial_query: assets
                 header: |+
-                  @|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                  @||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
                   data.name
-                  --------------------------------------------------------------------------------
+                  ---------------------------------------------------------------------------------
 
                 body: |
-                  Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @##
+                  Name: @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Size: @B###### Downloads: @###
                   row.name, row.size,              row.download_count
                 footer: |+2
                   
-                                                                              ====================
-                                                                              Total Downloads: @##
+                                                                              =====================
+                                                                              Total Downloads: @###
                   report.summary.download_count
             - write_file:
                 file: /tmp/report.txt

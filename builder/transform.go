@@ -39,14 +39,17 @@ type Transform struct {
 	WriteFile *writeFileTransform `json:"write_file,omitempty"`
 
 	// ToJSON converts from YAML or JSON into JSON
-	ToJSON *toJSONTransform `json:"to_json"`
+	ToJSON *toJSONTransform `json:"to_json,omitempty"`
 
 	// ToYAML converts from JSON to YAML
-	ToYAML *toYAMLTransform `json:"to_yaml"`
+	ToYAML *toYAMLTransform `json:"to_yaml,omitempty"`
+
+	// Scaffold renders complex multi file output from an input data structure
+	Scaffold *scaffoldTransform `json:"scaffold,omitempty"`
 }
 
 type transformer interface {
-	Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error)
+	Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error)
 	Validate(Logger) error
 }
 
@@ -81,6 +84,9 @@ func (t *Transform) transformerForQuery() (transformer, error) {
 	case t.ToYAML != nil:
 		return newToYAMLTransform(t)
 
+	case t.Scaffold != nil:
+		return newScaffoldTransform(t)
+
 	default:
 		return nil, fmt.Errorf("%w: no transform", ErrInvalidTransform)
 	}
@@ -95,8 +101,8 @@ func (t *Transform) Validate(log Logger) error {
 	return trans.Validate(log)
 }
 
-func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[string]any, flags map[string]any, cfg any) ([]byte, error) {
-	res, err := t.Transform(ctx, bytes.NewReader(r), args, flags, cfg)
+func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[string]any, flags map[string]any, b *AppBuilder) ([]byte, error) {
+	res, err := t.Transform(ctx, bytes.NewReader(r), args, flags, b)
 	if err != nil {
 		return nil, err
 	}
@@ -104,12 +110,12 @@ func (t *Transform) TransformBytes(ctx context.Context, r []byte, args map[strin
 	return io.ReadAll(res)
 }
 
-func (t *Transform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (t *Transform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	trans, err := t.transformerForQuery()
 	if err != nil {
 		return nil, err
 	}
 
-	return trans.Transform(ctx, r, args, flags, cfg)
+	return trans.Transform(ctx, r, args, flags, b)
 
 }

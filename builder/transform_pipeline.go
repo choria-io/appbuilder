@@ -33,7 +33,7 @@ func (pt *pipelineTransform) Validate(log Logger) error {
 	return nil
 }
 
-func (pt *pipelineTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (pt *pipelineTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	out := r
 
 	for _, t := range pt.pipe.Pipeline {
@@ -42,7 +42,7 @@ func (pt *pipelineTransform) Transform(ctx context.Context, r io.Reader, args ma
 			return nil, err
 		}
 
-		out, err = trans.Transform(ctx, out, args, flags, cfg)
+		out, err = trans.Transform(ctx, out, args, flags, b)
 		if err != nil {
 			return nil, err
 		}

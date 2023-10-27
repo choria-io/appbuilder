@@ -6,6 +6,7 @@ package commands
 
 import (
 	"github.com/choria-io/appbuilder/commands/exec"
+	"github.com/choria-io/appbuilder/commands/form"
 	"github.com/choria-io/appbuilder/commands/parent"
 	"github.com/choria-io/appbuilder/commands/scaffold"
 )
@@ -14,4 +15,5 @@ func MustRegisterStandardCommands() {
 	parent.MustRegister()
 	exec.MustRegister()
 	scaffold.MustRegister()
+	form.MustRegister()
 }

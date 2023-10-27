@@ -47,7 +47,7 @@ func (t *jqTransform) Validate(_ Logger) error {
 	return nil
 }
 
-func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[strin
 		return nil, fmt.Errorf("json input parse error: %v", err)
 	}
 
-	query, err := ParseStateTemplate(t.Query, args, flags, cfg)
+	query, err := ParseStateTemplate(t.Query, args, flags, b.Configuration())
 	if err != nil {
 		return nil, err
 	}

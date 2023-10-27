@@ -241,7 +241,7 @@ func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 		return fmt.Errorf("%w: %v", ErrorExecutionFailed, err)
 	}
 
-	tRes, err := r.def.Transform.TransformBytes(r.ctx, out, r.arguments, r.flags, r.b.Configuration())
+	tRes, err := r.def.Transform.TransformBytes(r.ctx, out, r.arguments, r.flags, r.b)
 	if err != nil {
 		return err
 	}

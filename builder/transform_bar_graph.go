@@ -36,14 +36,14 @@ func newBarGraphTransform(trans *Transform) (*barGraphTransform, error) {
 
 func (bg *barGraphTransform) Validate(_ Logger) error { return nil }
 
-func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, cfg any) (io.Reader, error) {
+func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args map[string]any, flags map[string]any, b *AppBuilder) (io.Reader, error) {
 	out := bytes.NewBuffer([]byte{})
 	var input map[string]float64
 	var caption string
 	var err error
 
 	if bg.Caption != "" {
-		caption, err = ParseStateTemplate(bg.Caption, args, flags, cfg)
+		caption, err = ParseStateTemplate(bg.Caption, args, flags, b.Configuration())
 		if err != nil {
 			return nil, fmt.Errorf("invalid bar graph caption: %v", err)
 		}
