@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/choria-io/appbuilder/validator"
@@ -18,8 +19,10 @@ const (
 	ArrayIfEmpty  = "array"
 	ObjectIfEmpty = "object"
 	AbsentIfEmpty = "absent"
-	NilIfEmpty    = "nil"
 	StringType    = "string"
+	BoolType      = "bool"
+	IntType       = "integer"
+	FloatType     = "float"
 	PasswordType  = "password"
 	ObjectType    = "object"
 	ArrayType     = "array"
@@ -150,7 +153,7 @@ func (p *processor) askObjWithProperties(prop Property, parent entry) error {
 	fmt.Println()
 
 	for {
-		if !prop.Required {
+		if !prop.Required && prop.Type == ObjectType {
 			ok, err := askConfirmation(fmt.Sprintf("Add %s entry", prop.Name), false)
 			if err != nil {
 				return err
@@ -167,12 +170,16 @@ func (p *processor) askObjWithProperties(prop Property, parent entry) error {
 
 		var ans string
 
-		err := survey.AskOne(&survey.Input{
-			Message: "Unique name for this entry",
-			Help:    prop.Help,
-		}, &ans, survey.WithValidator(survey.Required))
-		if err != nil {
-			return err
+		if prop.Type == ObjectType {
+			err := survey.AskOne(&survey.Input{
+				Message: "Unique name for this entry",
+				Help:    prop.Help,
+			}, &ans, survey.WithValidator(survey.Required))
+			if err != nil {
+				return err
+			}
+		} else {
+			ans = prop.Name
 		}
 
 		val, err := parent.addChild(newObjectEntry(map[string]any{ans: nil}))
@@ -184,7 +191,45 @@ func (p *processor) askObjWithProperties(prop Property, parent entry) error {
 		if err != nil {
 			return err
 		}
+
+		// when type is empty we are not asking for a nested object, just one so we bail
+		if prop.Type == "" {
+			return nil
+		}
 	}
+}
+
+func (p *processor) askInt(prop Property, parent entry) error {
+	ans, err := p.askIntValue(prop)
+	if err != nil {
+		return err
+	}
+
+	_, err = parent.addChild(newObjectEntry(map[string]any{prop.Name: ans}))
+
+	return err
+}
+
+func (p *processor) askFloat(prop Property, parent entry) error {
+	ans, err := p.askFloatValue(prop)
+	if err != nil {
+		return err
+	}
+
+	_, err = parent.addChild(newObjectEntry(map[string]any{prop.Name: ans}))
+
+	return err
+}
+
+func (p *processor) askBool(prop Property, parent entry) error {
+	ans, err := p.askBoolValue(prop)
+	if err != nil {
+		return err
+	}
+
+	_, err = parent.addChild(newObjectEntry(map[string]any{prop.Name: ans}))
+
+	return err
 }
 
 func (p *processor) askString(prop Property, parent entry) error {
@@ -216,22 +261,26 @@ func (p *processor) askProperties(props []Property, parent entry) error {
 
 		switch {
 		case prop.Type == ArrayType:
-			err := p.askArrayType(prop, parent)
-			if err != nil {
-				return err
-			}
+			err = p.askArrayType(prop, parent)
 
 		case isOneOf(prop.Type, ObjectType, "") && len(prop.Properties) > 0:
-			err := p.askObjWithProperties(prop, parent)
-			if err != nil {
-				return err
-			}
+			err = p.askObjWithProperties(prop, parent)
+
+		case prop.Type == BoolType:
+			err = p.askBool(prop, parent)
+
+		case prop.Type == IntType:
+			err = p.askInt(prop, parent)
+
+		case prop.Type == FloatType:
+			err = p.askFloat(prop, parent)
 
 		case isOneOf(prop.Type, StringType, PasswordType, ""): // added to parent as a single item object entry
-			err := p.askString(prop, parent)
-			if err != nil {
-				return err
-			}
+			err = p.askString(prop, parent)
+		}
+
+		if err != nil {
+			return err
 		}
 	}
 
@@ -299,6 +348,72 @@ func (p *processor) askStringValue(prop Property) (string, error) {
 	}
 	if err != nil {
 		return "", err
+	}
+
+	return ans, nil
+}
+
+func (p *processor) askFloatValue(prop Property) (float64, error) {
+	fmt.Println()
+	fmt.Println(prop.Description)
+	fmt.Println()
+
+	var ans string
+
+	err := survey.AskOne(&survey.Input{
+		Message: prop.Name,
+		Help:    prop.Help,
+		Default: prop.Default,
+	}, &ans, survey.WithValidator(validator.SurveyValidator("isFloat(value)", true)))
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.ParseFloat(ans, 64)
+}
+
+func (p *processor) askIntValue(prop Property) (int, error) {
+	fmt.Println()
+	fmt.Println(prop.Description)
+	fmt.Println()
+
+	var ans string
+
+	err := survey.AskOne(&survey.Input{
+		Message: prop.Name,
+		Help:    prop.Help,
+		Default: prop.Default,
+	}, &ans, survey.WithValidator(validator.SurveyValidator("isInt(value)", true)))
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(ans)
+}
+
+func (p *processor) askBoolValue(prop Property) (bool, error) {
+	fmt.Println()
+	fmt.Println(prop.Description)
+	fmt.Println()
+
+	var ans bool
+	var dflt bool
+	var err error
+
+	if prop.Default != "" {
+		dflt, err = strconv.ParseBool(prop.Default)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	err = survey.AskOne(&survey.Confirm{
+		Message: prop.Name,
+		Help:    prop.Help,
+		Default: dflt,
+	}, &ans)
+	if err != nil {
+		return false, err
 	}
 
 	return ans, nil
