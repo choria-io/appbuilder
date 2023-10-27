@@ -41,7 +41,7 @@ archives:
 brews:
   - name: appbuilder
     folder: Formula
-    tap:
+    repository:
       owner: choria-io
       name: homebrew-tap
     url_template: "https://github.com/choria-io/appbuilder/releases/download/{{ .Tag }}/appbuilder-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.tar.gz"
@@ -59,7 +59,7 @@ checksum:
   algorithm: sha256
 
 nfpms:
-  - file_name_template: 'appbuilder-{{.Version}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}'
+  - file_name_template: 'appbuilder-{{.Version}}-{{ if eq .Arch "amd64" }}x86_64{{ else}}{{.Arch}}{{end}}{{if .Arm}}{{.Arm}}{{end}}'
     homepage:  https://github.com/choria-io/appbuilder
     description: Choria App Builder CLI
     maintainer: R.I. Pienaar <rip@devco.net>
@@ -76,7 +76,3 @@ nfpms:
       - dst: /usr/bin/abt
         src: /usr/bin/appbuilder
         type: symlink
-    overrides:
-      rpm:
-        replacements:
-          amd64: x86_64
