@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/antonmedv/expr"
 	"github.com/choria-io/fisk"
+	"github.com/expr-lang/expr"
 )
 
 // FiskValidator is a fisk.OptionValidator that compatible with Validator() on arguments and flags
