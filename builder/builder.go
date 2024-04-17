@@ -691,7 +691,7 @@ func (b *AppBuilder) createCommand(def json.RawMessage) (Command, error) {
 	return cmd, nil
 }
 
-// TemplateFuncs returns standard template funcs, set all to also include sprig functions
+// TemplateFuncs returns standard template funcs, set all to also include Sprout functions
 func (b *AppBuilder) TemplateFuncs(all bool) template.FuncMap {
 	funcs := TemplateFuncs(all)
 

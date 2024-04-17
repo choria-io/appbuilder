@@ -183,7 +183,7 @@ The transform supports a few options, all are optional:
 
 ## Templates
 
-The `template` transform uses Golang templates and the [sprig](http://masterminds.github.io/sprig/) functions
+The `template` transform uses Golang templates and the [Sprout](https://github.com/42atomys/sprout) functions
 to facilitate creation of text output using a template language.
 
 ```yaml

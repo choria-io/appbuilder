@@ -385,7 +385,7 @@ commands:
         command: |
           curl -s https://api.github.com/repos/choria-io/appbuilder/releases/latest
 
-      # This uses a template transform with sprig functions to transform
+      # This uses a template transform with Sprout functions to transform
       # JSON input into a textual format
       - name: template
         type: exec

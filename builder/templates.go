@@ -7,11 +7,11 @@ package builder
 import (
 	"bytes"
 	"errors"
+	"github.com/42atomys/sprout"
 	"os"
 	"reflect"
 	"text/template"
 
-	"github.com/Masterminds/sprig/v3"
 	"gopkg.in/alessio/shellescape.v1"
 )
 
@@ -34,7 +34,7 @@ func dereferenceArgsOrFlags(input map[string]any) map[string]any {
 func TemplateFuncs(all bool) template.FuncMap {
 	funcs := map[string]any{}
 	if all {
-		funcs = sprig.TxtFuncMap()
+		funcs = sprout.TxtFuncMap()
 	}
 
 	funcs["require"] = func(v any, reason string) (any, error) {
