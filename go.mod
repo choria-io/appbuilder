@@ -1,6 +1,6 @@
 module github.com/choria-io/appbuilder
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/42atomys/sprout v0.0.0-20240403003052-d64a48ef7bae
