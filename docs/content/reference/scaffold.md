@@ -6,7 +6,7 @@ toc = true
 
 Use the `scaffold` command to create directories of files based on templates. 
 
-The [Sprig](https://github.com/Masterminds/sprig) functions library is available to use in templates.
+The [Sprout](https://github.com/42atomys/sprout) functions library is available to use in templates.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This was added in version 0.7.0
