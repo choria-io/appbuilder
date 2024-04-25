@@ -7,12 +7,12 @@ package builder
 import (
 	"bytes"
 	"errors"
-	"github.com/42atomys/sprout"
+	"gopkg.in/alessio/shellescape.v1"
 	"os"
 	"reflect"
 	"text/template"
 
-	"gopkg.in/alessio/shellescape.v1"
+	"github.com/choria-io/appbuilder/internal/sprig"
 )
 
 func dereferenceArgsOrFlags(input map[string]any) map[string]any {
@@ -34,7 +34,7 @@ func dereferenceArgsOrFlags(input map[string]any) map[string]any {
 func TemplateFuncs(all bool) template.FuncMap {
 	funcs := map[string]any{}
 	if all {
-		funcs = sprout.TxtFuncMap()
+		funcs = sprig.TxtFuncMap()
 	}
 
 	funcs["require"] = func(v any, reason string) (any, error) {
