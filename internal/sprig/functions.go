@@ -2,6 +2,8 @@ package sprig
 
 import (
 	"errors"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"html/template"
 	"math/rand"
 	"os"
@@ -22,8 +24,7 @@ import (
 //
 // Use this to pass the functions into the template engine:
 //
-// 	tpl := template.New("foo").Funcs(sprig.FuncMap()))
-//
+//	tpl := template.New("foo").Funcs(sprig.FuncMap()))
 func FuncMap() template.FuncMap {
 	return HtmlFuncMap()
 }
@@ -122,7 +123,7 @@ var genericMap = map[string]interface{}{
 	"trim":       strings.TrimSpace,
 	"upper":      strings.ToUpper,
 	"lower":      strings.ToLower,
-	"title":      strings.Title,
+	"title":      cases.Title(language.AmericanEnglish).String,
 	"untitle":    untitle,
 	"substr":     substring,
 	// Switch order so that "foo" | repeat 5
@@ -336,20 +337,20 @@ var genericMap = map[string]interface{}{
 	"mustChunk":   mustChunk,
 
 	// Crypto:
-	"bcrypt":            bcrypt,
-	"htpasswd":          htpasswd,
-	"genPrivateKey":     generatePrivateKey,
-	"derivePassword":    derivePassword,
-	"buildCustomCert":   buildCustomCertificate,
-	"genCA":             generateCertificateAuthority,
-	"genCAWithKey":      generateCertificateAuthorityWithPEMKey,
-	"genSelfSignedCert": generateSelfSignedCertificate,
+	"bcrypt":                   bcrypt,
+	"htpasswd":                 htpasswd,
+	"genPrivateKey":            generatePrivateKey,
+	"derivePassword":           derivePassword,
+	"buildCustomCert":          buildCustomCertificate,
+	"genCA":                    generateCertificateAuthority,
+	"genCAWithKey":             generateCertificateAuthorityWithPEMKey,
+	"genSelfSignedCert":        generateSelfSignedCertificate,
 	"genSelfSignedCertWithKey": generateSelfSignedCertificateWithPEMKey,
-	"genSignedCert":     generateSignedCertificate,
-	"genSignedCertWithKey": generateSignedCertificateWithPEMKey,
-	"encryptAES":        encryptAES,
-	"decryptAES":        decryptAES,
-	"randBytes":         randBytes,
+	"genSignedCert":            generateSignedCertificate,
+	"genSignedCertWithKey":     generateSignedCertificateWithPEMKey,
+	"encryptAES":               encryptAES,
+	"decryptAES":               decryptAES,
+	"randBytes":                randBytes,
 
 	// UUIDs:
 	"uuidv4": uuidv4,
