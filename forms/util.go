@@ -5,7 +5,10 @@
 package forms
 
 import (
+	"bytes"
+	"github.com/choria-io/appbuilder/internal/sprig"
 	"os"
+	"text/template"
 
 	"github.com/AlecAivazis/survey/v2"
 	terminal "golang.org/x/term"
@@ -43,4 +46,20 @@ func isOneOf(val string, valid ...string) bool {
 		}
 	}
 	return false
+}
+
+func renderTemplate(tmpl string, env map[string]any) (string, error) {
+	t, err := template.New("form").Funcs(sprig.TxtFuncMap()).Parse(tmpl)
+	if err != nil {
+		return "", err
+	}
+
+	out := bytes.NewBuffer([]byte{})
+
+	err = t.Execute(out, env)
+	if err != nil {
+		return "", err
+	}
+
+	return out.String(), nil
 }
