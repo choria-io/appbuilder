@@ -199,7 +199,7 @@ var _ = Describe("Example Application", func() {
 		})
 
 		Describe("Templates", func() {
-			It("Should parse and render the template and should include sprout functions", func() {
+			It("Should parse and render the template and should include sprig functions", func() {
 				cmd.MustParseWithUsage(strings.Fields("transforms template"))
 				Expect(usageBuf.String()).To(ContainSubstring("Hello James bOND"))
 			})
@@ -225,12 +225,12 @@ var _ = Describe("Example Application", func() {
 				}
 
 				Expect(readFile("main.go")).To(SatisfyAll(
-					ContainSubstring("// Copyright Ginkgo"),
+					ContainSubstring("// Copyright Ginkgo 2023"),
 					ContainSubstring("cmd.Run()"),
 				))
-				Expect(readFile("README.md")).To(ContainSubstring("## Copyright Ginkgo"))
+				Expect(readFile("README.md")).To(ContainSubstring("## Copyright Ginkgo 2023"))
 				Expect(readFile("cmd/cmd.go")).To(SatisfyAll(
-					ContainSubstring("// Copyright Ginkgo"),
+					ContainSubstring("// Copyright Ginkgo 2023"),
 					ContainSubstring(`fmt.Println("Scaffolded using App Builder")`),
 				))
 			})

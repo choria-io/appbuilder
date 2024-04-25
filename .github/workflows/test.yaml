@@ -5,7 +5,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go: [ "1.21", "1.22" ]
+        go: [ "1.20", "1.21" ]
 
     runs-on: ubuntu-latest
     steps:
