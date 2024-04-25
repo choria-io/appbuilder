@@ -7,7 +7,7 @@ name: deploy description: Manage deployment of the system type: parent # Command
 The exec command supports data transformations.
 Running commands An exec runs a command, it is identical to the generic example shown earlier and accepts flags, arguments and sub commands. The only difference is that it adds a command, environment (since 0.0.3) and transform (since 0.0.5) items.
 Below the example that runs cowsay integrated with configuration:</description></item><item><title>Scaffold Command Type</title><link>https://choria-io.github.io/appbuilder/reference/scaffold/index.html</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://choria-io.github.io/appbuilder/reference/scaffold/index.html</guid><description>Use the scaffold command to create directories of files based on templates.
-The Sprout functions library is available to use in templates.
+The Sprig functions library is available to use in templates.
 Version Hint This was added in version 0.7.0
 Scaffolding files First we will just show the most basic example:
 name: scaffold description: Demonstrate scaffold features by creating some go files type: scaffold arguments: - name: target description: The target to create the files in required: true target: &amp;#34;{{ .</description></item><item><title>Discover Command Type</title><link>https://choria-io.github.io/appbuilder/reference/discovery/index.html</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://choria-io.github.io/appbuilder/reference/discovery/index.html</guid><description>The Discover command interact with the Choria Discovery system used to find fleet nodes based on a vast array of possible queries and data sources.
