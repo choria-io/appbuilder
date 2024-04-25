@@ -5,10 +5,13 @@
 package forms
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/choria-io/appbuilder/internal/sprig"
 	"io"
 	"os"
 	"strconv"
+	"text/template"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/choria-io/appbuilder/validator"
@@ -46,6 +49,21 @@ type Property struct {
 	Default               string     `json:"default" yaml:"default"`
 	Enum                  []string   `json:"enum" yaml:"enum"`
 	Properties            []Property `json:"properties" yaml:"properties"`
+}
+
+func (p *Property) RenderedDescription(env map[string]any) (string, error) {
+	t, err := template.New("property").Funcs(sprig.FuncMap()).Parse(p.Description)
+	if err != nil {
+		return "", err
+	}
+
+	buffer := bytes.NewBuffer([]byte{})
+	err = t.Execute(buffer, env)
+	if err != nil {
+		return "", err
+	}
+
+	return buffer.String(), nil
 }
 
 type processor struct {
@@ -101,12 +119,17 @@ func ProcessForm(f Form, env map[string]any) (map[string]any, error) {
 		env:  env,
 	}
 
-	fmt.Println(f.Description)
+	d, err := renderTemplate(f.Description, env)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(d)
+
 	fmt.Println()
 
 	survey.AskOne(&survey.Input{Message: "Press enter to start"}, &struct{}{})
 
-	err := proc.askProperties(f.Properties, proc.val)
+	err = proc.askProperties(f.Properties, proc.val)
 	if err != nil {
 		return nil, err
 	}
@@ -148,8 +171,12 @@ func (p *processor) askArrayType(prop Property, parent entry) error {
 }
 
 func (p *processor) askObjWithProperties(prop Property, parent entry) error {
+	d, err := prop.RenderedDescription(p.env)
+	if err != nil {
+		return err
+	}
 	fmt.Println()
-	fmt.Println(prop.Description)
+	fmt.Println(d)
 	fmt.Println()
 
 	for {
@@ -314,8 +341,12 @@ func (p *processor) askStringEnum(prop Property) (string, error) {
 }
 
 func (p *processor) askStringValue(prop Property) (string, error) {
+	d, err := prop.RenderedDescription(p.env)
+	if err != nil {
+		return "", err
+	}
 	fmt.Println()
-	fmt.Println(prop.Description)
+	fmt.Println(d)
 	fmt.Println()
 
 	if len(prop.Enum) > 0 {
@@ -333,7 +364,6 @@ func (p *processor) askStringValue(prop Property) (string, error) {
 		opts = append(opts, survey.WithValidator(validator.SurveyValidator(prop.ValidationExpression, prop.Required)))
 	}
 
-	var err error
 	if prop.Type == PasswordType {
 		err = survey.AskOne(&survey.Password{
 			Message: prop.Name,
@@ -354,13 +384,17 @@ func (p *processor) askStringValue(prop Property) (string, error) {
 }
 
 func (p *processor) askFloatValue(prop Property) (float64, error) {
+	d, err := prop.RenderedDescription(p.env)
+	if err != nil {
+		return 0, err
+	}
 	fmt.Println()
-	fmt.Println(prop.Description)
+	fmt.Println(d)
 	fmt.Println()
 
 	var ans string
 
-	err := survey.AskOne(&survey.Input{
+	err = survey.AskOne(&survey.Input{
 		Message: prop.Name,
 		Help:    prop.Help,
 		Default: prop.Default,
@@ -373,13 +407,17 @@ func (p *processor) askFloatValue(prop Property) (float64, error) {
 }
 
 func (p *processor) askIntValue(prop Property) (int, error) {
+	d, err := prop.RenderedDescription(p.env)
+	if err != nil {
+		return 0, err
+	}
 	fmt.Println()
-	fmt.Println(prop.Description)
+	fmt.Println(d)
 	fmt.Println()
 
 	var ans string
 
-	err := survey.AskOne(&survey.Input{
+	err = survey.AskOne(&survey.Input{
 		Message: prop.Name,
 		Help:    prop.Help,
 		Default: prop.Default,
@@ -392,13 +430,16 @@ func (p *processor) askIntValue(prop Property) (int, error) {
 }
 
 func (p *processor) askBoolValue(prop Property) (bool, error) {
+	d, err := prop.RenderedDescription(p.env)
+	if err != nil {
+		return false, err
+	}
 	fmt.Println()
-	fmt.Println(prop.Description)
+	fmt.Println(d)
 	fmt.Println()
 
 	var ans bool
 	var dflt bool
-	var err error
 
 	if prop.Default != "" {
 		dflt, err = strconv.ParseBool(prop.Default)
