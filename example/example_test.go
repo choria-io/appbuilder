@@ -225,12 +225,12 @@ var _ = Describe("Example Application", func() {
 				}
 
 				Expect(readFile("main.go")).To(SatisfyAll(
-					ContainSubstring("// Copyright Ginkgo 2023"),
+					ContainSubstring("// Copyright Ginkgo"),
 					ContainSubstring("cmd.Run()"),
 				))
-				Expect(readFile("README.md")).To(ContainSubstring("## Copyright Ginkgo 2023"))
+				Expect(readFile("README.md")).To(ContainSubstring("## Copyright Ginkgo"))
 				Expect(readFile("cmd/cmd.go")).To(SatisfyAll(
-					ContainSubstring("// Copyright Ginkgo 2023"),
+					ContainSubstring("// Copyright Ginkgo"),
 					ContainSubstring(`fmt.Println("Scaffolded using App Builder")`),
 				))
 			})

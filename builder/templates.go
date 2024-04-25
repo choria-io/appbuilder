@@ -7,12 +7,12 @@ package builder
 import (
 	"bytes"
 	"errors"
+	"gopkg.in/alessio/shellescape.v1"
 	"os"
 	"reflect"
 	"text/template"
 
-	"github.com/Masterminds/sprig/v3"
-	"gopkg.in/alessio/shellescape.v1"
+	"github.com/choria-io/appbuilder/internal/sprig"
 )
 
 func dereferenceArgsOrFlags(input map[string]any) map[string]any {
