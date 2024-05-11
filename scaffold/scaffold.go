@@ -21,19 +21,19 @@ import (
 // Config configures a scaffolding operation
 type Config struct {
 	// TargetDirectory is where to place the resulting rendered files, must not exist
-	TargetDirectory string `yaml:"target"`
+	TargetDirectory string `yaml:"target" json:"target"`
 	// SourceDirectory reads templates from a directory, mutually exclusive with Source
-	SourceDirectory string `yaml:"source_directory"`
+	SourceDirectory string `yaml:"source_directory" json:"source_directory"`
 	// Source reads templates from in-process memory
-	Source map[string]any `yaml:"source"`
+	Source map[string]any `yaml:"source" json:"source"`
 	// Post configures post-processing of files using filepath globs
-	Post []map[string]string `yaml:"post"`
+	Post []map[string]string `yaml:"post" json:"post"`
 	// SkipEmpty skips files that are 0 bytes after rendering
-	SkipEmpty bool `yaml:"skip_empty"`
+	SkipEmpty bool `yaml:"skip_empty" json:"skip_empty"`
 	// Sets a custom template delimiter, useful for generating templates from templates
-	CustomLeftDelimiter string `yaml:"left_delimiter"`
+	CustomLeftDelimiter string `yaml:"left_delimiter" json:"left_delimiter"`
 	// Sets a custom template delimiter, useful for generating templates from templates
-	CustomRightDelimiter string `yaml:"right_delimiter"`
+	CustomRightDelimiter string `yaml:"right_delimiter" json:"right_delimiter"`
 }
 
 type Logger interface {
