@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/choria-io/appbuilder/scaffold"
+	"github.com/choria-io/scaffold"
 )
 
 type scaffoldTransform struct {
