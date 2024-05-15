@@ -10,6 +10,7 @@ require (
 	github.com/adrg/xdg v0.4.0
 	github.com/choria-io/fisk v0.6.2
 	github.com/choria-io/goform v0.0.3
+	github.com/choria-io/scaffold v0.0.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/expr-lang/expr v1.16.7
 	github.com/ghodss/yaml v1.0.0
@@ -27,10 +28,8 @@ require (
 	github.com/tidwall/gjson v1.17.1
 	github.com/xlab/tablewriter v0.0.0-20160610135559-80b567a11ad5
 	golang.org/x/crypto v0.23.0
-	golang.org/x/term v0.20.0
 	golang.org/x/text v0.15.0
 	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -48,6 +47,8 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/term v0.20.0 // indirect
 	golang.org/x/tools v0.21.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

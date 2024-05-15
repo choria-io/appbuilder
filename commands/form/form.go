@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
-	"github.com/choria-io/appbuilder/forms"
 	"github.com/choria-io/fisk"
+	"github.com/choria-io/scaffold/forms"
 )
 
 type Command struct {
