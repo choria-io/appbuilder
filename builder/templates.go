@@ -5,9 +5,9 @@
 package builder
 
 import (
+	"al.essio.dev/pkg/shellescape"
 	"bytes"
 	"errors"
-	"gopkg.in/alessio/shellescape.v1"
 	"os"
 	"reflect"
 	"text/template"
