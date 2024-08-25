@@ -77,8 +77,7 @@ commands:
 
 Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long`, `short` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
 
-Since version `0.0.6` you can emit a banner before invoking the commands in an exec, use this to show a warning or extra
-information to users before running a command.  Perhaps to warn them that a config override is in use like here:
+You can emit a banner before invoking the commands in an exec, use this to show a warning or extra information to users before running a command.  Perhaps to warn them that a config override is in use like here:
 
 ```yaml
   - name: say
@@ -98,7 +97,7 @@ information to users before running a command.  Perhaps to warn them that a conf
         required: true
 ```
 
-Since version `0.0.7` we support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
+We support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
 
 #### Arguments
 
@@ -133,8 +132,6 @@ A `flag` is a option passed to the application using something like `--flag`, ty
 
 ##### Boolean Flags
 
-We support boolean flags since version `0.1.1`:
-
 ```yaml
   - name: delete
     description: Delete the data
@@ -152,6 +149,41 @@ We support boolean flags since version `0.1.1`:
 ```
 
 Here we have a `--force` flag that is used to influence the command.  Booleans can have their default set to `true` or `"true`" which will then add a `--no-flag-name` option added to negate it.
+
+#### Argument and Flag Validations
+
+One might need to ensure that the input provided by a user passes some validation, for example when passing commands
+to shell scripts one has to be careful about [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
+
+We support custom validators on Arguments and Flags using the [Expr Language](https://expr.medv.io/docs/Language-Definition)
+
+{{% notice secondary "Version Hint" code-branch %}}
+This is available since version `0.8.0`.
+{{% /notice %}}
+
+Based on the Getting Started example that calls `cowsay` we might wish to limit the length of the message to what
+would work well with `cowsay` and also ensure there is no shell escaping happening.
+
+```yaml
+arguments:
+ - name: message
+   description: The message to display
+   required: true
+   validate: len(value) < 20 && is_shellsafe(value)
+```
+We support the standard `expr` language grammar - that has a large number of functions that can assist the
+validation needs - we then add a few extra functions that makes sense for operation teams.
+
+In each case accessing `value` would be the value passed from the user
+
+| Function             | Description                                                   |
+|----------------------|---------------------------------------------------------------|
+| `isIP(value)`        | Checks if `value` is an IPv4 or IPv6 address                  |
+| `isIPv4(value)`      | Checks if `value` is an IPv4 address                          |
+| `isIPv6(value)`      | Checks if `value` is an IPv6 address                          |
+| `isInt(value)`       | Checks if `value` is an Integer                               |
+| `isFloat(value)`     | Checks if `value` is a Float                                  |
+| `isShellSafe(value)` | Checks if `value` is attempting to to do shell escape attacks |
 
 ### Confirmations
 

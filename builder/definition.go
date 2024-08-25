@@ -25,6 +25,7 @@ type Definition struct {
 	Author       string    `json:"author"`
 	Cheats       *AppCheat `json:"cheat"`
 	HelpTemplate string    `json:"help_template"`
+	IncludeFile  string    `json:"include_file"`
 
 	GenericSubCommands
 

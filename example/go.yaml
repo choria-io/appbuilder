@@ -1,0 +1,44 @@
+name: go
+description: Demonstrates basic features such as flags and arguments
+type: parent
+commands:
+  # Demonstrates the use of arguments and flags, mixing in arguments for main
+  # functionality and flags for optional behavior changes.
+  #
+  # Also uses Go templates to adjust the command based on the flags given and
+  # checks input is valid.
+  - name: required
+    description: Greet someone by name, name+surname with a customizable greeting
+    type: exec
+    # Here we use arguments for the name and surname, the name is required but surname is optional.
+    arguments:
+      - name: name
+        description: The name of the person to greet
+        required: true
+        validate: len(value) < 20
+      - name: surname
+        description: An optional surname of the person to greet
+    # We add an optional flag to override the "Hello" greeting
+    # It accepts only one of the 3 valid values
+    flags:
+      - name: greeting
+        description: The greeting to use instead of Hello
+        default: Hello
+        env: GREETING
+        short: g
+        enum:
+          - Hello
+          - Morning
+          - Halo
+
+    # We use go templates and the default + require functions to ensure users do not set empty
+    # strings such as "sample basics required ''" which would set the name to an empty string,
+    # in that case we would fail stating a name is required.
+    #
+    # In the case of an empty greeting, we fall back to the default "Hello"
+    command: |
+      {{ if .Arguments.surname }}
+        echo '{{ .Flags.greeting }} {{.Arguments.surname}}, {{ require .Arguments.name "a name is required" }} {{.Arguments.surname}}'
+      {{ else }}
+        echo '{{ .Flags.greeting }} {{ require .Arguments.name "a name is required" }}'
+      {{ end }}

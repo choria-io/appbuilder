@@ -7,6 +7,31 @@ pre = "<b>4. </b>"
 
 Some features are ongoing experiments and not part of the supported feature set, this section will call them out.
 
+## Including other definitions
+
+Since version 0.10.0 an entire definition can be included from another file or just the commands in a parent.
+
+```yaml
+name: include
+description: An include based app
+version: 0.2.2
+author: another@example.net
+
+include_file: sample-app.yaml
+```
+
+Here we include the entire application from another file but we override the name, description, version and author.
+
+A specific `parent` can load all it's commands from a file:
+
+```yaml
+  - name: include
+    type: parent
+    include_file: go.yaml
+```
+
+In this case the go.yaml would be the full `parent` definition.
+
 ## Form based data generation wizards
 
 The general flow of applications is to expose Arguments and Flags when then can be used in templates to create files
@@ -146,41 +171,6 @@ above) and will only ask this `thing` when the user opted to add accounts:
     empty: absent
     conditional: Input.accounts != nil
 ```
-
-## Argument and Flag Validations
-
-One might need to ensure that the input provided by a user passes some validation, for example when passing commands
-to shell scripts one has to be careful about [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
-
-We support custom validators on Arguments and Flags using the [Expr Language](https://expr.medv.io/docs/Language-Definition)
-
-{{% notice secondary "Version Hint" code-branch %}}
-This is available since version `0.8.0`.
-{{% /notice %}}
-
-Based on the Getting Started example that calls `cowsay` we might wish to limit the length of the message to what 
-would work well with `cowsay` and also ensure there is no shell escaping happening.
-
-```yaml
-arguments:
- - name: message
-   description: The message to display
-   required: true
-   validate: len(value) < 20 && is_shellsafe(value)
-```
-We support the standard `expr` language grammar - that has a large number of functions that can assist the 
-validation needs - we then add a few extra functions that makes sense for operation teams.
-
-In each case accessing `value` would be the value passed from the user
-
-| Function             | Description                                                   |
-|----------------------|---------------------------------------------------------------|
-| `isIP(value)`        | Checks if `value` is an IPv4 or IPv6 address                  |
-| `isIPv4(value)`      | Checks if `value` is an IPv4 address                          |
-| `isIPv6(value)`      | Checks if `value` is an IPv6 address                          |
-| `isInt(value)`       | Checks if `value` is an Integer                               |
-| `isFloat(value)`     | Checks if `value` is a Float                                  |
-| `isShellSafe(value)` | Checks if `value` is attempting to to do shell escape attacks |
 
 ## Compiled Applications
 

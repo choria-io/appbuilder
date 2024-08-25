@@ -290,6 +290,10 @@ commands:
         empty: absent
         conditional: Input.accounts != nil
 
+  - name: include
+    type: parent
+    include_file: go.yaml
+
   - name: transforms
     description: Demonstrate transform features
     type: parent

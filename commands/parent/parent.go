@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ghodss/yaml"
+	"os"
 	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
@@ -15,6 +17,7 @@ import (
 )
 
 type Command struct {
+	IncludeFile string `json:"include_file"`
 	builder.GenericSubCommands
 	builder.GenericCommand
 }
@@ -42,7 +45,38 @@ func NewParentCommand(_ *builder.AppBuilder, j json.RawMessage, _ builder.Logger
 		return nil, fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
 	}
 
+	if parent.def.IncludeFile != "" {
+		err = parent.includeCommands()
+		if err != nil {
+			return nil, err
+		}
+		parent.def.IncludeFile = ""
+	}
+
 	return parent, nil
+}
+
+func (p *Parent) includeCommands() error {
+	b, err := os.ReadFile(p.def.IncludeFile)
+	if err != nil {
+		return err
+	}
+
+	name := p.def.Name
+
+	cfgj, err := yaml.YAMLToJSON(b)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(cfgj, p.def)
+	if err != nil {
+		return err
+	}
+
+	p.def.Name = name
+
+	return nil
 }
 
 func (p *Parent) String() string { return fmt.Sprintf("%s (parent)", p.def.Name) }
