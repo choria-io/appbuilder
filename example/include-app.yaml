@@ -1,0 +1,6 @@
+name: include
+description: An include based app
+version: 0.2.2
+author: another@example.net
+
+include_file: sample-app.yaml

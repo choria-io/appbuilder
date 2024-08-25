@@ -87,6 +87,39 @@ var _ = Describe("Example Application", func() {
 	})
 
 	Describe("Basics", func() {
+		Describe("Command Includes", func() {
+			It("Should include the commands from go.yaml", func() {
+				cmd.MustParseWithUsage(strings.Fields("include required ginkgo"))
+				Expect(usageBuf.String()).To(ContainSubstring("Hello ginkgo"))
+			})
+		})
+
+		Describe("App includes", func() {
+			It("Should include the app includes", func() {
+				app, err = builder.New(context.Background(), "include",
+					builder.WithAppDefinitionFile("include-app.yaml"),
+					builder.WithLogger(&builder.NoopLogger{}),
+					builder.WithContextualUsageOnError(),
+					builder.WithStdout(usageBuf),
+					builder.WithStderr(usageBuf))
+				Expect(err).ToNot(HaveOccurred())
+				cmd, err = app.FiskApplication()
+				Expect(err).ToNot(HaveOccurred())
+				cmd.Terminate(func(int) {})
+
+				usageBuf.Reset()
+				cmd.Writer(usageBuf)
+
+				usageBuf.Reset()
+
+				cmd.MustParseWithUsage(strings.Fields("--help"))
+				usageBuf.Reset()
+
+				cmd.MustParseWithUsage(strings.Fields("basics required ginkgo"))
+				Expect(usageBuf.String()).To(ContainSubstring("Hello ginkgo"))
+			})
+		})
+
 		Describe("required", func() {
 			It("Should require a name", func() {
 				cmd.MustParseWithUsage(strings.Fields("basics required"))

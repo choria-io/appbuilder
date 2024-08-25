@@ -336,6 +336,38 @@ func (b *AppBuilder) loadDefinitionBytes(cfg []byte, path string) (*Definition, 
 		return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
 	}
 
+	if d.IncludeFile != "" {
+		f, err := os.ReadFile(d.IncludeFile)
+		if err != nil {
+			return nil, err
+		}
+		cfgj, err := yaml.YAMLToJSON(f)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
+		}
+
+		def := &Definition{}
+		err = json.Unmarshal(cfgj, def)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidDefinition, err)
+		}
+
+		if d.Name != "" {
+			def.Name = d.Name
+		}
+		if d.Author != "" {
+			def.Author = d.Author
+		}
+		if d.Description != "" {
+			def.Description = d.Description
+		}
+		if d.Version != "" {
+			def.Version = d.Version
+		}
+
+		d = def
+	}
+
 	err = b.createCommands(d, d.Commands)
 	if err != nil {
 		return nil, err
