@@ -15,11 +15,20 @@ import (
 )
 
 type scaffoldTransform struct {
-	Target               string              `json:"target"`
-	Post                 []map[string]string `json:"post"`
-	SkipEmpty            bool                `json:"skip_empty"`
-	CustomLeftDelimiter  string              `json:"left_delimiter"`
-	CustomRightDelimiter string              `json:"right_delimiter"`
+	// TargetDirectory is where to place the resulting rendered files, must not exist
+	TargetDirectory string `json:"target"`
+	// SourceDirectory reads templates from a directory, mutually exclusive with Source
+	SourceDirectory string `json:"source_directory"`
+	// Source reads templates from in-process memory
+	Source map[string]any `json:"source"`
+	// Post configures post-processing of files using filepath globs
+	Post []map[string]string `json:"post"`
+	// SkipEmpty skips files that are 0 bytes after rendering
+	SkipEmpty bool `json:"skip_empty"`
+	// Sets a custom template delimiter, useful for generating templates from templates
+	CustomLeftDelimiter string `json:"left_delimiter"`
+	// Sets a custom template delimiter, useful for generating templates from templates
+	CustomRightDelimiter string `json:"right_delimiter"`
 }
 
 func newScaffoldTransform(trans *Transform) (*scaffoldTransform, error) {
@@ -29,7 +38,7 @@ func newScaffoldTransform(trans *Transform) (*scaffoldTransform, error) {
 }
 
 func (st *scaffoldTransform) Validate(_ Logger) error {
-	if st.Target == "" {
+	if st.TargetDirectory == "" {
 		return fmt.Errorf("target location is required")
 	}
 
@@ -45,28 +54,34 @@ func (st *scaffoldTransform) Transform(ctx context.Context, r io.Reader, args ma
 	var input map[string]any
 	json.Unmarshal(j, &input)
 
-	scfg := scaffold.Config{
-		TargetDirectory:      st.Target,
-		Source:               input,
-		Post:                 st.Post,
-		SkipEmpty:            st.SkipEmpty,
-		CustomLeftDelimiter:  st.CustomLeftDelimiter,
-		CustomRightDelimiter: st.CustomLeftDelimiter,
-	}
-
-	scfg.TargetDirectory, err = ParseStateTemplateWithFuncMap(st.Target, args, flags, b.Configuration(), b.TemplateFuncs(true))
+	st.SourceDirectory, err = ParseStateTemplateWithFuncMap(st.SourceDirectory, args, flags, b.Configuration(), b.TemplateFuncs(true))
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := scaffold.New(scfg, b.TemplateFuncs(true))
+	st.TargetDirectory, err = ParseStateTemplateWithFuncMap(st.TargetDirectory, args, flags, b.Configuration(), b.TemplateFuncs(true))
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := scaffold.Config{
+		TargetDirectory:      st.TargetDirectory,
+		SourceDirectory:      st.SourceDirectory,
+		Source:               st.Source,
+		Post:                 st.Post,
+		SkipEmpty:            st.SkipEmpty,
+		CustomLeftDelimiter:  st.CustomLeftDelimiter,
+		CustomRightDelimiter: st.CustomRightDelimiter,
+	}
+
+	s, err := scaffold.New(cfg, b.TemplateFuncs(true))
 	if err != nil {
 		return nil, err
 	}
 
 	s.Logger(b.log)
 
-	err = s.Render(NewTemplateState(args, flags, b.Configuration(), nil))
+	err = s.Render(NewTemplateState(args, flags, b.Configuration(), input))
 	if err != nil {
 		return nil, err
 	}
