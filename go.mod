@@ -11,7 +11,7 @@ require (
 	github.com/adrg/xdg v0.5.3
 	github.com/choria-io/fisk v0.6.6
 	github.com/choria-io/goform v0.0.3
-	github.com/choria-io/scaffold v0.0.2
+	github.com/choria-io/scaffold v0.0.3
 	github.com/dustin/go-humanize v1.0.1
 	github.com/expr-lang/expr v1.17.1
 	github.com/ghodss/yaml v1.0.0
