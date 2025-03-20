@@ -11,7 +11,7 @@ require (
 	github.com/adrg/xdg v0.5.3
 	github.com/choria-io/fisk v0.6.6
 	github.com/choria-io/goform v0.0.3
-	github.com/choria-io/scaffold v0.0.3
+	github.com/choria-io/scaffold v0.0.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/expr-lang/expr v1.17.1
 	github.com/ghodss/yaml v1.0.0
@@ -21,7 +21,7 @@ require (
 	github.com/itchyny/gojq v0.12.17
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/mitchellh/copystructure v1.2.0
-	github.com/onsi/ginkgo/v2 v2.23.1
+	github.com/onsi/ginkgo/v2 v2.23.2
 	github.com/onsi/gomega v1.36.2
 	github.com/shopspring/decimal v1.4.0
 	github.com/sirupsen/logrus v1.9.3
