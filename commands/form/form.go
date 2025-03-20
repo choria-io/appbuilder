@@ -32,6 +32,7 @@ type Form struct {
 	userDir   string
 	cmd       *fisk.CmdClause
 	def       *Command
+	defBytes  []byte
 
 	ctx context.Context
 	log builder.Logger
@@ -53,6 +54,7 @@ func NewFormCommand(b *builder.AppBuilder, j json.RawMessage, log builder.Logger
 		defnDir:   b.DefinitionDirectory(),
 		userDir:   b.UserWorkingDirectory(),
 		def:       &Command{},
+		defBytes:  j,
 		ctx:       b.Context(),
 		log:       log,
 		b:         b,
@@ -115,6 +117,16 @@ func (r *Form) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error
 
 func (r *Form) runCommand(_ *fisk.ParseContext) error {
 	state := builder.NewTemplateState(r.arguments, r.flags, r.b.Configuration(), nil)
+
+	defBytes, err := builder.ParseStateTemplateWithFuncMap(string(r.defBytes), r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
+	if err != nil {
+		return fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
+	}
+
+	err = json.Unmarshal([]byte(defBytes), r.def)
+	if err != nil {
+		return fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
+	}
 
 	form := forms.Form{
 		Name:        r.def.Name,
