@@ -1,4 +1,4 @@
-// Copyright (c) 2022, R.I. Pienaar and the Choria Project contributors
+// Copyright (c) 2022-2025, R.I. Pienaar and the Choria Project contributors
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -8,12 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ghodss/yaml"
 	"os"
 	"strings"
 
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/fisk"
+	"github.com/goccy/go-yaml"
 )
 
 type Command struct {

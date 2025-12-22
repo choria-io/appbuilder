@@ -1,4 +1,4 @@
-// Copyright (c) 2023, R.I. Pienaar and the Choria Project contributors
+// Copyright (c) 2023-2025, R.I. Pienaar and the Choria Project contributors
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ghodss/yaml"
+	"github.com/goccy/go-yaml"
 )
 
 type toYAMLTransform struct{}
