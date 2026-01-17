@@ -233,3 +233,32 @@ func main() {
 
 Here we would end up with `myapp embedded [app commands]` - the command being mounted at a deeper level in the resulting
 compiled application.  This way you can plug a App Builder command into any level programmatically.
+
+## Choria Configuration Manager Transform
+
+The [Choria Configuration Manager](https://choria-io.github.io/ccm/) is a new Configuration Management tool that is part of the Choria project.
+
+CCM manifests takes Data and Facts as input, we are adding a transform can execute a manifest with custom data.
+
+This combines well with the new Form Based Wizards to ask users for configuration interactively. It also sets all flags and arguments as data.
+
+```
+name: demo
+description: Demo application for Choria App Builder
+author: https://github.com/choria-io/appbuilder
+commands:
+  - name: docker
+    type: form
+    properties:
+      - name: version
+        description: Version to install
+        required: true
+        default: latest
+
+    transform:
+      ccm_manifest:
+        manifest: obj://CCM/simple.tar.gz
+        nats_context: CCM
+```
+
+This will set `version` in the data supplied to the manifest and execute the manifest.

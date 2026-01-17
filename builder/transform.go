@@ -46,6 +46,9 @@ type Transform struct {
 
 	// Scaffold renders complex multi file output from an input data structure
 	Scaffold *scaffoldTransform `json:"scaffold,omitempty"`
+
+	// CCMManifest executes a CCM manifest using the input data as manifest data
+	CCMManifest *ccmManifestTransform `json:"ccm_manifest,omitempty"`
 }
 
 type transformer interface {
@@ -74,6 +77,9 @@ func (t *Transform) transformerForQuery() (transformer, error) {
 
 	case t.WriteFile != nil:
 		return newWriteFileTransform(t)
+
+	case t.CCMManifest != nil:
+		return newCCMManifestTransform(t)
 
 	case len(t.Pipeline) > 0:
 		return newPipelineTransform(t)
