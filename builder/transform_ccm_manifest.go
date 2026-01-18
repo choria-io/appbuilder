@@ -19,8 +19,10 @@ import (
 )
 
 type ccmManifestTransform struct {
-	Manifest    string `json:"manifest"`
-	NATSContext string `json:"nats_context"`
+	Manifest         string `json:"manifest"`
+	NATSContext      string `json:"nats_context"`
+	RenderSummary    bool   `json:"render_summary"`
+	NoRenderMessages bool   `json:"no_render_messages"`
 }
 
 func newCCMManifestTransform(trans *Transform) (*ccmManifestTransform, error) {
@@ -88,14 +90,29 @@ func (manifest *ccmManifestTransform) Transform(ctx context.Context, r io.Reader
 		defer os.RemoveAll(wd)
 	}
 
+	if m.PreMessage() != "" {
+		fmt.Println(m.PreMessage())
+	}
+
 	_, err = m.Execute(ctx, mgr, false, log)
 	if err != nil {
 		return nil, err
 	}
 
+	if m.PostMessage() != "" {
+		fmt.Println(m.PostMessage())
+	}
+
 	summary, err := mgr.SessionSummary()
 	if err != nil {
 		return nil, err
+	}
+
+	if manifest.RenderSummary {
+		fmt.Println()
+		summary.RenderText(os.Stdout)
+
+		return bytes.NewReader(nil), nil
 	}
 
 	j, err := json.MarshalIndent(summary, "", "  ")

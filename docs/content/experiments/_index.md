@@ -259,6 +259,8 @@ commands:
       ccm_manifest:
         manifest: obj://CCM/simple.tar.gz
         nats_context: CCM
+        render_summary: true
+        no_render_messages: false
 ```
 
-This will set `version` in the data supplied to the manifest and execute the manifest.
+This will set `version` in the data supplied to the manifest and execute the manifest. Setting `render_summary` will render the summary to STDOUT rather than return it as JSON.  Setting `no_render_messages` will avoid rendering the pre- and post-messages in the Manifest
