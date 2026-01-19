@@ -51,7 +51,7 @@ func (manifest *ccmManifestTransform) Transform(ctx context.Context, r io.Reader
 
 	url, err := ParseStateTemplate(manifest.Manifest, args, flags, b.Configuration())
 	if err != nil {
-		return nil, fmt.Errorf("invalid manifest url template: %v", err)
+		return nil, fmt.Errorf("invalid manifest url template: %w", err)
 	}
 
 	manifestData := map[string]any{}

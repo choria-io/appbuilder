@@ -264,3 +264,25 @@ commands:
 ```
 
 This will set `version` in the data supplied to the manifest and execute the manifest. Setting `render_summary` will render the summary to STDOUT rather than return it as JSON.  Setting `no_render_messages` will avoid rendering the pre- and post-messages in the Manifest
+
+There is also a top level command that can be used directly:
+
+```
+name: demo
+description: Demo application for Choria App Builder
+author: https://github.com/choria-io/appbuilder
+commands:
+  - name: docker
+    type: ccm_manifest
+    flags:
+      - name: version
+        description: Version to install
+        required: true
+        default: latest
+    manifest: obj://CCM/simple.tar.gz
+    nats_context: CCM
+    render_summary: true
+    no_render_messages: false
+```
+
+Here instead of a form we have a flag to pass
