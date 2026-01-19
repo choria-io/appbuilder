@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/choria-io/appbuilder/builder"
+	"github.com/choria-io/appbuilder/commands/ccm_manifest"
 	"github.com/choria-io/appbuilder/commands/exec"
 	"github.com/choria-io/appbuilder/commands/form"
 	"github.com/choria-io/appbuilder/commands/parent"
@@ -39,6 +40,7 @@ var _ = Describe("Example Application", func() {
 		parent.Register()
 		scaffold.Register()
 		form.Register()
+		ccm_manifest.Register()
 
 		app, err = builder.New(context.Background(), "example",
 			builder.WithAppDefinitionFile("sample-app.yaml"),

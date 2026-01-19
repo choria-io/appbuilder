@@ -117,9 +117,11 @@ commands:
 
     - name: build
       type: parent
+      aliases: [b]
       description: Code build steps
       commands:
         - name: binary
+          aliases: [bin]
           description: Build a basic test binary
           type: exec
           dir: "{{ TaskDir }}"
