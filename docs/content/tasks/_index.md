@@ -58,6 +58,8 @@ The `abt` command will search from the current directory upward until it finds o
 
 In this manner a project can ship a default task file and users can provide local overrides.
 
+Since version `0.14.0` you can set the environment variable `ABTaskFile=/some/file.yaml` and it will run that file without searching local directories.
+
 It's common that a task file will want to run something in a known directory relative to its location, to facilitate this
 the `exec` command has some new template behaviors that can be used with the new `dir` property to achieve this regardless
 of the working directory the user is in.
