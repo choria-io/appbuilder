@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/goutils v1.1.1
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/adrg/xdg v0.5.3
-	github.com/choria-io/ccm v0.0.11-0.20260118170906-9d9d7098edc3
+	github.com/choria-io/ccm v0.0.12
 	github.com/choria-io/fisk v0.7.2
 	github.com/choria-io/goform v0.0.3
 	github.com/choria-io/scaffold v0.0.5

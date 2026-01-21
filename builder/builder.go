@@ -603,6 +603,11 @@ func (b *AppBuilder) runCLI() error {
 }
 
 func (b *AppBuilder) findFirstTaskFile(path string) (string, error) {
+	overrideFile := os.Getenv("ABTaskFile")
+	if fileExist(overrideFile) {
+		return overrideFile, nil
+	}
+
 	for _, f := range taskFileNames {
 		tf := filepath.Join(path, f)
 		b.log.Debugf("Looking for task file %s", tf)
