@@ -18,3 +18,14 @@ type: parent
 # Commands are required for the parent type and should have more than 1
 commands: []
 ```
+
+## Including commands from a file
+
+The `include_file` option allows loading the parent command definition from an external YAML file. The `name` set in the parent definition is preserved while other settings are loaded from the file.
+
+```yaml
+name: deploy
+description: Manage deployment of the system
+type: parent
+include_file: deploy_commands.yaml
+```

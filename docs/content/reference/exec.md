@@ -98,6 +98,8 @@ The `>>>` can be configured by setting `AB_SAY_PREFIX` and the `!!!` by setting 
 
 The output can have time stamps added to the lines by setting `AB_HELPER_TIME_STAMP` shell variable to `T` for time and `D` for time and date prefixes.
 
+If you do not need the helper script you can disable it by setting `no_helper` to `true`, this prevents writing the temporary helper file to disk.
+
 ## Retrying failed executions
 
 Failing executions can be tried based on a backoff policy, here we configure a maximum of 10 attempts with varying sleep

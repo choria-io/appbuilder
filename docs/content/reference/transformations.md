@@ -318,18 +318,19 @@ documentation for full details on the underlying feature.  Here we'll just cover
 This was added in version 0.9.0
 {{% /notice %}}
 
-| Option            | Description                                  |
-|-------------------|----------------------------------------------|
-| `target`          | The directory to write the data into         |
-| `post`            | Post processing directives                   |
-| `skip_empty`      | Skips files that would be empty when written |
-| `left_delimiter`  | Custom template delimiter                    |
-| `right_delimiter` | Custom template delimiter                    |
+| Option             | Description                                                                                         |
+|--------------------|-----------------------------------------------------------------------------------------------------|
+| `target`           | The directory to write the data into                                                                |
+| `source_directory` | The directory where the template files can be found, cannot be used with `source`                   |
+| `source`           | Map holding file names and content, if a value is another object a directory is created instead      |
+| `post`             | Post processing directives                                                                          |
+| `skip_empty`       | Skips files that would be empty when written                                                        |
+| `left_delimiter`   | Custom template delimiter                                                                           |
+| `right_delimiter`  | Custom template delimiter                                                                           |
 
 These settings all correspond to the same ones in the command so we won't cover them in full detail here.
 
 The `scaffold` transform returns the input JSON on its output.
-
 
 ## Pipelines
 

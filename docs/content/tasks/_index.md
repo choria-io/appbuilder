@@ -5,8 +5,6 @@ weight = 30
 pre = "<b>3. </b>"
 +++
 
-Some features are ongoing experiments and not part of the supported feature set, this section will call them out.
-
 ## Local Task Mode
 
 While it's nice to have a formal machine-wide command that behaves like a normal Unix CLI command I found I would like
