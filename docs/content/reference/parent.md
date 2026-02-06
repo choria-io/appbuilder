@@ -1,5 +1,5 @@
 +++
-title = "Parent Command Type"
+title = "Parent Command"
 toc = true
 weight = 20
 +++

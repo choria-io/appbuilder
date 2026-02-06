@@ -1,5 +1,5 @@
 +++
-title = "Exec Command Type"
+title = "Exec Command"
 weight = 30
 toc = true
 +++

@@ -1,5 +1,5 @@
 +++
-title = "Discover Command Type"
+title = "Choria Discover Command"
 weight = 40
 toc = true
 +++

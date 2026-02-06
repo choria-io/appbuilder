@@ -1,6 +1,6 @@
 +++
-title = "Form Command Type"
-weight = 37
+title = "Form Command"
+weight = 31
 toc = true
 +++
 

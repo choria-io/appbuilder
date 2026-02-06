@@ -1,8 +1,8 @@
 +++
 weight = 5
+archetype = "home"
 +++
 
-# Overview
 
 Operations teams tend to use a large selection of shell scripts, piped commands, kubectl invocations and more in their day to day job.
 
