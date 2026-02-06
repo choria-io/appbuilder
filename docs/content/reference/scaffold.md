@@ -1,5 +1,5 @@
 +++
-title = "Scaffold Command Type"
+title = "Scaffold Command"
 weight = 35
 toc = true
 +++

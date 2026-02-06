@@ -1,5 +1,5 @@
 +++
-title = "KV Command Type"
+title = "Choria KV Command"
 weight = 60
 toc = true
 +++

@@ -1,5 +1,5 @@
 +++
-title = "Choria RPC Command Type"
+title = "Choria RPC Command"
 weight = 50
 toc = true
 +++

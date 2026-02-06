@@ -113,7 +113,7 @@ commands:
             - name: port
               description: The port to listen on
               default: "8081"
-          command: hugo serve -p {{ .Flags.port }}
+          command: hugo-0.98.0 serve -p {{ .Flags.port }}
 
     - name: build
       type: parent
