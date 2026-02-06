@@ -25,17 +25,24 @@ Here we have examples of accessing the `.Config` and `.Arguments` structures and
 
 ### Available Data
 
-| Key          | Description                                                |
-|--------------|------------------------------------------------------------|
-| `.Config`    | Data stored in the configuration file for this application |
-| `.Arguments` | Data supplied by users using command arguments             |
-| `.Flags`     | Data supplied by users using command flags                 |
+| Key          | Description                                                                  |
+|--------------|------------------------------------------------------------------------------|
+| `.Config`    | Data stored in the configuration file for this application                   |
+| `.Arguments` | Data supplied by users using command arguments                               |
+| `.Flags`     | Data supplied by users using command flags                                   |
+| `.Input`     | Parsed JSON input from a previous step, available in transform contexts only |
 
 ### Available Functions
 
-| Function    | Description                                                                            | Example                                 |
-|-------------|----------------------------------------------------------------------------------------|-----------------------------------------|
-| `require`   | Asserts that some data is available, errors with an optional custom message on failure | `{{ require .Config.Password "Password not set in the configuration" }}`|
-| `escape`    | Escapes a string for use in shell arguments                                            | `{{ escape .Arguments.message }}`|
-| `read_file` | Reads a file                                                                           | `{{ read_file .Arguments.file }}`       |
-| `default`   | Checks a value, if its not supplied uses a default                                     | `{{ default .Config.Cowsay "cowsay" }}` |
+| Function         | Description                                                                            | Example                                 |
+|------------------|----------------------------------------------------------------------------------------|-----------------------------------------|
+| `require`        | Asserts that some data is available, errors with an optional custom message on failure  | `{{ require .Config.Password "Password not set in the configuration" }}`|
+| `escape`         | Escapes a string for use in shell arguments                                            | `{{ escape .Arguments.message }}`|
+| `read_file`      | Reads a file                                                                           | `{{ read_file .Arguments.file }}`       |
+| `default`        | Checks a value, if its not supplied uses a default                                     | `{{ default .Config.Cowsay "cowsay" }}` |
+| `env`            | Reads an environment variable                                                          | `{{ env "HOME" }}`                      |
+| `UserWorkingDir` | Returns the directory the user is in when running the command                           | `{{ UserWorkingDir }}`                  |
+| `AppDir`         | Returns the directory the application definition is in                                 | `{{ AppDir }}`                          |
+| `TaskDir`        | Alias for `AppDir`                                                                     | `{{ TaskDir }}`                         |
+
+In addition to the above, the [Sprig](http://masterminds.github.io/sprig/) functions library is available in most template contexts including commands, scaffolds and transforms.

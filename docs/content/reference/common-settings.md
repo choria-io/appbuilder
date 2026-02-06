@@ -105,13 +105,14 @@ An `argument` is a positional input to a command. `example say hello`, when the 
 
 Arguments can have many options, the table below detail them and the version that added them.
 
-| Option        | Description                                                                                                             | Required | Version |
-|---------------|-------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `name`        | A unique name for each flag                                                                                             | yes      |         |
-| `description` | A description for this flag, typically 1 line                                                                           | yes      |         |
-| `required`    | Indicates that a value for this flag must be set, which includes being set from default                                 |          |         |
-| `enum`        | An array of valid values, if set the flag must be one of these values                                                   |          | 0.0.4   |
-| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`              |          | 0.0.4   |
+| Option        | Description                                                                                                        | Required | Version |
+|---------------|--------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `name`        | A unique name for each flag                                                                                        | yes      |         |
+| `description` | A description for this flag, typically 1 line                                                                      | yes      |         |
+| `required`    | Indicates that a value for this flag must be set, which includes being set from default                            |          |         |
+| `enum`        | An array of valid values, if set the flag must be one of these values                                              |          | 0.0.4   |
+| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`         |          | 0.0.4   |
+| `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 
 #### Flags
@@ -129,6 +130,7 @@ A `flag` is a option passed to the application using something like `--flag`, ty
 | `bool`        | Indicates that the flag is a boolean (see below)                                                                        |          | 0.1.1   |
 | `env`         | Will load the value from an environment variable if set, passing the flag specifically wins, then the env, then default |          | 0.1.2   |
 | `short`       | A single character that can be used instead of the `name` to access this flag. ie. `--cowfile` might also be `-F`       |          | 0.1.2   |
+| `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 ##### Boolean Flags
 
@@ -199,4 +201,29 @@ You can prompt for confirmation from a user for performing an action:
 
 Before running the command the user will be prompted to confirm he wish to do it.  Since version `0.2.0` an option will
 be added to the CLI allowing you to skip the prompt using `--no-prompt`.
+
+## Including other definitions
+
+Since version 0.10.0 an entire definition can be included from another file or just the commands in a parent.
+
+```yaml
+name: include
+description: An include based app
+version: 0.2.2
+author: another@example.net
+
+include_file: sample-app.yaml
+```
+
+Here we include the entire application from another file but we override the name, description, version and author.
+
+A specific `parent` can load all it's commands from a file:
+
+```yaml
+  - name: include
+    type: parent
+    include_file: go.yaml
+```
+
+In this case the go.yaml would be the full `parent` definition.
 
