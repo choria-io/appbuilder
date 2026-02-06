@@ -7,6 +7,38 @@ pre = "<b>4. </b>"
 
 Some features are ongoing experiments and not part of the supported feature set, this section will call them out.
 
+## CCM Manifest Command Type
+
+The `ccm_manifest` command type invokes a [Choria Configuration Manager](https://choria-io.github.io/ccm/) manifest directly. All flags and arguments are set as manifest data.
+
+```yaml
+name: demo
+description: Demo application for Choria App Builder
+author: https://github.com/choria-io/appbuilder
+commands:
+  - name: docker
+    description: Install docker using CCM
+    type: ccm_manifest
+    flags:
+      - name: version
+        description: Version to install
+        required: true
+        default: latest
+    manifest: obj://CCM/simple.tar.gz
+    nats_context: CCM
+    render_summary: true
+    no_render_messages: false
+```
+
+The command accepts the standard [common settings](../reference/common-settings/) including flags, arguments and sub commands. It also supports [data transformations](../reference/transformations/) over the manifest session summary data.
+
+| Option               | Description                                                                         |
+|----------------------|-------------------------------------------------------------------------------------|
+| `manifest`           | The URL to the manifest to execute, supports [templating](../reference/templating/) |
+| `nats_context`       | The NATS context to use when invoking the manifest, defaults to `CCM`               |
+| `render_summary`     | When true displays the summary statistics as text on STDOUT                         |
+| `no_render_messages` | When true will not show the pre- or post-message defined in the manifest            |
+
 ## Choria Configuration Manager Transform
 
 The [Choria Configuration Manager](https://choria-io.github.io/ccm/) is a new Configuration Management tool that is part of the Choria project.

@@ -40,5 +40,5 @@ weight = 13
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-slack'></i> #choria"
-url = "https://slack.puppet.com/"
+url = "https://short.voxpupu.li/puppetcommunity_slack_signup"
 weight = 14
