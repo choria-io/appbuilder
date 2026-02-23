@@ -81,7 +81,7 @@ func (st *scaffoldTransform) Transform(ctx context.Context, r io.Reader, args ma
 
 	s.Logger(b.log)
 
-	err = s.Render(NewTemplateState(args, flags, b.Configuration(), input))
+	_, err = s.Render(NewTemplateState(args, flags, b.Configuration(), input))
 	if err != nil {
 		return nil, err
 	}

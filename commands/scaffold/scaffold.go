@@ -138,7 +138,7 @@ func (r *Scaffold) runCommand(_ *fisk.ParseContext) error {
 
 	s.Logger(builder.NewDefaultLogger())
 
-	err = s.Render(builder.NewTemplateState(r.arguments, r.flags, r.b.Configuration(), nil))
+	_, err = s.Render(builder.NewTemplateState(r.arguments, r.flags, r.b.Configuration(), nil))
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrRenderFailed, err)
 	}
