@@ -1,1 +1,9 @@
-{{- partial "_main.hugo" . }}
+{{- define "storeOutputFormat" }}
+	{{- .Store.Set "relearnOutputFormat" "html" }}
+{{- end }}
+{{- define "body" }}
+	{{- partial "bodys/single.html" . }}
+{{- end }}
+{{- define "menu" }}
+	{{- partial "menu.html" . }}
+{{- end }}

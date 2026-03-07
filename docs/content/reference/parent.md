@@ -1,14 +1,15 @@
 +++
 title = "Parent Command"
+description = "grouping related sub-commands under a common parent"
 toc = true
 weight = 20
 +++
 
-A parent is a placeholder, you can have a command like `example deploy status` and `example deploy upgrade`, here the `deploy` is a `parent`. It's just there to group related commands and takes no action on it's own.
+A parent is a placeholder. In a command like `example deploy status` and `example deploy upgrade`, the `deploy` is a `parent`. It exists to group related commands and takes no action on its own.
 
-It requires the the `name`, `description`, `type` and `commands` and the optional `aliases`.
+It requires the `name`, `description`, `type` and `commands` and the optional `aliases` and `include_file`.
 
-It does not accept `flags`, `arguments` or `confirm_prompt`.
+It does not accept `flags`, `arguments`, `confirm_prompt` or `banner`.
 
 ```yaml
 name: deploy

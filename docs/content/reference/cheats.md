@@ -1,14 +1,15 @@
 +++
 title = "Cheat Sheets"
+description = "cheat sheet style help for App Builder applications"
 toc = true
 weight = 100
 +++
 
-While output from `--help` can be useful, many people just don't read it or understand the particular format and syntax
+While output from `--help` can be useful, many people do not read it or understand the particular format and syntax
 shown.  Instead, a quick cheat sheet style help can often be more helpful.
 
-There is a great utility called [cheat](https://github.com/cheat/cheat) that solves this problem in a generic manner, 
-by allowing searching, indexing and rendering of cheat sheets in your terminal.
+The [cheat](https://github.com/cheat/cheat) utility solves this problem in a generic manner,
+by allowing searching, indexing and rendering of cheat sheets in the terminal.
 
 ```nohighlight
 $ cheat tar
@@ -19,16 +20,16 @@ tar -xvf /path/to/foo.tar
 tar -xvf /path/to/foo.tar -C /path/to/destination/
 ```
 
-We like this format and want to make it available to your App Builder apps, since `0.0.7` it is possible to add cheat
-sheets to your application, access them without needing to install the `cheat` command but also integrate them with that
-command if you choose.
+This format is well suited to App Builder applications. Since `0.0.7` it is possible to add cheat
+sheets to an application, access them without needing to install the `cheat` command, and also integrate them with that
+command if desired.
 
 Cheats are grouped by label, so while your application might have `natsctl report jetstream` the cheats are only 1 level
 deep and does not need to match the names of commands.
 
 ## Example
 
-Let's see an example, we'll update the example from the quick start to have cheats:
+The following example updates the quick start application to include cheats:
 
 ```yaml
 name: demo
@@ -63,7 +64,7 @@ commands:
         required: true
 ```
 
-When we run it we see:
+Running the application produces:
 
 ```nohighlight
 usage: demo [<flags>] <command> [<args> ...]
@@ -79,7 +80,7 @@ Commands:
 ....
 ```
 
-Since we added 2 cheats just running `demo cheat` will show a list:
+Since 2 cheats were added, running `demo cheat` shows a list:
 
 ```nohighlight
 $ demo cheat
@@ -89,7 +90,7 @@ Available Cheats:
     say
 ```
 
-And we can access the cheat sheet directly:
+The cheat sheet is accessible directly:
 
 ```nohighlight
 $ demo cheat demo
@@ -102,8 +103,8 @@ demo think hello
 
 ## Integrate with `cheat`
 
-The [cheat](https://github.com/cheat/cheat) is great, and I really suggest you check it out, if you have it installed
-you can export all the cheats from your builder app into it:
+The [cheat](https://github.com/cheat/cheat) utility is worth investigating. With it installed,
+all cheats from an App Builder application can be exported into it:
 
 ```nohighlight
 $ demo cheat --save /home/rip/.config/cheat/cheatsheets/personal/demo
@@ -111,8 +112,8 @@ Saved cheat to /home/rip/.config/cheat/cheatsheets/personal/demo/demo
 Saved cheat to /home/rip/.config/cheat/cheatsheets/personal/demo/say
 ```
 
-With this done you can simply do `cheat demo/say`, or find all the cheats tagged `mycorp` which is one of the tags
-we added to ours:
+With this done, `cheat demo/say` retrieves the saved cheat, or all cheats tagged `mycorp` (one of the tags
+added above) can be listed:
 
 ```nohighlight
 $ cheat -l -t mycorp

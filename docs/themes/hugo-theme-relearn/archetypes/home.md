@@ -1,6 +1,6 @@
 +++
-archetype = "home"
 title = "{{ replace .Name "-" " " | title }}"
+type = "home"
 +++
 
-Lorem Ipsum.
+This is your new home page.

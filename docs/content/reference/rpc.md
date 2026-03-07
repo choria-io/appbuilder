@@ -1,16 +1,17 @@
 +++
 title = "Choria RPC Command"
+description = "choria RPC system integration for remote node actions"
 weight = 50
 toc = true
 +++
 
-The RPC command interact with the Choria RPC system used execute actions on remote nodes.
+The RPC command interacts with the Choria RPC system used to execute actions on remote nodes.
 
-Since this is built into Choria it will simply use your Choria Client configuration for the user executing the command
+Since this is built into Choria it uses the Choria Client configuration for the user executing the command
 to find the Choria Brokers and more. It supports the usual override methods such as creating a `choria.conf` file in
 your project working directory. No connection properties are required or supported.
 
-Before using this command type I suggest reading about [Choria Concepts](https://choria.io/docs/concepts/).
+Before using this command type, reading about [Choria Concepts](https://choria.io/docs/concepts/) is recommended.
 
 The `rpc` command supports [data transformations](../transformations).
 

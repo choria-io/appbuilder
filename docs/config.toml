@@ -2,20 +2,39 @@ baseURL = "https://choria-io.github.io/appbuilder/"
 languageCode = "en-us"
 title = "Choria Application Builder Documentation"
 theme = "hugo-theme-relearn"
-canonifyURLs = true
-googleAnalytics = "G-YW7H6PL0TN"
+
+[outputFormats.TXT]
+mediaType = "text/plain"
+baseName = "llms"
+isPlainText = true
 
 [outputs]
-home = [ "HTML", "RSS", "JSON"]
+home = [ "html", "rss", "print", "markdown", "txt"]
+section = [ "html", "rss", "print", "markdown"]
+page = [ "html",  "print", "markdown"]
+
+[author]
+name = "Choria Project"
 
 [params]
-author = "Choria Project"
 showVisitedLinks = false
 disableLanguageSwitchingButton = true
-themeVariant = "my-custom-variant"
 disableInlineCopyToClipBoard = true
 alwaysopen = true
 externalLinkTargetc= "_self"
+
+[[params.themeVariant]]
+    auto = ['zen-light', 'ccm']
+    identifier = 'zen-auto'
+    name = 'Auto Theme'
+
+    [[params.themeVariant]]
+        identifier = 'zen-light'
+        name = 'Light'
+
+    [[params.themeVariant]]
+        identifier = 'ccm'
+        name = 'Dark'
 
 [[menu.shortcuts]]
 name = "<i class='fab fa-fw fa-github'></i> GitHub"

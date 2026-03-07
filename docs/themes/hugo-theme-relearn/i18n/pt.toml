@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = 'Esta página mostra a versão {{.pageVersion.title}}. A versão atual pode ser encontrada <a href="{{.latestUrl}}">aqui</a>.'
+
 [Search]
 other = "Procurar"
 
@@ -19,6 +22,12 @@ other = "{1} resultados encontrados para \"{0}\""
 [Clear-History]
 other = "Limpar Histórico"
 
+[Reset-view]
+other = "Repor vista"
+
+[View-reset]
+other = "Ver reposição!"
+
 [Attachments-label]
 other = "Anexos"
 
@@ -31,17 +40,26 @@ other = "Ops. Parece que a página não existe ¯\\_(ツ)_/¯."
 [Go-to-homepage]
 other = "Ir para o início"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "Editar"
+
+[Show-Markdown]
+other = "Mostrar Markdown"
+
+[Show-source]
+other = "Mostrar código-fonte"
 
 [Print-this-chapter]
 other = "Imprimir capítulo inteiro"
 
-[Shortcuts-Title]
+[More-action]
 other = "Mais"
 
-[Expand-title]
-other = "Expandir..."
+[shortcuts-menuTitle]
+other = "Mais"
 
 [Navigation-toggle]
 other = "Menu"
@@ -58,11 +76,17 @@ other = "KB"
 [Megabyte-symbol]
 other = "MB"
 
-[note]
-other = "Nota"
+[caution]
+other = "Cuidado"
+
+[important]
+other = "Important"
 
 [info]
 other = "Informação"
+
+[note]
+other = "Nota"
 
 [tip]
 other = "Dica"
@@ -71,13 +95,13 @@ other = "Dica"
 other = "Aviso"
 
 [Copy-to-clipboard]
-other = "Copiar para a área de transferência"
+other = "Copiar texto para a área de transferência"
 
 [Copied-to-clipboard]
-other = "Copiado para a área de transferência!"
+other = "Texto copiado para a área de transferência!"
 
 [Copy-link-to-clipboard]
-other = "Link de cópia para a área de transferência"
+other = "Copiar link para a área de transferência"
 
 [Link-copied-to-clipboard]
 other = "Link copiado para a área de transferência!"
@@ -108,3 +132,12 @@ other = "Categorias"
 
 [category]
 other = "Categoria"
+
+[Details]
+other = "Detalhes"
+
+[Version]
+other = "Versão"
+
+[Browser-unsupported-feature]
+other = "Este navegador não suporta este recurso"

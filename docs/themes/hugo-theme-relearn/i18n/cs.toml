@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = 'Tato stránka zobrazuje verzi {{.pageVersion.title}}. Aktuální verzi naleznete <a href="{{.latestUrl}}">tady</a>.'
+
 [Search]
 other = "Hledat"
 
@@ -19,6 +22,12 @@ other = "{1} výsledků pro \"{0}\""
 [Clear-History]
 other = "Vymazat historii"
 
+[Reset-view]
+other = "Obnovit zobrazení"
+
+[View-reset]
+other = "Resetovat zobrazení!"
+
 [Attachments-label]
 other = "Přílohy"
 
@@ -31,17 +40,26 @@ other = "Ups. Zdá se, že tato stránka neexistuje ¯\\_(ツ)_/¯."
 [Go-to-homepage]
 other = "Přejít na domovskou stránku"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "Upravit"
+
+[Show-Markdown]
+other = "Zobrazit Markdown"
+
+[Show-source]
+other = "Zobrazit zdrojový kód"
 
 [Print-this-chapter]
 other = "Vytisknout kapitolu"
 
-[Shortcuts-Title]
+[More-action]
 other = "Více"
 
-[Expand-title]
-other = "Rozbalit..."
+[shortcuts-menuTitle]
+other = "Více"
 
 [Navigation-toggle]
 other = "Menu"
@@ -58,11 +76,17 @@ other = "KB"
 [Megabyte-symbol]
 other = "MB"
 
-[note]
-other = "Poznámka"
+[caution]
+other = "Upozornění"
+
+[important]
+other = "Důležité"
 
 [info]
 other = "Info"
+
+[note]
+other = "Poznámka"
 
 [tip]
 other = "Tip"
@@ -71,16 +95,16 @@ other = "Tip"
 other = "Varování"
 
 [Copy-to-clipboard]
-other = "Kopírovat"
+other = "Kopírovat text do schránky"
 
 [Copied-to-clipboard]
-other = "Zkopírováno!"
+other = "Text zkopírován do schránky!"
 
 [Copy-link-to-clipboard]
-other = "Kopírovat odkaz"
+other = "Kopírovat odkaz do schránky"
 
 [Link-copied-to-clipboard]
-other = "Odkaz zkopírován!"
+other = "Odkaz zkopírován do schránky!"
 
 [Chapter]
 other = "Kapitola {{.}}"
@@ -108,3 +132,12 @@ other = "Kategorie"
 
 [category]
 other = "Kategorie"
+
+[Details]
+other = "Podrobnosti"
+
+[Version]
+other = "Verze"
+
+[Browser-unsupported-feature]
+other = "Tento prohlížeč nepodporuje tuto funkci"

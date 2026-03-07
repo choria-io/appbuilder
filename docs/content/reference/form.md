@@ -1,10 +1,11 @@
 +++
 title = "Form Command"
+description = "guided wizard style question-and-answer data collection"
 weight = 31
 toc = true
 +++
 
-Use the `form` command to create guided wizard style question-and-answer sessions that construct complex data from user input.
+The `form` command creates guided wizard style question-and-answer sessions that construct complex data from user input.
 
 The general use case is to guide users through creating complex configuration files. The gathered data is output as JSON and can be sent to [transforms](../transformations) for scaffolding or templating into a final form.
 
@@ -90,7 +91,7 @@ The password to connect with
 
 ## Properties reference
 
-The `form` command is a generic command with the only addition being an array of `properties` making up the questions:
+The `form` command is a generic command with the addition of an array of `properties` making up the questions and an optional `transform` for processing the collected data:
 
 | Property      | Description                                                                                                                            |
 |---------------|----------------------------------------------------------------------------------------------------------------------------------------|
@@ -112,7 +113,9 @@ Validation uses the validators described in [Argument and Flag Validations](../c
 
 ## Conditional questions
 
-Conditional queries are handled using `expr`, the example below looks back at the `accounts` entry and will only ask this `thing` when the user opted to add accounts:
+Conditional queries are handled using `expr`, the expression has access to the collected data so far via `Input` (or `input`), as well as `Arguments`, `Flags` and `Config` from the CLI context.
+
+The example below looks back at the `accounts` entry and will only ask this `thing` when the user opted to add accounts:
 
 ```yaml
   - name: thing

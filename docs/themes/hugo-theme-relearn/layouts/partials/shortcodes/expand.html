@@ -1,26 +1,24 @@
 {{- $page := .page }}
 {{- if and (not $page) .context }}
   {{- $page = .context }}
-  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'expand' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#5180" $page.File.Path }}
+  {{- $filepath := "[virtual file]" }}{{ with and $page $page.File $page.File.Filename }}{{ $filepath = . }}{{ end }}
+  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'expand' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/introduction/releasenotes/5/#5-18-0" $filepath }}
 {{- end }}
-{{- $content := .content }}
-{{- $title := .title | default (T "Expand-title") }}
+{{- $title := .title | default (T "Details") }}
 {{- $title = trim $title " " }}
-{{- $expanded := .open | default false }}
+{{- $expanded := .expanded | default false }}
+{{- if and (isset . "open") (or (ne (printf "%T" .open) "string") (ne (trim .open " " ) "")) }}
+  {{- $filepath := "[virtual file]" }}{{ with and $page $page.File $page.File.Filename }}{{ $filepath = . }}{{ end }}
+  {{- warnf "%q: DEPRECATED parameter 'open' for shortcode 'expand' found, use 'expanded' instead; see https://mcshelby.github.io/hugo-theme-relearn/introduction/releasenotes/6/#6-3-0" $filepath }}
+  {{- $expanded = .open }}
+{{- end }}
 {{- if eq (printf "%T" $expanded) "string" }}
 	{{- $expanded = (eq $expanded "true") }}
 {{- end }}
-{{- $id := cond (or (eq .id nil) (eq .id "")) (partial "make-random-md5.hugo" $page) .id }}
-{{- with $page }}
-<div class="expand">
-    <input type="checkbox" id="expand-{{ $id }}" aria-controls="expandcontent-{{ $id }}" {{ if $expanded }} checked{{ end }}>
-    <label class="expand-label" for="expand-{{ $id }}" >
-        <i class="fas fa-chevron-down"></i>
-        <i class="fas fa-chevron-right"></i>
-        {{ $title | .RenderString }}
-    </label>
-    <div id="expandcontent-{{ $id }}" class="expand-content">
-{{ if ne "<" (substr (strings.TrimLeft " \n\r\t" $content) 0 1) }}<p>{{ end }}<!-- we add a DOM element here if there is none to make collapsing marings work -->
-{{ $content | safeHTML }}</div><!-- no line break allowed here because of awkward behavior of Hugo 110 or this theme when tag shortcode is called standalone outside of tags shortcode ? -->
-</div>
-{{- end }}
+{{- partial "shortcodes/notice.html" (dict
+  "page"     .page
+  "content"  .content
+  "expanded" $expanded
+  "style"    "transparent"
+  "title"    $title
+) }}

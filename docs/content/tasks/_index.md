@@ -1,22 +1,14 @@
 +++
 title = "Local Task Mode"
+description = "project-specific task runner"
 toc = true
 weight = 30
 pre = "<b>3. </b>"
 +++
 
-## Local Task Mode
+The `abt` command runs project-specific App Builder definitions, providing per-directory CLI utilities without installing a machine-wide command. It is not a general build pipeline tool - it focuses on wrapping project-specific operational commands.
 
-While it's nice to have a formal machine-wide command that behaves like a normal Unix CLI command I found I would like
-to use this same framework to build project specific helpers.
-
-{{% notice secondary "Version Hint" code-branch %}}
-This is available since version `0.6.2` and GA since `0.9.0`.
-{{% /notice %}}
-
-Imagine you have a development project and have utility commands to update dependencies, serve the documentation in
-preview mode, run tests or build custom binaries.  This is a lot of different commands and tools to learn, wouldn't it
-be nice if there was a single command you can run in any of your projects to get a project specific custom app?
+Development projects often require utility commands to update dependencies, serve documentation in preview mode, run tests, or build custom binaries. `abt` wraps these tools into a single project-specific CLI.
 
 ```nohighlight
 $ abt
@@ -38,15 +30,11 @@ Commands:
     snapshot
 ```
 
-Here I run `abt` in this project directory, if I ran it elsewhere or in my home directory I would get a different command.
+Running `abt` in different directories produces different commands based on the task file found in each project. The full capabilities of the core App Builder definitions are available. The only difference from standard mode is how definitions and configurations are located.
 
-This isn't targeting general build pipelines but rather a way to make per project/directory utilities.
+## App Definition Locations
 
-The full capabilities of the core App Builder definitions are available, the only thing that really change is how definitions and configurations are found.
-
-### App Definition Locations
-
-The `abt` command will search from the current directory upward until it finds one of these files:
+The `abt` command searches from the current directory upward until it finds one of these files:
 
 * `ABTaskFile.dist.yaml`
 * `ABTaskFile.dist.yml`
@@ -54,20 +42,17 @@ The `abt` command will search from the current directory upward until it finds o
 * `ABTaskFile.yml`
 * `ABTaskFile`
 
-In this manner a project can ship a default task file and users can provide local overrides.
+A project can ship a default task file and users can provide local overrides.
 
-Since version `0.14.0` you can set the environment variable `ABTaskFile=/some/file.yaml` and it will run that file without searching local directories.
+Since version `0.14.0`, the environment variable `ABTaskFile=/some/file.yaml` can be set to run a specific file without searching local directories.
 
-It's common that a task file will want to run something in a known directory relative to its location, to facilitate this
-the `exec` command has some new template behaviors that can be used with the new `dir` property to achieve this regardless
-of the working directory the user is in.
+Task files often need to run commands relative to the task file location. The `exec` command provides template variables and a `dir` property to handle this regardless of the working directory:
 
 * `{{ UserWorkingDir }}` - the directory the user ran the command in
 * `{{ AppDir }}` or `{{ TaskDir }}` - the directory the task file is located in
 
-An example can be found in the source repository for this project.
+An example can be found in the [source repository](https://github.com/choria-io/appbuilder).
 
-### Configuration
+## Configuration
 
-Configuration is looked for in the local directory in the `.abtenv` file.  At present this is not searched for in parent
-directories.
+Configuration is read from the `.abtenv` file in the local directory. Parent directories are not searched for this file.

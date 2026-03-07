@@ -1,17 +1,20 @@
 +++
 title = "Quick Start"
+description = "installation and first application"
 toc = true
 weight = 10
 pre = "<b>1. </b>"
 +++
 
+This guide covers installing App Builder and creating a first application.
+
 ## Installation
 
-Over on our [Releases](https://github.com/choria-io/appbuilder/releases) page you will find binaries, rpms, debs, zip files and more holding the `appbuilder` command. There is just one command and you can place it anywhere in your path.
+The [Releases](https://github.com/choria-io/appbuilder/releases) page provides binaries, RPMs, DEBs, and zip files containing the `appbuilder` command. The binary can be placed anywhere in the system PATH.
 
-If your editor supports it there is a [JSON Schema for the definition](https://choria.io/schemas/appbuilder/v1/application.json).
+A [JSON Schema for the definition](https://choria.io/schemas/appbuilder/v1/application.json) is available for editor integration.
 
-We publish OS X and Linux homebrew packages:
+OS X and Linux homebrew packages are available:
 
 ```nohighlight
 brew tap choria-io/tap
@@ -20,18 +23,18 @@ brew install choria-io/tap/appbuilder
 
 ## Hello World
 
-We will make a little command that invokes `cowsay` to demonstrate some of the capabilities of the system.
+The following example creates a command that invokes `cowsay` to demonstrate some capabilities of the system.
 
-We want to be able to run this command and it should invoke `cowsay`, `cowthink` or if configured to do so use `animalsay` instead of `cowsay`
+The command supports `cowsay`, `cowthink`, and an optional configuration override to use `animalsay` instead of `cowsay`.
 
 ```nohighlight
 demo say "hello world"
 demo think "hello world"
 ```
 
-First we have to write a YAML file (demo-app.yaml) that describes our demo application, we have reference sections in the wiki for all the options, so this being an introduction, will be short on details.
+The following YAML file (`demo-app.yaml`) describes the demo application. The reference sections cover all available options.
 
-```
+```yaml
 name: demo
 description: Demo application for Choria App Builder
 author: https://github.com/choria-io/appbuilder
@@ -84,15 +87,15 @@ $ demo think "this is pretty cool"
                 ||     ||
 ```
 
-Finally, if you read the YAML file, you may see we made the system configurable, lets look how that works.
+The YAML file above makes the say command configurable. The following demonstrates how that works.
 
-Create the following in `/etc/appbuilder/demo-cfg.yaml`
+Create the following in `/etc/appbuilder/demo-cfg.yaml`.
 
 ```yaml
 Cowsay: animalsay
 ```
 
-Now when we invoke `demo say` it will use `animalsay`:
+Now invoking `demo say` uses `animalsay`:
 
 ```nohighlight
 $ demo say "hello world"

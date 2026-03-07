@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = '此页面显示版本 {{.pageVersion.title}}。当前版本可以在<a href="{{.latestUrl}}">这里</a>找到。'
+
 [Search]
 other = "搜索"
 
@@ -19,6 +22,12 @@ other = "为\"{0}\"找到 {1} 个结果"
 [Clear-History]
 other = "清理历史记录"
 
+[Reset-view]
+other = "重置视图"
+
+[View-reset]
+other = "查看重置！"
+
 [Attachments-label]
 other = "附件"
 
@@ -31,17 +40,26 @@ other = "哎哟。 看起来这个页面不存在 ¯\\_(ツ)_/¯。"
 [Go-to-homepage]
 other = "转到主页"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "编辑"
+
+[Show-Markdown]
+other = "显示 Markdown"
+
+[Show-source]
+other = "显示源代码"
 
 [Print-this-chapter]
 other = "打印整章"
 
-[Shortcuts-Title]
+[More-action]
 other = "更多"
 
-[Expand-title]
-other = "展开"
+[shortcuts-menuTitle]
+other = "更多"
 
 [Navigation-toggle]
 other = "导航"
@@ -58,11 +76,17 @@ other = "KB"
 [Megabyte-symbol]
 other = "MB"
 
-[note]
-other = "注释"
+[caution]
+other = "注意事项"
+
+[important]
+other = "重要"
 
 [info]
 other = "信息"
+
+[note]
+other = "注释"
 
 [tip]
 other = "提示"
@@ -71,16 +95,16 @@ other = "提示"
 other = "警告"
 
 [Copy-to-clipboard]
-other = "复制到剪贴板"
+other = "复制文本到剪贴板"
 
 [Copied-to-clipboard]
-other = "复制到剪贴板！"
+other = "文本已复制到剪贴板！"
 
 [Copy-link-to-clipboard]
-other = "将链接复制到剪贴板"
+other = "复制链接到剪贴板"
 
 [Link-copied-to-clipboard]
-other = "链接复制到剪贴板！"
+other = "链接已复制到剪贴板！"
 
 [Chapter]
 other = "第{{.}}章"
@@ -108,3 +132,12 @@ other = "类别"
 
 [category]
 other = "类别"
+
+[Details]
+other = "详情"
+
+[Version]
+other = "版本"
+
+[Browser-unsupported-feature]
+other = "此浏览器不支持此功能"

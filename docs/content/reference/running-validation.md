@@ -1,10 +1,11 @@
 +++
 title = "Runtime Settings and Tools"
+description = "runtime configuration, validation, and utility commands"
 toc = true
 weight = 120
 +++
 
-When just invoking `appbuilder` various utilities are exposed, your apps also take some Environment Variables as runtime
+When invoking `appbuilder` various utilities are exposed. Applications also take some Environment Variables as runtime
 configuration.
 
 ## Builder Info
@@ -22,7 +23,7 @@ Choria Application Builder
 
 ```
 
-Here we can see where applications are loaded from and more.
+This output shows where applications are loaded from and more.
 
 ## Run Time Configuration
 

@@ -1,20 +1,23 @@
 +++
 title = "Common Settings"
+description = "common settings shared across command types"
 toc = true
 weight = 10
 +++
 
+Application definitions share a set of common settings across all command types. This section covers the standard properties, arguments, flags, validations, and other shared configuration options.
+
 ## Command Types
 
-As we saw above we have `parent` and `exec` types of commands. Users can add more but these are the core ones we support today.
+The core command types are `parent`, `exec`, `form`, `scaffold` and `ccm_manifest`. Additional types can be registered through the plugin system.
 
 Most commands are made up of a generic set of options and then have one or more added in addition to specialise them.
 
 ### Common properties reference
 
-Most commands include a standard set of fields - those that do not or have special restritions will mention in the docs.
+Most commands include a standard set of fields - those that do not or have special restrictions will mention in the docs.
 
-Lets look at how we can produce this command:
+The following example produces this command:
 
 ```nohighlight
 usage: demo say [<flags>] <message>
@@ -31,7 +34,7 @@ Args:
   <message>  The message to display
 ```
 
-It's made up of a `commands` member that has these properties:
+The definition consists of a `commands` member that has these properties:
 
 ```yaml
 name: example
@@ -45,7 +48,7 @@ commands:
     # The name in the command: 'example say ....' (required)
     name: say
 
-    # Help showng in output of 'example help say' or 'example say --help` (required)
+    # Help shown in output of 'example help say' or 'example say --help` (required)
     description: |
       Says something using the cowsay command
 
@@ -55,7 +58,7 @@ commands:
     # Selects the kind of command, see below (required)
     type: exec # or any other known type
 
-    # Optionally you can run 'example say hello' or 'example s hello' (optional)
+    # Optionally allows running 'example say hello' or 'example s hello' (optional)
     aliases:
      - s 
 
@@ -75,9 +78,9 @@ commands:
     commands: []
 ```
 
-Here we show the initial options that define the application followed by commands.  All the top settings are required except `help_template`, it's value may be one of `compact`, `long`, `short` or `default`.  When not set it will equal `default`. Experiment with these options to see which help format suits your app best (requires version 0.0.9). 
+The initial options define the application followed by commands. All the top settings are required except `help_template`, its value may be one of `compact`, `long`, `short` or `default`. When not set it defaults to `default`. Each help format presents information differently (requires version 0.0.9).
 
-You can emit a banner before invoking the commands in an exec, use this to show a warning or extra information to users before running a command.  Perhaps to warn them that a config override is in use like here:
+A banner can be emitted before invoking the commands in an exec, providing a warning or extra information to users before running a command. For example, a banner may warn that a config override is in use:
 
 ```yaml
   - name: say
@@ -97,7 +100,7 @@ You can emit a banner before invoking the commands in an exec, use this to show 
         required: true
 ```
 
-We support Cheat Sheet style help, see the [dedicated guide](../cheats/) about that.
+Cheat Sheet style help is supported, see the [dedicated guide](../cheats/) about that.
 
 #### Arguments
 
@@ -105,13 +108,13 @@ An `argument` is a positional input to a command. `example say hello`, when the 
 
 Arguments can have many options, the table below detail them and the version that added them.
 
-| Option        | Description                                                                                                        | Required | Version |
-|---------------|--------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `name`        | A unique name for each flag                                                                                        | yes      |         |
-| `description` | A description for this flag, typically 1 line                                                                      | yes      |         |
-| `required`    | Indicates that a value for this flag must be set, which includes being set from default                            |          |         |
-| `enum`        | An array of valid values, if set the flag must be one of these values                                              |          | 0.0.4   |
-| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`         |          | 0.0.4   |
+| Option        | Description                                                                                                                             | Required | Version |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `name`        | A unique name for each argument                                                                                                         | yes      |         |
+| `description` | A description for this argument, typically 1 line                                                                                       | yes      |         |
+| `required`    | Indicates that a value for this argument must be set, which includes being set from default                                             |          |         |
+| `enum`        | An array of valid values, if set the flag must be one of these values                                                                   |          | 0.0.4   |
+| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`                              |          | 0.0.4   |
 | `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 
@@ -119,17 +122,17 @@ Arguments can have many options, the table below detail them and the version tha
 
 A `flag` is a option passed to the application using something like `--flag`, typically these are used for optional inputs. Flags can have many options, the table below detail them and the version that added them.
 
-| Option        | Description                                                                                                             | Required | Version |
-|---------------|-------------------------------------------------------------------------------------------------------------------------|----------|---------|
-| `name`        | A unique name for each flag                                                                                             | yes      |         |
-| `description` | A description for this flag, typically 1 line                                                                           | yes      |         |
-| `required`    | Indicates that a value for this flag must be set, which includes being set from default                                 |          |         |
-| `placeholder` | Will show this text in the help output like `--cowfile=FILE`                                                            |          |         |
- | `enum`        | An array of valid values, if set the flag must be one of these values                                                   |          | 0.0.4   |
-| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`              |          | 0.0.4   |
-| `bool`        | Indicates that the flag is a boolean (see below)                                                                        |          | 0.1.1   |
-| `env`         | Will load the value from an environment variable if set, passing the flag specifically wins, then the env, then default |          | 0.1.2   |
-| `short`       | A single character that can be used instead of the `name` to access this flag. ie. `--cowfile` might also be `-F`       |          | 0.1.2   |
+| Option        | Description                                                                                                                             | Required | Version |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------|----------|---------|
+| `name`        | A unique name for each flag                                                                                                             | yes      |         |
+| `description` | A description for this flag, typically 1 line                                                                                           | yes      |         |
+| `required`    | Indicates that a value for this flag must be set, which includes being set from default                                                 |          |         |
+| `placeholder` | Will show this text in the help output like `--cowfile=FILE`                                                                            |          |         |
+| `enum`        | An array of valid values, if set the flag must be one of these values                                                                   |          | 0.0.4   |
+| `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`                              |          | 0.0.4   |
+| `bool`        | Indicates that the flag is a boolean (see below)                                                                                        |          | 0.1.1   |
+| `env`         | Will load the value from an environment variable if set, passing the flag specifically wins, then the env, then default                 |          | 0.1.2   |
+| `short`       | A single character that can be used instead of the `name` to access this flag. ie. `--cowfile` might also be `-F`                       |          | 0.1.2   |
 | `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 ##### Boolean Flags
@@ -150,14 +153,14 @@ A `flag` is a option passed to the application using something like `--flag`, ty
         bool: true
 ```
 
-Here we have a `--force` flag that is used to influence the command.  Booleans can have their default set to `true` or `"true`" which will then add a `--no-flag-name` option added to negate it.
+The `--force` flag is used to influence the command. Booleans with their default set to `true` or `"true"` will add a `--no-flag-name` option to negate it. Booleans without a `true` default do not get a negation flag.
 
 #### Argument and Flag Validations
 
-One might need to ensure that the input provided by a user passes some validation, for example when passing commands
-to shell scripts one has to be careful about [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
+Input provided to commands may need validation. For example, when passing commands
+to shell scripts, care must be taken to avoid [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
 
-We support custom validators on Arguments and Flags using the [Expr Language](https://expr.medv.io/docs/Language-Definition)
+Custom validators on Arguments and Flags are supported using the [Expr Language](https://expr.medv.io/docs/Language-Definition).
 
 {{% notice secondary "Version Hint" code-branch %}}
 This is available since version `0.8.0`.
@@ -173,10 +176,10 @@ arguments:
    required: true
    validate: len(value) < 20 && is_shellsafe(value)
 ```
-We support the standard `expr` language grammar - that has a large number of functions that can assist the
-validation needs - we then add a few extra functions that makes sense for operation teams.
+The standard `expr` language grammar is supported - it has a large number of functions that can assist
+validation needs. A few extra functions are added that make sense for operations teams.
 
-In each case accessing `value` would be the value passed from the user
+In each case accessing `value` would be the value passed from the user.
 
 | Function             | Description                                                   |
 |----------------------|---------------------------------------------------------------|
@@ -189,7 +192,7 @@ In each case accessing `value` would be the value passed from the user
 
 ### Confirmations
 
-You can prompt for confirmation from a user for performing an action:
+Commands can prompt for confirmation before performing an action:
 
 ```yaml
   - name: delete
@@ -199,8 +202,8 @@ You can prompt for confirmation from a user for performing an action:
     command: rm -rf /nonexisting
 ```
 
-Before running the command the user will be prompted to confirm he wish to do it.  Since version `0.2.0` an option will
-be added to the CLI allowing you to skip the prompt using `--no-prompt`.
+Before running the command the user will be prompted to confirm the action. Since version `0.2.0` an option is
+added to the CLI allowing the prompt to be skipped using `--no-prompt`.
 
 ## Including other definitions
 
@@ -215,9 +218,9 @@ author: another@example.net
 include_file: sample-app.yaml
 ```
 
-Here we include the entire application from another file but we override the name, description, version and author.
+This includes the entire application from another file but overrides the name, description, version and author.
 
-A specific `parent` can load all it's commands from a file:
+A specific `parent` can load all its commands from a file:
 
 ```yaml
   - name: include

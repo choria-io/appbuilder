@@ -1,18 +1,2 @@
-{{- $to := .to }}
-{{- $abs := .abs }}
-{{- $basename := .basename }}
-{{- $link := "" }}
-{{- if isset . "link" }}
-	{{- $link = .link }}
-{{- else if $abs }}
-	{{- $link = $to.Permalink }}
-{{- else }}
-	{{- $link = $to.RelPermalink }}
-{{- end }}
-{{- if not $basename }}
-	{{- $basename = "index" }}
-{{- end }}
-{{- if and (ne site.Params.disableExplicitIndexURLs true) (eq (substr $link -1) "/") }}
-	{{- $link = printf "%s%s.html" $link $basename }}
-{{- end }}
-{{- $link }}
+{{- warnf "DEPRECATED partial 'relLangPrettyUglyURL.hugo' used, use 'permalink.gotmpl' instead; see https://mcshelby.github.io/hugo-theme-relearn/introduction/releasenotes/7/#7-0-0" }}
+{{- partial "permalink.gotmpl" . }}

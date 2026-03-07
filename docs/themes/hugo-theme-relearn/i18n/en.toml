@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = 'This page shows version {{.pageVersion.title}}. The current version can be found <a href="{{.latestUrl}}">here</a>.'
+
 [Search]
 other = "Search"
 
@@ -19,6 +22,12 @@ other = "{1} results found for \"{0}\""
 [Clear-History]
 other = "Clear History"
 
+[Reset-view]
+other = "Reset view"
+
+[View-reset]
+other = "View reset!"
+
 [Attachments-label]
 other = "Attachments"
 
@@ -26,22 +35,31 @@ other = "Attachments"
 other = "Not found"
 
 [message-404]
-other = "Woops. Looks like this page doesn't exist ¯\\_(ツ)_/¯."
+other = "Whoops. Looks like this page doesn't exist ¯\\_(ツ)_/¯."
 
 [Go-to-homepage]
 other = "Go to homepage"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "Edit"
+
+[Show-Markdown]
+other = "Show Markdown"
+
+[Show-source]
+other = "Show source code"
 
 [Print-this-chapter]
 other = "Print whole chapter"
 
-[Shortcuts-Title]
+[More-action]
 other = "More"
 
-[Expand-title]
-other = "Expand me..."
+[shortcuts-menuTitle]
+other = "More"
 
 [Navigation-toggle]
 other = "Menu"
@@ -58,11 +76,17 @@ other = "KB"
 [Megabyte-symbol]
 other = "MB"
 
-[note]
-other = "Note"
+[caution]
+other = "Caution"
+
+[important]
+other = "Important"
 
 [info]
 other = "Info"
+
+[note]
+other = "Note"
 
 [tip]
 other = "Tip"
@@ -71,16 +95,16 @@ other = "Tip"
 other = "Warning"
 
 [Copy-to-clipboard]
-other = "Copy to clipboard"
+other = "Copy text to clipboard"
 
 [Copied-to-clipboard]
-other = "Copied to clipboard!"
+other = "Text copied to clipboard!"
 
 [Copy-link-to-clipboard]
 other = "Copy link to clipboard"
 
 [Link-copied-to-clipboard]
-other = "Copied link to clipboard!"
+other = "Link copied to clipboard!"
 
 [Chapter]
 other = "Chapter {{.}}"
@@ -108,3 +132,12 @@ other = "Categories"
 
 [category]
 other = "Category"
+
+[Details]
+other = "Details"
+
+[Version]
+other = "Version"
+
+[Browser-unsupported-feature]
+other = "This browser doesn't support this feature"

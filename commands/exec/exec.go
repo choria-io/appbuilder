@@ -225,7 +225,7 @@ func (r *Exec) runInTerminal(cmd string, args []string, env []string) error {
 func (r *Exec) runWithTransform(cmd string, args []string, env []string) error {
 	r.logCommand(cmd, args, env)
 
-	if os.Getenv("BUILDER_DRY_RUN") == "1" {
+	if os.Getenv("BUILDER_DRY_RUN") != "" {
 		return fmt.Errorf("%s: dry run mode", ErrorExecutionFailed)
 	}
 
