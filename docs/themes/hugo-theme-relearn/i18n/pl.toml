@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = 'Ta strona pokazuje wersję {{.pageVersion.title}}. Aktualną wersję można znaleźć <a href="{{.latestUrl}}">tu</a>.'
+
 [Search]
 other = "Szukaj"
 
@@ -19,6 +22,12 @@ other = "Znaleziono {1} wyników dla \"{0}\""
 [Clear-History]
 other = "Wyczyść historię"
 
+[Reset-view]
+other = "Resetowanie widoku"
+
+[View-reset]
+other = "Widok zresetowany!"
+
 [Attachments-label]
 other = "Załączniki"
 
@@ -31,17 +40,26 @@ other = "Ups. Wygląda na to, że strona nie istnieje ¯\\_(ツ)_/¯."
 [Go-to-homepage]
 other = "Idź do strony paczątkowej"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "Edycja"
+
+[Show-Markdown]
+other = "Pokaż język Markdown"
+
+[Show-source]
+other = "Pokaż kod źródłowy"
 
 [Print-this-chapter]
 other = "Drukowanie całego rozdziału"
 
-[Shortcuts-Title]
+[More-action]
 other = "Więcej"
 
-[Expand-title]
-other = "Rozwiń mnie..."
+[shortcuts-menuTitle]
+other = "Więcej"
 
 [Navigation-toggle]
 other = "Menu"
@@ -58,11 +76,17 @@ other = "KB"
 [Megabyte-symbol]
 other = "MB"
 
-[note]
-other = "Uwaga"
+[caution]
+other = "Ostrożność"
+
+[important]
+other = "Ważne"
 
 [info]
 other = "Info"
+
+[note]
+other = "Uwaga"
 
 [tip]
 other = "Porada"
@@ -71,16 +95,16 @@ other = "Porada"
 other = "Ostrzeżenie"
 
 [Copy-to-clipboard]
-other = "Kopiuj do schowaka"
+other = "Kopiuj tekst do schowka"
 
 [Copied-to-clipboard]
-other = "Skopiowano do schowka!"
+other = "Tekst skopiowano do schowka!"
 
 [Copy-link-to-clipboard]
 other = "Kopiuj link do schowka"
 
 [Link-copied-to-clipboard]
-other = "Skopiowano link do schowka!"
+other = "Link skopiowano do schowka!"
 
 [Chapter]
 other = "Rozdział {{.}}"
@@ -108,3 +132,12 @@ other = "Kategorie"
 
 [category]
 other = "Kategoria"
+
+[Details]
+other = "Szczegóły"
+
+[Version]
+other = "Wersja"
+
+[Browser-unsupported-feature]
+other = "Ta przeglądarka nie obsługuje tej funkcji"

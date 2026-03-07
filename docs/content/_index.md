@@ -1,26 +1,24 @@
 +++
+title = "App Builder"
+description = "declarative CLI application builder"
+toc = true
 weight = 5
 archetype = "home"
 +++
 
+The App Builder project builds CLI applications from YAML definitions, encapsulating shell scripts, piped commands, `kubectl` invocations, and other operational tools into a single discoverable command.
 
-Operations teams tend to use a large selection of shell scripts, piped commands, kubectl invocations and more in their day to day job.
+Operations teams tend to rely on a large selection of shell scripts and ad-hoc commands in their day-to-day work. This tribal knowledge is a hurdle for new team members. Wiki-based run books that capture these commands do not scale well and do not stay up to date.
 
-To a large extent these are tribal knowledge and something that is a big hurdle for new members of the team.  The answer is often to write wiki pages capturing run books that has these commands documented.
+App Builder solves this by specifying a model for a CLI application in a YAML file and building custom interfaces on the fly. When the underlying commands change, only the app model needs updating - the CLI interface and any wiki pages that reference it remain stable.
 
-This does not scale well and does not stay up to date.
-
-What if there was a CLI tool that encapsulated all of these commands in a single, easy to use and easy to discover command.
-
-The `appbuilder` project lets you build exactly that by specifying a model for your CLI application in a YAML file and then building custom interfaces on the fly.
-
-There is an optional [video introducing the idea behind it](https://youtu.be/-IUwoXEJK0c).
+A [video introduction](https://youtu.be/-IUwoXEJK0c) covers the motivation behind App Builder.
 
 ## Example
 
-A picture is worth a thousand words, so this is how it looks in use:
+The following example shows App Builder in use:
 
-```
+```nohighlight
 $ natsctl --help
 usage: natsctl [<flags>] <command> [<args> ...]
 
@@ -39,7 +37,7 @@ Commands:
     Shows list of NATS servers
 
   report jetstream
-    Shows list of NATS servers
+    Shows JetStream status
 
   service list [<flags>]
     List the servers running the service
@@ -49,10 +47,10 @@ Commands:
 ...
 ```
 
-In the example above one can run commands like `natsctl report servers` or `natsctl report jetstream` these will invoke something like `nats server list --user system --password secret --server nats.example.net:4222`.
+In the example above, commands like `natsctl report servers` or `natsctl report jetstream` invoke something like `nats server list --user system --password secret --server nats.example.net:4222`.
 
-The `natscl service state` command invokes a Choria RPC API in a subset of fleet nodes and pass the result through a JQ query `.replies | .[] | select(.statuscode==0) | .sender + ": " + .data.state` to transform the API output.
+The `natsctl service state` command invokes a Choria RPC API in a subset of fleet nodes and passes the result through a JQ query `.replies | .[] | select(.statuscode==0) | .sender + ": " + .data.state` to transform the API output.
 
-It is much nicer to just wrap it in `natsctl report servers` or `natsctl service state` and be able to manage the detail separately.  You can mention `natsctl report servers` in wikis and if it ever changes, you only change the app model.
+Wrapping these in `natsctl report servers` or `natsctl service state` keeps the detail managed separately. Wikis can reference `natsctl report servers`, and if the underlying command ever changes, only the app model needs updating.
 
-These sub commands all have help and integration with bash and zsh is provided.
+All sub-commands include built-in help. Shell completion for `bash` and `zsh` is provided.

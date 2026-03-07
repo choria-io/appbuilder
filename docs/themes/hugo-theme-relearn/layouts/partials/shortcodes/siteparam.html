@@ -1,7 +1,8 @@
 {{- $page := .page }}
 {{- if and (not $page) .context }}
   {{- $page = .context }}
-  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'siteparam' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/basics/migration/#5180" $page.File.Path }}
+  {{- $filepath := "[virtual file]" }}{{ with and $page $page.File $page.File.Filename }}{{ $filepath = . }}{{ end }}
+  {{- warnf "%q: DEPRECATED parameter 'context' for shortcode 'siteparam' found, use 'page' instead; see https://mcshelby.github.io/hugo-theme-relearn/introduction/releasenotes/5/#5-18-0" $filepath }}
 {{- end }}
 {{- $paramNames := split .name "." }}
 {{- with $page }}
@@ -11,7 +12,7 @@
         {{- $params = index . (lower $paramName) }}
     {{- end }}
 {{- end }}
-{{- if $params }}
-  {{- $params | .RenderString }}
+{{- with $params }}
+  {{- . }}
 {{- end }}
 {{- end }}

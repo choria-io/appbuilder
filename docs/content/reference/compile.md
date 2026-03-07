@@ -1,10 +1,11 @@
 +++
 title = "Compiled Applications"
+description = "compiling app builder applications into standalone binaries"
 weight = 140
 toc = true
 +++
 
-It's nice that you do not need to compile App Builder apps into binaries as it allows for fast iteration, but sometimes it might be desired.
+App Builder apps do not need to be compiled into binaries, which allows for fast iteration, but sometimes compilation might be desired.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This was added in version 0.7.2
@@ -43,11 +44,11 @@ func main() {
 }
 ```
 
-When you compile this as a normal Go application your binary will be an executable version of the app.
+Compiling this as a normal Go application produces a binary that is an executable version of the app.
 
 ## Mounting at a sub command
 
-Here we mount the application at the top level of the `myapp` binary, but you could also mount it later on - perhaps you have other compiled in behaviors you wish to surface:
+The previous example mounts the application at the top level of the `myapp` binary, but it can also be mounted at a sub-command level - perhaps there are other compiled-in behaviors to surface:
 
 ```go
 func main() {
@@ -65,4 +66,4 @@ func main() {
 }
 ```
 
-Here we would end up with `myapp embedded [app commands]` - the command being mounted at a deeper level in the resulting compiled application.  This way you can plug a App Builder command into any level programmatically.
+Here we would end up with `myapp embedded [app commands]` - the command being mounted at a deeper level in the resulting compiled application.  This way an App Builder command can be plugged into any level programmatically.

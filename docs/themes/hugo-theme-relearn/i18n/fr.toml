@@ -1,6 +1,9 @@
 [Reading-direction]
 other = "ltr"
 
+[Versioning-warning]
+other = 'Cette page affiche la version {{.pageVersion.title}}. La version actuelle peut être trouvée <a href="{{.latestUrl}}">ici</a>.'
+
 [Search]
 other = "Rechercher"
 
@@ -19,6 +22,12 @@ other = "{1} résultats trouvés pour \"{0}\""
 [Clear-History]
 other = "Supprimer l'historique"
 
+[Reset-view]
+other = "Réinitialiser la vue"
+
+[View-reset]
+other = "Vue réinitialisée!"
+
 [Attachments-label]
 other = "Pièces jointes"
 
@@ -31,17 +40,26 @@ other = "Oups. On dirait que cette page n'existe pas ¯\\_(ツ)_/¯"
 [Go-to-homepage]
 other = "Vers la page d'accueil"
 
+[home-button]
+other = "Home"
+
 [Edit-this-page]
 other = "Éditer"
+
+[Show-Markdown]
+other = "Afficher Markdown"
+
+[Show-source]
+other = "Afficher le code source"
 
 [Print-this-chapter]
 other = "Imprimer le chapitre entier"
 
-[Shortcuts-Title]
+[More-action]
 other = "Aller plus loin"
 
-[Expand-title]
-other = "Déroulez-moi..."
+[shortcuts-menuTitle]
+other = "Aller plus loin"
 
 [Navigation-toggle]
 other = "Menu"
@@ -58,11 +76,17 @@ other = "ko"
 [Megabyte-symbol]
 other = "Mo"
 
-[note]
-other = "Remarque"
+[caution]
+other = "Attention"
+
+[important]
+other = "Important"
 
 [info]
 other = "Information"
+
+[note]
+other = "Remarque"
 
 [tip]
 other = "Astuce"
@@ -71,10 +95,10 @@ other = "Astuce"
 other = "Avertissement"
 
 [Copy-to-clipboard]
-other = "Copier dans le presse-papiers"
+other = "Copier le texte dans le presse-papiers"
 
 [Copied-to-clipboard]
-other = "Copié dans le presse-papiers!"
+other = "Texte copié dans le presse-papiers!"
 
 [Copy-link-to-clipboard]
 other = "Copier le lien dans le presse-papiers"
@@ -108,3 +132,12 @@ other = "Catégories"
 
 [category]
 other = "Catégorie"
+
+[Details]
+other = "Détails"
+
+[Version]
+other = "Version"
+
+[Browser-unsupported-feature]
+other = "Ce navigateur ne prend pas en charge cette fonctionnalité"

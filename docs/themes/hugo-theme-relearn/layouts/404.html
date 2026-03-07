@@ -1,78 +1,29 @@
 <!DOCTYPE html>
-{{- partialCached "page-meta.hugo" . .RelPermalink }}
-{{- $outputFormat := partial "output-format.hugo" . }}
-<html lang="{{ .Page.Language | default "en" }}" dir="{{ T "Reading-direction" | default "ltr" }}">
+{{- .Store.Set "relearnOutputFormat" "html" }}
+<html id="R-html" lang="{{ .Page.Language.LanguageCode }}" dir="{{ .Page.Language.LanguageDirection | default (T "Reading-direction") | default "ltr" }}" itemscope itemtype="http://schema.org/Article" data-r-output-format="{{ with .Store.Get "relearnOutputFormat" }}{{ . }}{{ else }}html{{ end }}">
   <head>
     {{- partial "meta.html" . }}
-    {{- .Scratch.Add "title" "" }}
-    {{- $title := .Title }}
-    {{- if eq .Site.Data.titles .Title }}
-      {{- $title = (index .Site.Data.titles .Title).title }}
-    {{- end }}
-    {{- if and $title .Site.Title (not (eq $title .Site.Title)) }}
-      {{- $title = printf "%s %s %s" $title (default "::" .Site.Params.titleSeparator) .Site.Title }}
-    {{- end }}
+    {{- $title := partial "title.gotmpl" (dict "page" . "fullyQualified" true "reverse" true) }}
     <title>{{ $title }}</title>
-    <base href="{{ .Site.BaseURL }}">
-    {{- partialCached "favicon.html" . }}
-    {{- partialCached "stylesheet.html" (dict "page" . "outputFormat" $outputFormat) $outputFormat }}
-    <style>
-      p {
-        text-align: center
-      }
-      .notfound #body {
-          margin-inline-start: 0;
-          max-width: 100%;
-          min-width: 100%;
-          width: 100%;
-      }
-      .notfound h1 {
-          color: var(--MAIN-TEXT-color);
-          line-height: 1;
-          font-size: 5rem;
-          overflow: hidden;
-      }
-      .notfound h1 span {
-          font-size: 6.5rem;
-          font-weight: 500;
-      }
-      .notfound h1 i {
-          font-size: 5rem;
-          vertical-align: text-top;
-      }
-      .notfound h2 {
-        color: var(--MAIN-TEXT-color);
-        font-size: 2.5rem;
-        font-weight: 500;
-        padding: 0;
-        text-align: center;
-      }
-      #shrug svg,
-      #shrug svg * {
-        color: #000000;
-        color: var(--MAIN-TEXT-color);
-        fill: #000000 !important;
-        fill: var(--MAIN-TEXT-color) !important;
-      }
-      #shrug svg{
-        transform: scaleX(-1);
-        width: 15rem;
-      }
-    </style>
+
+    {{- /* because this file can be called from literally any URL inside your project, we need to base all relative URLs to make them work */}}
+    <base href="{{ site.BaseURL }}">
+
+    {{- partialCached "favicon.html" site.Home }}
+    {{- partial "dependencies.html" (dict "page" . "location" "header") }}
     {{- partial "custom-header.html" . }}
   </head>
-  <body class="mobile-support html notfound" data-url="{{ partial "relLangPrettyUglyURL.hugo" (dict "to" .) }}">
-    <div id="body" class="default-animation">
-      <div id="sidebar-overlay"></div>
-      <main id="body-inner" class="chapter" tabindex="-1">
+  <body class="mobile-support {{ with .Store.Get "relearnOutputFormat" }}{{ . }}{{ else }}html{{ end }}" data-origin="{{ partial "permalink.gotmpl" (dict "to" .) }}">
+    <div id="R-body" class="default-animation">
+      <main id="R-body-inner" class="highlightable chapter" tabindex="-1">
         <div class="flex-block-wrapper">
-          <article>
+          <article class="notfound">
             <h1 id="404"><span>4</span>{{ partial "shortcodes/icon.html" (dict "page" . "icon" "far fa-frown" )}}<span>4</span></h1>
-            <h2 id="{{ T "title-404" | anchorize }}">{{ T "title-404" }}</h2>
+            <h2 id="{{ T "title-404" | plainify | anchorize }}">{{ T "title-404" }}</h2>
             <p></p>
             <p>{{ T "message-404" }}</p>
             <p></p>
-            <p><a href="{{ partial "relLangPrettyUglyURL.hugo" (dict "to" .Site.Home) }}">{{ T "Go-to-homepage" }}</a></p>
+            <p><a href="{{ partial "permalink.gotmpl" (dict "to" site.Home) }}">{{ T "Go-to-homepage" }}</a></p>
             <p id="shrug">
               <svg xmlns="http://www.w3.org/2000/svg"
  viewBox="0 0 512.000000 512.000000"
@@ -141,5 +92,7 @@ m-2850 -536 c56 -270 324 -461 595 -424 205 28 393 204 439 411 6 30 14 58 18
         </div>
       </main>
     </div>
+{{- partial "dependencies.html" (dict "page" . "location" "footer") }}
+{{- partial "custom-footer.html" . }}
   </body>
 </html>

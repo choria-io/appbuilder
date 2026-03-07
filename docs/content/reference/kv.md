@@ -1,12 +1,13 @@
 +++
 title = "Choria KV Command"
+description = "choria key-value store operations"
 weight = 60
 toc = true
 +++
 
-The KV command interact with the Choria Key-Value Store and supports usual operations such as Get, Put, Delete and more.
+The KV command interacts with the Choria Key-Value Store and supports usual operations such as Get, Put, Delete and more.
 
-Since this is built into Choria it will simply use your Choria Client configuration for the user executing the command
+Since this is built into Choria it uses the Choria Client configuration for the user executing the command
 to find the Choria Brokers and more. It supports the usual override methods such as creating a `choria.conf` file in
 your project working directory. No connection properties are required or supported.
 

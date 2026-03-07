@@ -1,12 +1,13 @@
 +++
 title = "Transformations"
+description = "output transformation pipeline for commands"
 toc = true
 weight = 80
 +++
 
-Transformations is like a shell pipe defined in App Builder.  We have a number of transformations and using them is entirely optional - often a shell pipe would be much better.
+Transformations are like a shell pipe defined in App Builder. A number of transformations are available, and using them is entirely optional - often a shell pipe would be much better.
 
-The reason for adding transformations like `jq` to App Builder itself is to have it function in places where that 3rd party dependency is not met.  Rather than require everyone to install JQ - and handle that dependency, we just add a JQ dialect directly to App Builder.
+The reason for adding transformations like `jq` to App Builder itself is to have it function in places where that 3rd party dependency is not met. Rather than require everyone to install JQ - and handle that dependency, App Builder includes a JQ dialect directly.
 
 A basic example of transformations can be seen here:
 
@@ -33,7 +34,7 @@ Not every command supports transforms, so the individual command documentation w
 
 ## JQ Transform
 
-The `jq` transform uses a dialect of JQ called [GoJQ](https://github.com/itchyny/gojq), most of your JQ knowledge is transferable with only slight changes/additions.  This is probably the most used transform so there's a little short cut to make using it a bit easier:
+The `jq` transform uses a dialect of JQ called [GoJQ](https://github.com/itchyny/gojq), most of your JQ knowledge is transferable with only slight changes/additions.  This is probably the most used transform so there is a shortcut to make using it easier:
 
 ```yaml
 transform:
@@ -128,7 +129,7 @@ The transform supports a few options, all are optional:
 | Option    | Description                                                                                           |
 |-----------|-------------------------------------------------------------------------------------------------------|
 | `width`   | The width of the bar, defaults to 40                                                                  |
-| `caption` | The cpation to show above the graph, supports [Templating](../templating)                             |
+| `caption` | The caption to show above the graph, supports [Templating](../templating)                             |
 | `bytes`   | When set to true indicates that the numbers rendered after the bars will be bytes like in the example |
 
 ## Line Graph
@@ -179,7 +180,7 @@ The transform supports a few options, all are optional:
 | `height`    | The height of the graph, defaults to 20                                    |
 | `precision` | The decimal precision to consider and render                               |
 | `json`      | When true expects JSON input like `[1,2,3,4]` rather than a float per line |
-| `caption`   | The caption to show above the graph, supports [Templating](../templating)  |
+| `caption`   | The caption to show below the graph, supports [Templating](../templating)  |
 
 ## Templates
 
@@ -200,12 +201,12 @@ transform:
 
 | Option     | Description                                                                                   |
 |------------|-----------------------------------------------------------------------------------------------|
-| `contents` | The body of the template embedded in the application yaml file                                |
-| `source`   | The file name holding the template, the file name is parsed using [Templating](../templating) |
+| `contents` | The body of the template embedded in the application yaml file, mutually exclusive with `source` |
+| `source`   | The file name holding the template, the file name is parsed using [Templating](../templating). Mutually exclusive with `contents` |
 
 ## Writing to a file
 
-Data entering a the `write_file` transform is written to disk and also returned, but optionally a message can be
+Data entering the `write_file` transform is written to disk and also returned, but optionally a message can be
 returned.
 
 ```yaml
@@ -232,7 +233,7 @@ step, this can be annoying when writing large files as they will be dumped to th
 
 ```yaml
 transform:
-  - write_file:
+  write_file:
     file: /tmp/report.txt
     replace: true
     message: Wrote {{.IBytes}} to {{.Target}}
@@ -311,8 +312,8 @@ Name: appbuilder-0.2.1-x86_64.rpm                  Size: 2.2 MiB  Downloads: 2
 
 The `scaffold` transform takes JSON data and can generate multiple files using that output.
 
-This is essentially the [Scaffold Command](../scaffold/) in transform form, we suggest you read the Command 
-documentation for full details on the underlying feature.  Here we'll just cover what makes the transform unique.
+This is essentially the [Scaffold Command](../scaffold/) in transform form. The Command
+documentation provides full details on the underlying feature. This section covers only what makes the transform unique.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This was added in version 0.9.0
@@ -334,7 +335,7 @@ The `scaffold` transform returns the input JSON on its output.
 
 ## Pipelines
 
-We've seen a few example transform pipelines above, like this one here:
+Several example transform pipelines appear above, like this one:
 
 ```yaml
 type: exec
@@ -350,7 +351,7 @@ command: |
   curl -s wttr.in/?format=j1
 ```
 
-This runs the output of the `curl` command (JSON weather forecast data) through a `jq` transform that produce results like:
+This runs the output of the `curl` command (JSON weather forecast data) through a `jq` transform that produces results like:
 
 ```nohighlight
 29
@@ -363,7 +364,30 @@ This runs the output of the `curl` command (JSON weather forecast data) through 
 29
 ```
 
-We then feed that data into a `line_graph` and render it, the output from the `jq` transform is used as input to the `line_graph`.
+That data is then fed into a `line_graph` and rendered; the output from the `jq` transform is used as input to the `line_graph`.
 
 Any failure in the pipeline will terminate processing.
+
+## CCM Manifest
+
+The `ccm_manifest` transform executes a [Choria Config Manager](https://github.com/choria-io/ccm) manifest using the input data as manifest data. Arguments and flags are merged into the manifest data along with any JSON input.
+
+The `manifest` URL is parsed using [Templating](../templating).
+
+```yaml
+transform:
+  ccm_manifest:
+    manifest: https://example.net/manifests/deploy.yaml
+    nats_context: CCM
+    render_summary: true
+```
+
+| Option               | Description                                                          |
+|----------------------|----------------------------------------------------------------------|
+| `manifest`           | The manifest URL to execute, required                                |
+| `nats_context`       | The NATS context to use for connections, defaults to `CCM`           |
+| `render_summary`     | When true renders a text summary of the session to STDOUT            |
+| `no_render_messages` | When true suppresses pre and post manifest messages                  |
+
+When `render_summary` is false the transform outputs the session summary as JSON for further processing.
 

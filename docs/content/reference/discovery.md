@@ -1,5 +1,6 @@
 +++
 title = "Choria Discover Command"
+description = "discovering fleet nodes using the choria discovery system"
 weight = 40
 toc = true
 +++
@@ -7,11 +8,11 @@ toc = true
 The Discover command interact with the Choria Discovery system used to find fleet nodes based on a vast array of
 possible queries and data sources.
 
-Since this is built into Choria it will simply use your Choria Client configuration for the user executing the command
+Since this is built into Choria it will use the Choria Client configuration for the user executing the command
 to find the Choria Brokers and more. It supports the usual override methods such as creating a `choria.conf` file in
-your project working directory. No connection properties are required or supported.
+the project working directory. No connection properties are required or supported.
 
-Before using this command type I suggest reading about the [Choria Discovery System](https://choria.io/docs/concepts/discovery/).
+Before using this command type, refer to the [Choria Discovery System](https://choria.io/docs/concepts/discovery/) documentation.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This feature is only available when hosting App Builder applications within the Choria Server version 0.26.0 or newer
@@ -19,7 +20,7 @@ This feature is only available when hosting App Builder applications within the 
 
 ## Overview
 
-This command supports all the standard properties like Arguments, Flags, Banners and more, below is a simply command
+This command supports all the standard properties like Arguments, Flags, Banners and more, below is a simple command
 that finds apache servers.
 
 ```yaml
@@ -44,8 +45,7 @@ All the filter values, even arrays and objects, support [templating](../templati
 
 ## Filter Reference
 
-The main tunable here is the filter, below a reference of available options. The examples here are a bit short, I suggest
-you read the [Choria Discovery Documentation](https://choria.io/docs/concepts/discovery/) for a thorough understanding.
+The main tunable here is the filter, below a reference of available options. The examples here are brief; the [Choria Discovery Documentation](https://choria.io/docs/concepts/discovery/) provides a thorough understanding.
 
 | Key                         | Description                                                                      | Example                                             |
 |-----------------------------|----------------------------------------------------------------------------------|-----------------------------------------------------|

@@ -1,10 +1,13 @@
 +++
 title = "Scaffold Command"
+description = "generating directories of files from templates"
 weight = 35
 toc = true
 +++
 
-Use the `scaffold` command to create directories of files based on templates. 
+Use the `scaffold` command to create directories of files based on templates. The `scaffold` command supports flags, arguments and sub commands.
+
+One of `source` or `source_directory` is required to provide the templates, along with a `target` directory.
 
 The [Sprig](https://github.com/Masterminds/sprig) functions library is available to use in templates.
 
@@ -14,7 +17,7 @@ This was added in version 0.7.0
 
 ## Scaffolding files
 
-First we will just show the most basic example:
+The following is the most basic example:
 
 ```yaml
 name: scaffold
@@ -52,9 +55,9 @@ Here we will have a directory `cmd` with `cmd/cmd.go` inside along with top leve
 
 ## Storing files externally
 
-In the example we have the template embedded in the YAML file, its functional but does not really scale well.
+In the example above the template is embedded in the YAML file. It's functional but does not scale well.
 
-You can create a directory full of template files that mirror the target directory layer do this instead:
+A directory full of template files that mirror the target directory layout can be used instead:
 
 ```yaml
 name: scaffold
@@ -78,9 +81,9 @@ otherwise.
 
 ## Post processing files
 
-In the first example we showed a poorly formatted go file, the result will be equally badly formatted.
+The first example showed a poorly formatted go file; the result will be equally badly formatted.
 
-Here we show how to post process the files using `gofmt`:
+The following demonstrates how to post process the files using `gofmt`:
 
 ```yaml
 name: scaffold
@@ -159,19 +162,19 @@ func main() {
 }
 ```
 
-If you now made a file `_partials/go_copyright` in your source templates holding the following:
+Given a file `_partials/go_copyright` in the source templates holding the following:
 
 ```
 // Copyright {{ .Arguments.author }} {{ now | date "2006" }}
 ```
 
-You can easily reuse the content of the Copyright strings and update all in one place later.
+The content of the Copyright strings can be reused and updated in one place later.
 
 ## Rendering files from templates
 
-It's often the case that you need to create new files that is not in the actual template source.  Perhaps you ask a
-user how many of a certain thing they need and then you need to create that many files.  This means you will likely
-have a Partial that can be used to make the file and need to invoke it many times.
+It is often the case that new files not in the actual template source are needed. For example, a form might ask
+how many of a certain thing are required and then that many files must be created. This means a Partial can be
+used to make the file and needs to be invoked multiple times.
 
 {{% notice secondary "Version Hint" code-branch %}}
 This was added in version 0.7.4
@@ -190,8 +193,8 @@ To use this you can store a template in the `_partials` directory and then rende
 This will render and, using the `write` helper, save `cluster-{1,2,3,...}.conf` for how many ever clusters you had in 
 Flags. The file will be post processed as normal and written relative to the target directory.
 
-We save `.Flags` in `$flags` because within the `range` the `.` will not point to the top anymore, so this ensures we
-can access the passed in flags in the `_partials/cluster.conf` template.
+The `.Flags` value is saved in `$flags` because within the `range` the `.` will not point to the top anymore, so this ensures
+the passed in flags remain accessible in the `_partials/cluster.conf` template.
 
 If you place this loop in a file that is only there to generate these other files then the resulting empty 
 file can be ignored using `skip_empty: true` in the scaffold definition.
