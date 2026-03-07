@@ -1,0 +1,124 @@
+# Exec Command
+
+Use the `exec` command to execute commands found in your shell, and, optionally format their output through [data transformations](../transformations).
+
+The `exec` command supports [data transformations](../transformations).
+
+## Running commands
+
+An exec runs a command, it is identical to the [generic example](../common-settings/) shown earlier and accepts flags, arguments and sub commands.  It adds `command`, `script`, `shell`, `environment` (since `0.0.3`), `transform` (since `0.0.5`), `dir` (since `0.9.0`), `backoff` and `no_helper` items.
+
+Below the example that runs cowsay integrated with [configuration](Configuration):
+
+```yaml
+name: say
+description: Says something using the cowsay command
+type: exec
+
+dir: /tmp
+
+environment:
+  - "MESSAGE={{ .Arguments.message}}"
+
+command: |
+      {{ default .Config.Cowsay "cowsay" }} "{{ .Arguments.message | escape }}"
+
+arguments:
+   - name: message
+     description: The message to display
+     required: true
+```
+
+The `command` is how the shell command is specified, demonstrating [templating](../templating).  This reads the `.Config` hash for a value `Cowsay`; if it does not exist it defaults to `"cowsay"`. The `.Arguments` hash provides access to the value supplied by the user, escaped for shell safety.
+
+The example also shows how to set environment variables using `environment`, which are also templated.
+
+Since version `0.9.0` setting `dir` will execute the command in that directory. This setting supports [templating](../templating) and sets extra variables `UserWorkingDir` for the directory the user is in before running the command, `AppDir` and `TaskDir` indicating the directory the definition is in.
+
+Setting environment variable `BUILDER_DRY_RUN` to any value will enable debug logging, log the command and terminate without calling your command.
+
+## Shell scripts
+
+A shell script can be added directly to the app definition. Setting `shell` specifies the command used to run the script; if not set, `$SHELL`, `/bin/bash`, or `/bin/sh` is used, whichever is found first.
+
+The script is parsed through [templating](../templating).
+
+```yaml
+name: script
+description: A shell script
+type: exec
+shell: /bin/zsh
+script: |
+  for i in {1..5}
+  do
+    echo "hello world"
+  done
+```
+
+## Common helper functions
+
+A basic helper shell script is provided that can be used to echo text to the screen in various ways. To use it,
+source the script:
+
+{{% notice secondary "Version Hint" code-branch %}}
+Added in version 0.6.3
+{{% /notice %}}
+
+```yaml
+name: script
+description: A shell script
+type: exec
+shell: /bin/zsh
+script: |
+  set -e
+
+  . "{{ BashHelperPath }}"
+  
+  ab_announce Hello World
+```
+
+This will output:
+
+```nohighlight
+>>> Hello World
+```
+
+It provides a few functions:
+
+ * `ab_say` prefix the message using a single prefix `>>>`
+ * `ab_announce` prefix the message with `>>>` with a line of `>>>` before and after the message
+ * `ab_error` prefix the message with `!!!`
+ * `ab_panic` prefix the message with `!!!` and exit the script with code 1
+
+The `>>>` can be configured by setting `AB_SAY_PREFIX` and the `!!!` by setting `AB_ERROR_PREFIX` after sourcing the helper.
+
+The output can have time stamps added to the lines by setting `AB_HELPER_TIME_STAMP` shell variable to `T` for time and `D` for time and date prefixes.
+
+If you do not need the helper script you can disable it by setting `no_helper` to `true`, this prevents writing the temporary helper file to disk.
+
+## Retrying failed executions
+
+Failing executions can be tried based on a backoff policy, here we configure a maximum of 10 attempts with varying sleep
+times that would include randomized jitter.
+
+Scripts can detect if they are running in a retry by inspecting the `BUILDER_TRY` environment variable.
+
+```yaml
+name: retry
+description: A shell script execution with backoff retries
+type: exec
+command: ./script.sh
+backoff:
+  # Maximum amount of retries, required
+  max_attempts: 10
+  # Maximum sleep time + jitter, optional
+  max_sleep: 20s
+  # Minimum sleep time + jitter, optional
+  min_sleep: 1s
+  # Number of steps in the backoff policy, once the max is reached
+  # further retries will jitter around max_sleep, optional, minimum 2
+  steps: 5
+```
+
+Only the `max_attempts` setting is required, `min_sleep` defaults to `500ms` and `max_sleep` defaults to `20s` with steps
+defaulting to `max_attempts`.
