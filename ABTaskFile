@@ -127,7 +127,7 @@ commands:
           dir: "{{ TaskDir }}"
           banner: |
               >>>
-              >>> Building 'appbuilder' and 'abtask' locally {{ if .Flags.target }}for target '{{ .Flags.target }}'{{ end }}
+              >>> Building 'appbuilder' and 'abt' locally {{ if .Flags.target }}for target '{{ .Flags.target }}'{{ end }}
               >>>
           flags:
             - name: target
