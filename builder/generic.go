@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/choria-io/appbuilder/validator"
 	"github.com/choria-io/fisk"
+	"github.com/choria-io/validator"
 )
 
 // GenericSubCommands is the typical sub commands most commands support, custom plugins can choose to use this if they support sub commands
