@@ -1,4 +1,5 @@
 name: build_tasks
+
 commands:
     - name: dependencies
       type: parent

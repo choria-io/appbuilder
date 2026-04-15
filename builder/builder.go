@@ -497,9 +497,6 @@ func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 	cmd.ErrorWriter(b.stdErr)
 
 	switch strings.TrimSpace(strings.ToLower(b.def.HelpTemplate)) {
-	case "", "default":
-		cmd.UsageTemplate(defaultUsageTemplate)
-		cmd.ErrorUsageTemplate(defaultUsageTemplate)
 	case "compact":
 		cmd.UsageTemplate(fisk.CompactUsageTemplate)
 		cmd.ErrorUsageTemplate(fisk.CompactUsageTemplate)
@@ -509,6 +506,12 @@ func (b *AppBuilder) createAppCLI() (*fisk.Application, error) {
 	case "long":
 		cmd.UsageTemplate(fisk.KingpinDefaultUsageTemplate)
 		cmd.ErrorUsageTemplate(fisk.KingpinDefaultUsageTemplate)
+	case "default":
+		cmd.UsageTemplate(fisk.CompactMainUsageTemplate)
+		cmd.ErrorUsageTemplate(fisk.CompactMainUsageTemplate)
+	default:
+		cmd.UsageTemplate(defaultUsageTemplate)
+		cmd.ErrorUsageTemplate(defaultUsageTemplate)
 	}
 
 	cheats := b.def.Cheats

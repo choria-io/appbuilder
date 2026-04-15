@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/choria-io/fisk"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +36,7 @@ func RunTaskCLI(ctx context.Context, watchInterrupts bool, opts ...Option) error
 	}
 
 	requireDescription = false
+
 	defaultUsageTemplate = fisk.CompactUsageTemplate
 	descriptionFmt = `%s
 
