@@ -73,7 +73,7 @@ commands:
     commands: []
 ```
 
-The initial options define the application followed by commands. All the top settings are required except `help_template`, its value may be one of `compact`, `long`, `short` or `default`. When not set it defaults to `default`. Each help format presents information differently (requires version 0.0.9).
+The initial options define the application followed by commands. All the top settings are required except `help_template`, its value may be one of `compact`, `long`, `short` or `default`. When not set it defaults to `default`. Each help format presents information differently.
 
 A banner can be emitted before invoking the commands in an exec, providing a warning or extra information to users before running a command. For example, a banner may warn that a config override is in use:
 
@@ -176,14 +176,18 @@ validation needs. A few extra functions are added that make sense for operations
 
 In each case accessing `value` would be the value passed from the user.
 
-| Function             | Description                                                   |
-|----------------------|---------------------------------------------------------------|
-| `isIP(value)`        | Checks if `value` is an IPv4 or IPv6 address                  |
-| `isIPv4(value)`      | Checks if `value` is an IPv4 address                          |
-| `isIPv6(value)`      | Checks if `value` is an IPv6 address                          |
-| `isInt(value)`       | Checks if `value` is an Integer                               |
-| `isFloat(value)`     | Checks if `value` is a Float                                  |
-| `isShellSafe(value)` | Checks if `value` is attempting to to do shell escape attacks |
+| Expression                                      | Description                                    |
+|-------------------------------------------------|------------------------------------------------|
+| `isIP(value)` or `is_ip(value)`                 | Valid IPv4 or IPv6 address                     |
+| `isIPv4(value)` or `is_ipv4(value)`             | Valid IPv4 address                             |
+| `isIPv6(value)` or `is_ipv6(value)`             | Valid IPv6 address                             |
+| `isInt(value)` or `is_int(value)`               | Integer value                                  |
+| `isFloat(value)` or `is_float(value)`           | Floating-point value                           |
+| `isDuration(value)` or `is_duration(value)`     | Valid duration using `fisk.ParseDuration`      |
+| `isRegex(value, "^[a-z]+$")` or `is_regex(...)` | Value matches the given regular expression     |
+| `isShellSafe(value)` or `is_shellsafe(value)`   | Does not contain shell-unsafe characters       |
+| `isHostname(value)` or `is_hostname(value)`     | Valid hostname per RFC 1123                    |
+| `isFQDN(value)` or `is_fqdn(value)`             | Valid fully qualified domain name per RFC 1123 |
 
 ### Confirmations
 
