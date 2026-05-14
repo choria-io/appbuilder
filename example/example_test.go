@@ -156,6 +156,11 @@ var _ = Describe("Example Application", func() {
 				cmd.MustParseWithUsage(strings.Fields("basics required ginkgo bond -g Foo"))
 				Expect(usageBuf.String()).To(ContainSubstring("error: enum value must be one of Hello,Morning,Halo, got 'Foo'"))
 			})
+
+			It("Should have correct tags", func() {
+				cmd.MustParseWithUsage(strings.Fields("basics required --help-llm"))
+				Expect(usageBuf.String()).To(ContainSubstring("**Tags:** impact:ro, level:user"))
+			})
 		})
 
 		Describe("booleans", func() {
