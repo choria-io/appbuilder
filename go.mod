@@ -10,7 +10,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/adrg/xdg v0.5.3
 	github.com/choria-io/ccm v0.0.25
-	github.com/choria-io/fisk v0.8.1
+	github.com/choria-io/fisk v0.8.2-0.20260514183033-c870d064b022
 	github.com/choria-io/goform v0.0.4
 	github.com/choria-io/scaffold v0.0.10
 	github.com/choria-io/validator v0.0.2
@@ -30,7 +30,7 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	github.com/xlab/tablewriter v0.0.0-20160610135559-80b567a11ad5
 	golang.org/x/crypto v0.50.0
-	golang.org/x/text v0.36.0
+	golang.org/x/text v0.37.0
 )
 
 require (

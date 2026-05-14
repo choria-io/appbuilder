@@ -62,6 +62,10 @@ commands:
     aliases:
      - s 
 
+    # Free form tags available in some help templates and to introspection (optional)
+    tags:
+      - impact:ro
+    
     # Arguments to accept (optional)
     arguments:
      - name: message

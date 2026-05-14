@@ -41,6 +41,7 @@ type GenericCommand struct {
 	ConfirmPrompt string               `json:"confirm_prompt"`
 	Banner        string               `json:"banner"`
 	Cheat         *GenericCommandCheat `json:"cheat,omitempty"`
+	Tags          []string             `json:"tags,omitempty"`
 }
 
 // Validate ensures the command is well-formed
@@ -184,6 +185,10 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				flags[f.Name] = flag.String()
 			}
 		}
+	}
+
+	for _, t := range sc.Tags {
+		cmd.Tag(t)
 	}
 
 	return cmd

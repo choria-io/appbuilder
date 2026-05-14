@@ -30,6 +30,9 @@ commands:
       - name: required
         description: Greet someone by name, name+surname with a customizable greeting
         type: exec
+        tags:
+          - impact:ro
+          - level:user
         # Here we use arguments for the name and surname, the name is required but surname is optional.
         arguments:
           - name: name
