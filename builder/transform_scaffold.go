@@ -54,12 +54,12 @@ func (st *scaffoldTransform) Transform(ctx context.Context, r io.Reader, args ma
 	var input map[string]any
 	json.Unmarshal(j, &input)
 
-	st.SourceDirectory, err = ParseStateTemplateWithFuncMap(st.SourceDirectory, args, flags, b.Configuration(), b.TemplateFuncs(true))
+	st.SourceDirectory, err = b.RenderTemplate(st.SourceDirectory, args, flags, WithSprig())
 	if err != nil {
 		return nil, err
 	}
 
-	st.TargetDirectory, err = ParseStateTemplateWithFuncMap(st.TargetDirectory, args, flags, b.Configuration(), b.TemplateFuncs(true))
+	st.TargetDirectory, err = b.RenderTemplate(st.TargetDirectory, args, flags, WithSprig())
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (st *scaffoldTransform) Transform(ctx context.Context, r io.Reader, args ma
 
 	s.Logger(b.log)
 
-	_, err = s.Render(NewTemplateState(args, flags, b.Configuration(), input))
+	_, err = s.Render(b.NewTemplateState(args, flags, WithInput(input)))
 	if err != nil {
 		return nil, err
 	}

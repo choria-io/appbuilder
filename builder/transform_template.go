@@ -55,7 +55,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	switch {
 	case tt.Source != "":
 		var source string
-		source, err = ParseStateTemplate(tt.Source, args, flags, b.Configuration())
+		source, err = b.RenderTemplate(tt.Source, args, flags)
 		if err != nil {
 			return nil, fmt.Errorf("invalid source template: %v", err)
 		}
@@ -69,7 +69,7 @@ func (tt *templateTransform) Transform(ctx context.Context, r io.Reader, args ma
 	}
 
 	out := bytes.NewBuffer([]byte{})
-	state := NewTemplateState(args, flags, b.Configuration(), input)
+	state := b.NewTemplateState(args, flags, WithInput(input))
 
 	err = templ.Execute(out, state)
 	if err != nil {

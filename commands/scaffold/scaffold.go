@@ -120,13 +120,13 @@ func (r *Scaffold) runCommand(_ *fisk.ParseContext) error {
 	var err error
 
 	if r.def.SourceDirectory != "" {
-		cfg.SourceDirectory, err = builder.ParseStateTemplateWithFuncMap(r.def.SourceDirectory, r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
+		cfg.SourceDirectory, err = r.b.RenderTemplate(r.def.SourceDirectory, r.arguments, r.flags, builder.WithSprig())
 		if err != nil {
 			return err
 		}
 	}
 
-	cfg.TargetDirectory, err = builder.ParseStateTemplateWithFuncMap(r.def.Target, r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
+	cfg.TargetDirectory, err = r.b.RenderTemplate(r.def.Target, r.arguments, r.flags, builder.WithSprig())
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (r *Scaffold) runCommand(_ *fisk.ParseContext) error {
 
 	s.Logger(builder.NewDefaultLogger())
 
-	_, err = s.Render(builder.NewTemplateState(r.arguments, r.flags, r.b.Configuration(), nil))
+	_, err = s.Render(r.b.NewTemplateState(r.arguments, r.flags))
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrRenderFailed, err)
 	}

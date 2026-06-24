@@ -189,14 +189,16 @@ func (r *Exec) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error
 }
 
 func (r *Exec) logCommand(cmd string, args []string, env []string) {
-	r.log.Debugf("Executing command %q", cmd)
+	secrets := r.b.Secrets()
+
+	r.log.Debugf("Executing command %q", secrets.Redact(cmd))
 
 	for _, e := range env {
-		r.log.Debugf("Environment: %s", e)
+		r.log.Debugf("Environment: %s", secrets.Redact(e))
 	}
 
 	for i, a := range args {
-		r.log.Debugf("Argument %d: %v", i, a)
+		r.log.Debugf("Argument %d: %v", i, secrets.Redact(a))
 	}
 }
 
@@ -275,13 +277,12 @@ func (r *Exec) findShell() []string {
 	return []string{"/bin/sh", "-c"}
 }
 
-func (r *Exec) funcMap() template.FuncMap {
-	funcs := r.b.TemplateFuncs(true)
-	funcs["BashHelperPath"] = func() string {
-		return r.helperPath
+func (r *Exec) templateFuncs() template.FuncMap {
+	return template.FuncMap{
+		"BashHelperPath": func() string {
+			return r.helperPath
+		},
 	}
-
-	return funcs
 }
 
 func (r *Exec) runCommand(_ *fisk.ParseContext) error {
@@ -305,7 +306,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	}
 
 	if r.def.Command != "" {
-		cmd, err = builder.ParseStateTemplateWithFuncMap(r.def.Command, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
+		cmd, err = r.b.RenderTemplate(r.def.Command, r.arguments, r.flags, builder.WithSprig(), builder.WithFuncs(r.templateFuncs()))
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -320,7 +321,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 			return fmt.Errorf("cannot determine shell, set SHELL or shell property")
 		}
 
-		script, err := builder.ParseStateTemplateWithFuncMap(r.def.Script, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
+		script, err := r.b.RenderTemplate(r.def.Script, r.arguments, r.flags, builder.WithSprig(), builder.WithFuncs(r.templateFuncs()))
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -329,7 +330,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 	}
 
 	if r.def.WorkingDir != "" {
-		r.def.WorkingDir, err = builder.ParseStateTemplateWithFuncMap(r.def.WorkingDir, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
+		r.def.WorkingDir, err = r.b.RenderTemplate(r.def.WorkingDir, r.arguments, r.flags, builder.WithSprig(), builder.WithFuncs(r.templateFuncs()))
 		if err != nil {
 			return err
 		}
@@ -342,7 +343,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 
 	var env []string
 	for _, e := range r.def.Environment {
-		v, err := builder.ParseStateTemplateWithFuncMap(e, r.arguments, r.flags, r.b.Configuration(), r.funcMap())
+		v, err := r.b.RenderTemplate(e, r.arguments, r.flags, builder.WithSprig(), builder.WithFuncs(r.templateFuncs()))
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrorTemplateFailed, err)
 		}
@@ -368,7 +369,7 @@ func (r *Exec) runCommand(_ *fisk.ParseContext) error {
 		}
 
 		d := r.bo.duration(try)
-		r.log.Warnf("Execution failed on try %d / %d, retrying after %v based on backoff policy: %v", try, r.def.Backoff.MaxAttempts, d, err)
+		r.log.Warnf("Execution failed on try %d / %d, retrying after %v based on backoff policy: %v", try, r.def.Backoff.MaxAttempts, d, r.b.Secrets().Redact(err.Error()))
 
 		if uint(try) >= r.def.Backoff.MaxAttempts {
 			r.log.Errorf("Failing after %d tries", try)

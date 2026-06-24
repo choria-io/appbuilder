@@ -41,7 +41,7 @@ func (wf *writeFileTransform) Transform(ctx context.Context, r io.Reader, args m
 		return nil, err
 	}
 
-	target, err := ParseStateTemplate(wf.File, args, flags, b.Configuration())
+	target, err := b.RenderTemplate(wf.File, args, flags)
 	if err != nil {
 		return nil, fmt.Errorf("invalid file name template: %v", err)
 	}

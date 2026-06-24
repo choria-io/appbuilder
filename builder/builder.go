@@ -43,7 +43,49 @@ type TemplateState struct {
 	Arguments any
 	Flags     any
 	Config    any
+	Secrets   Secrets
 	Input     any
+}
+
+// Secrets holds resolved secret values exposed to templates as {{ .Secrets.<name> }}.
+// Its String and MarshalJSON implementations redact the values so whole-state dumps
+// such as {{ . }} or {{ toJson . }} never reveal them, while an explicit map index
+// like {{ .Secrets.api_token }} still resolves to the real value.
+type Secrets map[string]string
+
+// secretRedaction is shown in place of secret values in whole-state dumps
+const secretRedaction = "[REDACTED]"
+
+// String renders a redaction marker so values are never shown in plain template output
+func (s Secrets) String() string {
+	if len(s) == 0 {
+		return ""
+	}
+
+	return secretRedaction
+}
+
+// MarshalJSON renders a redaction marker so values are never serialized in whole-state dumps
+func (s Secrets) MarshalJSON() ([]byte, error) {
+	if len(s) == 0 {
+		return json.Marshal("")
+	}
+
+	return json.Marshal(secretRedaction)
+}
+
+// Redact replaces every resolved secret value found in text with the redaction marker so secret
+// values can be masked in logs and debug output. Empty values are skipped.
+func (s Secrets) Redact(text string) string {
+	for _, v := range s {
+		if v == "" {
+			continue
+		}
+
+		text = strings.ReplaceAll(text, v, secretRedaction)
+	}
+
+	return text
 }
 
 // AppBuilder is the main runner and configuration handler
@@ -55,6 +97,7 @@ type AppBuilder struct {
 	definitionPath string
 	userWorkingDir string
 	cfg            map[string]any
+	secrets        Secrets
 	cfgSources     []string
 	stdOut         io.Writer
 	stdErr         io.Writer
@@ -152,6 +195,11 @@ func (b *AppBuilder) Stderr() io.Writer {
 // Configuration is the loaded configuration, valid only after LoadConfig() is called, usually done during RunCommand()
 func (b *AppBuilder) Configuration() map[string]any {
 	return b.cfg
+}
+
+// Secrets are the secret values resolved for the currently executing command, populated during runWrapper
+func (b *AppBuilder) Secrets() Secrets {
+	return b.secrets
 }
 
 // Context gives access to the context used to control app execution and shutdown

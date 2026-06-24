@@ -68,7 +68,7 @@ func (t *jqTransform) Transform(ctx context.Context, r io.Reader, args map[strin
 		return nil, fmt.Errorf("json input parse error: %v", err)
 	}
 
-	query, err := ParseStateTemplate(t.Query, args, flags, b.Configuration())
+	query, err := b.RenderTemplate(t.Query, args, flags)
 	if err != nil {
 		return nil, err
 	}

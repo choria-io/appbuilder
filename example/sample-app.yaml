@@ -215,6 +215,34 @@ commands:
           
           ab_announce Demonstrates using the shell helper
 
+      # Demonstrates resolving a secret from 1Password at execution time.
+      #
+      # Secrets resolve only when the command runs, after any confirmation prompt,
+      # never during --help or validate. They are exposed to templates as
+      # {{ .Secrets.<name> }} and are redacted from whole-state dumps like {{ . }}.
+      #
+      # This example is illustrative: the item and vault are fake, so it will not
+      # resolve without the 1Password CLI (op) installed and an active session.
+      # Set BUILDER_DRY_RUN=1 to run it with a <secret:NAME> placeholder instead.
+      #
+      # Prefer feeding secrets to programs via environment: rather than inlining
+      # {{ .Secrets.x }} into command:, so the value does not appear in the process
+      # argument list visible to tools like ps.
+      - name: secret
+        description: Demonstrates resolving a secret from 1Password
+        type: exec
+        secrets:
+          - name: api_token
+            description: API token for the example service
+            one_password:
+              item: Demo API Token
+              field: credential
+              vault: AppBuilderDemo
+        environment:
+          - "API_TOKEN={{ .Secrets.api_token }}"
+        script: |
+          echo "The resolved token is available in the API_TOKEN environment variable: ${API_TOKEN?}"
+
 
   - name: form
     type: form

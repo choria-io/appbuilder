@@ -43,7 +43,7 @@ func (bg *barGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 	var err error
 
 	if bg.Caption != "" {
-		caption, err = ParseStateTemplate(bg.Caption, args, flags, b.Configuration())
+		caption, err = b.RenderTemplate(bg.Caption, args, flags)
 		if err != nil {
 			return nil, fmt.Errorf("invalid bar graph caption: %v", err)
 		}
