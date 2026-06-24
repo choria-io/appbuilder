@@ -86,3 +86,55 @@ commands:
 ```
 
 Here a flag supplies the version instead of a form.
+
+## Secrets
+
+The `secrets` input resolves sensitive values at command-invocation time from an external store and exposes them to [templates](../reference/templating/) as `{{ .Secrets.<name> }}`. It sits alongside `flags` and `arguments` as a third declarative input. The first supported provider is [1Password](https://developer.1password.com/docs/cli/) accessed through the `op` CLI.
+
+Secrets are resolved only when a command actually runs, after any confirmation prompt and never during `--help` or `validate`, so no `op` or biometric prompt fires until the user commits to running the command.
+
+```yaml
+name: demo
+description: Demo application for Choria App Builder
+author: https://github.com/choria-io/appbuilder
+commands:
+  - name: deploy
+    description: Deploy using a token stored in 1Password
+    type: exec
+    secrets:
+      - name: api_token
+        description: API token for the example service
+        one_password:
+          item: Demo API Token
+          field: credential
+          vault: AppBuilderDemo
+    environment:
+      - "API_TOKEN={{ .Secrets.api_token }}"
+    script: |
+      curl -H "Authorization: Bearer ${API_TOKEN}" https://api.example.com
+```
+
+This reads the `credential` field of the `Demo API Token` item in the `AppBuilderDemo` vault and makes it available as `{{ .Secrets.api_token }}`. The value is passed to the script through the standard [`environment`](../reference/exec/) list rather than inlined into the command, which keeps it out of the process argument list visible to tools like `ps`.
+
+The resolved value is available to `command`, `script`, `dir`, `environment` and any [transformations](../reference/transformations/) but not to banners, which render before resolution. Secret values are redacted from whole-state template dumps such as `{{ . }}` and `{{ toJson . }}`, while explicit references like `{{ .Secrets.api_token }}` resolve as normal.
+
+Setting the `BUILDER_DRY_RUN` environment variable renders the command without contacting 1Password, resolving each secret to a `<secret:NAME>` placeholder instead.
+
+Using secrets requires the [1Password CLI](https://developer.1password.com/docs/cli/) (`op`) to be installed with an active session. Access is read-only, App Builder never writes to the store.
+
+Each entry in the `secrets` list accepts:
+
+| Option         | Description                                                                                       |
+|----------------|--------------------------------------------------------------------------------------------------|
+| `name`         | A unique name used to reference the value as `{{ .Secrets.<name> }}`, must be a valid identifier  |
+| `description`  | A human friendly description of what the secret is used for                                       |
+| `one_password` | Resolves the value from a 1Password item, see below                                              |
+
+The `one_password` provider accepts:
+
+| Option    | Description                                                                 |
+|-----------|-----------------------------------------------------------------------------|
+| `item`    | The item name or ID holding the secret                                       |
+| `field`   | The field within the item to read                                           |
+| `vault`   | The vault holding the item, required by `op` secret references              |
+| `account` | Optionally selects a specific 1Password account such as `my.1password.com`  |
