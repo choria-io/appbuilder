@@ -74,7 +74,7 @@ func (t *lineGraphTransform) Transform(ctx context.Context, r io.Reader, args ma
 		opts = append(opts, asciigraph.Precision(t.Precision))
 	}
 	if t.Caption != "" {
-		caption, err := ParseStateTemplate(t.Caption, args, flags, b.Configuration())
+		caption, err := b.RenderTemplate(t.Caption, args, flags)
 		if err != nil {
 			return nil, fmt.Errorf("invalid line graph caption: %v", err)
 		}

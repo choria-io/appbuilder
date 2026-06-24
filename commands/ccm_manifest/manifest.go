@@ -95,7 +95,7 @@ func (r *CCMManifest) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause
 }
 
 func (r *CCMManifest) runCommand(_ *fisk.ParseContext) error {
-	url, err := builder.ParseStateTemplate(r.def.Manifest, r.arguments, r.flags, r.b.Configuration())
+	url, err := r.b.RenderTemplate(r.def.Manifest, r.arguments, r.flags)
 	if err != nil {
 		return fmt.Errorf("invalid manifest url template: %w", err)
 	}

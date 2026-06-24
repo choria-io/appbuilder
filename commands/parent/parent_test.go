@@ -68,6 +68,11 @@ var _ = Describe("Parent", func() {
 			p.def.Arguments = []builder.GenericArgument{{}}
 			err = p.Validate(nil)
 			Expect(err).To(MatchError("parent commands can not have arguments"))
+
+			p.def.Arguments = nil
+			p.def.Secrets = []builder.GenericSecret{{Name: "tok"}}
+			err = p.Validate(nil)
+			Expect(err.Error()).To(ContainSubstring("parent commands can not have secrets"))
 		})
 
 		It("Should require commands", func() {

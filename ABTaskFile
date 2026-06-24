@@ -14,14 +14,26 @@ commands:
             - name: verbose
               description: Log verbosely
               bool: true
+            - name: actions
+              bool: true
+              default: "true"
+              description: Run actions update using pinact
           banner: |
               >>>
               >>> Updating all dependencies
               >>>
           script: |
+            . "{{ BashHelperPath }}"
+
             go get -u -n -a -t {{- if .Flags.verbose }} -d -x {{ end }} ./...
 
             go mod tidy
+
+            {{ if .Flags.actions }}
+            ab_say Updating actions
+            pinact run \
+              --update 
+            {{ end }}
 
     - name: test
       type: parent

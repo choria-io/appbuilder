@@ -43,7 +43,7 @@ func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[
 		return nil, err
 	}
 
-	name, err := ParseStateTemplate(rt.Name, args, flags, b.Configuration())
+	name, err := b.RenderTemplate(rt.Name, args, flags)
 	if err != nil {
 		return nil, fmt.Errorf("invalid report name template: %v", err)
 	}
@@ -51,7 +51,7 @@ func (rt *reportTransform) Transform(ctx context.Context, r io.Reader, args map[
 	var rprt *goform.Report
 	if rt.SourceFile != "" {
 		var source string
-		source, err = ParseStateTemplate(rt.SourceFile, args, flags, b.Configuration())
+		source, err = b.RenderTemplate(rt.SourceFile, args, flags)
 		if err != nil {
 			return nil, fmt.Errorf("invalid report source template: %v", err)
 		}

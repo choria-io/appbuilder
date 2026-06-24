@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version: ${{matrix.go}}
 
       - name: Lint and Test
-        uses: choria-io/actions/lint_and_test/go@main
+        uses: choria-io/actions/lint_and_test/go@64294f0e09350d15dcb974c464c11e169622057a # v0.0.1
         with:
           ginkgo: "v2"

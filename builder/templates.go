@@ -88,19 +88,71 @@ func TemplateFuncs(all bool) template.FuncMap {
 	return funcs
 }
 
-func NewTemplateState(args map[string]any, flags map[string]any, cfg any, input any) *TemplateState {
-	return &TemplateState{
-		Arguments: dereferenceArgsOrFlags(args),
-		Flags:     dereferenceArgsOrFlags(flags),
-		Config:    cfg,
-		Input:     input,
+// TemplateOption configures template rendering and state construction
+type TemplateOption func(*templateOpts)
+
+type templateOpts struct {
+	sprig bool
+	funcs template.FuncMap
+	input any
+}
+
+func newTemplateOpts(opts ...TemplateOption) *templateOpts {
+	o := &templateOpts{}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	return o
+}
+
+// WithSprig enables the sprig template function library, which is off by default
+func WithSprig() TemplateOption {
+	return func(o *templateOpts) {
+		o.sprig = true
 	}
 }
 
-// ParseStateTemplateWithFuncMap parses body as a go text template with supplied values exposed to the user with additional functions available to the template
-func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[string]any, cfg any, funcMap template.FuncMap) (string, error) {
-	funcs := TemplateFuncs(false)
-	for n, f := range funcMap {
+// WithFuncs adds caller specific template functions on top of the standard set
+func WithFuncs(funcs template.FuncMap) TemplateOption {
+	return func(o *templateOpts) {
+		if o.funcs == nil {
+			o.funcs = template.FuncMap{}
+		}
+		for n, f := range funcs {
+			o.funcs[n] = f
+		}
+	}
+}
+
+// WithInput sets the .Input value exposed to the template
+func WithInput(input any) TemplateOption {
+	return func(o *templateOpts) {
+		o.input = input
+	}
+}
+
+// NewTemplateState creates the state exposed to templates with Config and Secrets filled from the builder
+func (b *AppBuilder) NewTemplateState(args map[string]any, flags map[string]any, opts ...TemplateOption) *TemplateState {
+	o := newTemplateOpts(opts...)
+
+	return &TemplateState{
+		Arguments: dereferenceArgsOrFlags(args),
+		Flags:     dereferenceArgsOrFlags(flags),
+		Config:    b.cfg,
+		Secrets:   b.secrets,
+		Input:     o.input,
+	}
+}
+
+// RenderTemplate parses and executes body as a Go text template. Config and Secrets are filled from
+// the builder, the standard functions and the builder directory functions are always available and
+// sprig functions are opt-in via WithSprig.
+func (b *AppBuilder) RenderTemplate(body string, args map[string]any, flags map[string]any, opts ...TemplateOption) (string, error) {
+	o := newTemplateOpts(opts...)
+
+	funcs := b.TemplateFuncs(o.sprig)
+	for n, f := range o.funcs {
 		funcs[n] = f
 	}
 
@@ -109,16 +161,11 @@ func ParseStateTemplateWithFuncMap(body string, args map[string]any, flags map[s
 		return "", err
 	}
 
-	var b bytes.Buffer
-	err = temp.Execute(&b, NewTemplateState(args, flags, cfg, nil))
+	var buf bytes.Buffer
+	err = temp.Execute(&buf, b.NewTemplateState(args, flags, opts...))
 	if err != nil {
 		return "", err
 	}
 
-	return b.String(), nil
-}
-
-// ParseStateTemplate parses body as a go text template with supplied values exposed to the user
-func ParseStateTemplate(body string, args map[string]any, flags map[string]any, cfg any) (string, error) {
-	return ParseStateTemplateWithFuncMap(body, args, flags, cfg, nil)
+	return buf.String(), nil
 }

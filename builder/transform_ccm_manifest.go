@@ -49,7 +49,7 @@ func (manifest *ccmManifestTransform) Transform(ctx context.Context, r io.Reader
 		return nil, err
 	}
 
-	url, err := ParseStateTemplate(manifest.Manifest, args, flags, b.Configuration())
+	url, err := b.RenderTemplate(manifest.Manifest, args, flags)
 	if err != nil {
 		return nil, fmt.Errorf("invalid manifest url template: %w", err)
 	}

@@ -106,6 +106,10 @@ func (p *Parent) Validate(log builder.Logger) error {
 		errs = append(errs, "parent commands can not have arguments")
 	}
 
+	if len(p.def.Secrets) > 0 {
+		errs = append(errs, "parent commands can not have secrets")
+	}
+
 	if len(p.def.Commands) == 0 {
 		errs = append(errs, "parent requires sub commands")
 	}

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -42,6 +43,7 @@ type GenericCommand struct {
 	Banner        string               `json:"banner"`
 	Cheat         *GenericCommandCheat `json:"cheat,omitempty"`
 	Tags          []string             `json:"tags,omitempty"`
+	Secrets       []GenericSecret      `json:"secrets,omitempty"`
 }
 
 // Validate ensures the command is well-formed
@@ -66,6 +68,20 @@ func (c *GenericCommand) Validate(logger Logger) error {
 		if len(f.Short) > 1 {
 			errs = append(errs, fmt.Sprintf("short flag for %s must be 1 character", f.Name))
 		}
+	}
+
+	seenSecrets := map[string]struct{}{}
+	for _, s := range c.Secrets {
+		err := s.Validate()
+		if err != nil {
+			errs = append(errs, err.Error())
+			continue
+		}
+
+		if _, dup := seenSecrets[s.Name]; dup {
+			errs = append(errs, fmt.Sprintf("duplicate secret name %q", s.Name))
+		}
+		seenSecrets[s.Name] = struct{}{}
 	}
 
 	if len(errs) > 0 {
@@ -103,7 +119,12 @@ type GenericFlag struct {
 // are created on the supplied maps, if flags or arguments is nil then this will not attempt to add defined flags. Use this if you wish to use GenericCommand as
 // a base for your own commands while perhaps using an extended argument set
 func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[string]any, flags map[string]any, b *AppBuilder, cb fisk.Action) *fisk.CmdClause {
-	cmd := app.Command(sc.Name, sc.Description).Action(runWrapper(*sc, arguments, flags, b, cb))
+	description := sc.Description
+	if len(sc.Secrets) > 0 {
+		description = fmt.Sprintf("%s\n\nRequires the 1Password CLI and an active session.", description)
+	}
+
+	cmd := app.Command(sc.Name, description).Action(runWrapper(*sc, arguments, flags, b, cb))
 	for _, a := range sc.Aliases {
 		cmd.Alias(a)
 	}
@@ -198,8 +219,13 @@ func runWrapper(cmd GenericCommand, arguments map[string]any, flags map[string]a
 	return func(pc *fisk.ParseContext) error {
 		f := dereferenceArgsOrFlags(flags)
 
+		// Reset first so a reused builder (library/test usage) never bleeds the previous
+		// command's secrets into this one if resolution is skipped below.
+		b.secrets = nil
+
 		if cmd.Banner != "" {
-			txt, err := ParseStateTemplateWithFuncMap(cmd.Banner, arguments, flags, b.Configuration(), b.TemplateFuncs(true))
+			// Banners render before resolution so .Secrets is intentionally unavailable here.
+			txt, err := b.RenderTemplate(cmd.Banner, arguments, flags, WithSprig())
 			if err != nil {
 				return err
 			}
@@ -217,6 +243,20 @@ func runWrapper(cmd GenericCommand, arguments map[string]any, flags map[string]a
 			}
 			if !ans {
 				return fmt.Errorf("aborted")
+			}
+		}
+
+		// Resolve after the confirm prompt so no op/biometric prompt fires before the user
+		// confirms, and before the handler so secret-bearing templates can use .Secrets.
+		if len(cmd.Secrets) > 0 {
+			if os.Getenv("BUILDER_DRY_RUN") != "" {
+				b.secrets = dryRunSecrets(cmd.Secrets)
+			} else {
+				secrets, err := resolveSecrets(b.Context(), cmd.Secrets)
+				if err != nil {
+					return err
+				}
+				b.secrets = secrets
 			}
 		}
 

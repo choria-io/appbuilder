@@ -116,9 +116,9 @@ func (r *Form) CreateCommand(app builder.KingpinCommand) (*fisk.CmdClause, error
 }
 
 func (r *Form) runCommand(_ *fisk.ParseContext) error {
-	state := builder.NewTemplateState(r.arguments, r.flags, r.b.Configuration(), nil)
+	state := r.b.NewTemplateState(r.arguments, r.flags)
 
-	defBytes, err := builder.ParseStateTemplateWithFuncMap(string(r.defBytes), r.arguments, r.flags, r.b.Configuration(), r.b.TemplateFuncs(true))
+	defBytes, err := r.b.RenderTemplate(string(r.defBytes), r.arguments, r.flags, builder.WithSprig())
 	if err != nil {
 		return fmt.Errorf("%w: %v", builder.ErrInvalidDefinition, err)
 	}
@@ -138,6 +138,7 @@ func (r *Form) runCommand(_ *fisk.ParseContext) error {
 		"Arguments": state.Arguments,
 		"Flags":     state.Flags,
 		"Config":    state.Config,
+		"Secrets":   state.Secrets,
 	})
 	if err != nil {
 		return err
