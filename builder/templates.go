@@ -5,12 +5,14 @@
 package builder
 
 import (
-	"al.essio.dev/pkg/shellescape"
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"text/template"
+
+	"al.essio.dev/pkg/shellescape"
 
 	"github.com/choria-io/appbuilder/internal/sprig"
 )
@@ -21,10 +23,19 @@ func dereferenceArgsOrFlags(input map[string]any) map[string]any {
 		e := reflect.ValueOf(v).Elem()
 
 		// the only kinds of values we support
-		if e.Kind() == reflect.Bool {
+		switch e.Kind() {
+		case reflect.Bool:
 			res[k] = e.Bool()
-		} else {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			res[k] = e.Int()
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+			res[k] = e.Uint()
+		case reflect.Float32, reflect.Float64:
+			res[k] = e.Float()
+		case reflect.String:
 			res[k] = e.String()
+		default:
+			res[k] = fmt.Sprintf("%v", e)
 		}
 	}
 

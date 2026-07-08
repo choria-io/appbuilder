@@ -83,6 +83,11 @@ func (r *Scaffold) Validate(log builder.Logger) error {
 
 	var errs []string
 
+	err := r.def.GenericCommand.Validate(log)
+	if err != nil {
+		errs = append(errs, err.Error())
+	}
+
 	if r.def.Target == "" {
 		errs = append(errs, "target is required")
 	}

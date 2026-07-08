@@ -9,6 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -64,10 +66,15 @@ func (c *GenericCommand) Validate(logger Logger) error {
 		errs = append(errs, "cheats require a body")
 	}
 
+	for _, a := range c.Arguments {
+		errs = append(errs, validateInput("argument", a.Name, a.Type, a.Default, len(a.Enum) > 0, false)...)
+	}
+
 	for _, f := range c.Flags {
 		if len(f.Short) > 1 {
 			errs = append(errs, fmt.Sprintf("short flag for %s must be 1 character", f.Name))
 		}
+		errs = append(errs, validateInput("flag", f.Name, f.Type, f.Default, len(f.Enum) > 0, f.Bool)...)
 	}
 
 	seenSecrets := map[string]struct{}{}
@@ -97,8 +104,9 @@ type GenericArgument struct {
 	Description          string   `json:"description"`
 	Required             bool     `json:"required"`
 	Enum                 []string `json:"enum"`
-	Default              string   `json:"default"`
+	Default              any      `json:"default"`
 	ValidationExpression string   `json:"validate"`
+	Type                 string   `json:"type"`
 }
 
 // GenericFlag is a standard command line flag
@@ -113,6 +121,164 @@ type GenericFlag struct {
 	EnvVar               string   `json:"env"`
 	Short                string   `json:"short"`
 	ValidationExpression string   `json:"validate"`
+	Type                 string   `json:"type"`
+}
+
+// parserClause is the shared surface of fisk's *ArgClause and *FlagClause that we use to
+// configure a typed input. Both satisfy it via the embedded parserMixin.
+type parserClause interface {
+	String() *string
+	Bool() *bool
+	UnNegatableBool() *bool
+	Enum(...string) *string
+	ExistingFile() *string
+	ExistingDir() *string
+	Counter() *int
+	Int() *int
+	Int8() *int8
+	Int16() *int16
+	Int32() *int32
+	Int64() *int64
+	Uint() *uint
+	Uint8() *uint8
+	Uint16() *uint16
+	Uint32() *uint32
+	Uint64() *uint64
+	Float() *float64
+	Float32() *float32
+	Float64() *float64
+}
+
+var (
+	_ parserClause = (*fisk.ArgClause)(nil)
+	_ parserClause = (*fisk.FlagClause)(nil)
+)
+
+// inputTypes is the single source of truth for the flag and argument type names and the
+// fisk parser that enforces each. bool and enum are handled separately by applyInputType
+// because they depend on the default value and the enum list.
+var inputTypes = map[string]func(parserClause) any{
+	"string":        func(c parserClause) any { return c.String() },
+	"existing_file": func(c parserClause) any { return c.ExistingFile() },
+	"existing_dir":  func(c parserClause) any { return c.ExistingDir() },
+	"counter":       func(c parserClause) any { return c.Counter() },
+	"int":           func(c parserClause) any { return c.Int() },
+	"integer":       func(c parserClause) any { return c.Int() },
+	"int8":          func(c parserClause) any { return c.Int8() },
+	"int16":         func(c parserClause) any { return c.Int16() },
+	"int32":         func(c parserClause) any { return c.Int32() },
+	"int64":         func(c parserClause) any { return c.Int64() },
+	"uint":          func(c parserClause) any { return c.Uint() },
+	"uint8":         func(c parserClause) any { return c.Uint8() },
+	"uint16":        func(c parserClause) any { return c.Uint16() },
+	"uint32":        func(c parserClause) any { return c.Uint32() },
+	"uint64":        func(c parserClause) any { return c.Uint64() },
+	"float":         func(c parserClause) any { return c.Float() },
+	"float32":       func(c parserClause) any { return c.Float32() },
+	"float64":       func(c parserClause) any { return c.Float64() },
+}
+
+// normalizeType lower-cases and trims a user supplied type so matching is forgiving and
+// CreateGenericCommand and Validate always agree on which type was requested.
+func normalizeType(t string) string {
+	return strings.ToLower(strings.TrimSpace(t))
+}
+
+// knownInputType reports whether dType, already normalized, is one of the mapped types.
+func knownInputType(dType string) bool {
+	_, ok := inputTypes[dType]
+	return ok
+}
+
+// knownTypeNames returns all supported type names including bool, sorted for stable help
+// and error output.
+func knownTypeNames() []string {
+	names := make([]string, 0, len(inputTypes)+1)
+	for name := range inputTypes {
+		names = append(names, name)
+	}
+	names = append(names, "bool")
+	sort.Strings(names)
+
+	return names
+}
+
+// isTrueDefault reports whether a default represents boolean true, used to decide if a bool
+// should be negatable. It mirrors fisk which parses bool defaults via strconv.ParseBool.
+func isTrueDefault(dflt any) bool {
+	switch v := dflt.(type) {
+	case bool:
+		return v
+	case string:
+		b, err := strconv.ParseBool(v)
+		return err == nil && b
+	default:
+		return false
+	}
+}
+
+// applyInputType configures c for the requested type and returns the fisk value pointer.
+// enum takes precedence over type, then bool, then the mapped types, finally a plain string.
+func applyInputType(c parserClause, dType string, enum []string, dflt any) any {
+	switch {
+	case len(enum) > 0:
+		return c.Enum(enum...)
+	case dType == "bool":
+		if isTrueDefault(dflt) {
+			return c.Bool()
+		}
+		return c.UnNegatableBool()
+	}
+
+	if fn, ok := inputTypes[dType]; ok {
+		return fn(c)
+	}
+
+	return c.String()
+}
+
+// defaultHint renders a default value for an error message, avoiding the scientific notation
+// fmt uses for large numbers so the suggested quoted value stays usable.
+func defaultHint(dflt any) string {
+	if f, ok := dflt.(float64); ok {
+		return strconv.FormatFloat(f, 'f', -1, 64)
+	}
+
+	return fmt.Sprintf("%v", dflt)
+}
+
+// validateInput checks the type and default of a flag or argument. kind is "flag" or
+// "argument" and is used in messages, legacyBool is the deprecated bool flag field.
+func validateInput(kind, name, typ string, dflt any, hasEnum, legacyBool bool) []string {
+	var errs []string
+
+	// fisk only takes string defaults, so numbers and the like must be quoted to reach it
+	// unambiguously. Booleans are allowed as a convenience.
+	switch dflt.(type) {
+	case nil, string, bool:
+	default:
+		errs = append(errs, fmt.Sprintf("%s %q default must be a string or boolean, quote the value like default: %q", kind, name, defaultHint(dflt)))
+	}
+
+	dType := normalizeType(typ)
+	if dType == "" {
+		return errs
+	}
+
+	switch {
+	case hasEnum:
+		errs = append(errs, fmt.Sprintf("%s %q sets both type and enum, remove one", kind, name))
+	case legacyBool && dType != "bool":
+		errs = append(errs, fmt.Sprintf("%s %q sets both bool and type %q, remove one", kind, name, dType))
+	case dType == "bool", knownInputType(dType):
+		// supported
+	case dType == "duration":
+		errs = append(errs, fmt.Sprintf("%s %q type \"duration\" is not supported, validate durations with an expression like validate: is_duration(value)", kind, name))
+	default:
+		errs = append(errs, fmt.Sprintf("%s %q has unknown type %q, valid types are: %s", kind, name, dType, strings.Join(knownTypeNames(), ", ")))
+	}
+
+	return errs
 }
 
 // CreateGenericCommand can be used to add all the typical flags and arguments etc if your command is based on GenericCommand. Values set in flags and arguments
@@ -149,20 +315,15 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				arg.Required()
 			}
 
-			if a.Default != "" {
-				arg.Default(a.Default)
+			if a.Default != nil {
+				arg.Default(fmt.Sprintf("%v", a.Default))
 			}
 
 			if a.ValidationExpression != "" {
 				arg.Validator(validator.FiskValidator(a.ValidationExpression))
 			}
 
-			switch {
-			case len(a.Enum) > 0:
-				arguments[a.Name] = arg.Enum(a.Enum...)
-			default:
-				arguments[a.Name] = arg.String()
-			}
+			arguments[a.Name] = applyInputType(arg, normalizeType(a.Type), a.Enum, a.Default)
 		}
 	}
 
@@ -193,18 +354,12 @@ func CreateGenericCommand(app KingpinCommand, sc *GenericCommand, arguments map[
 				flag.Validator(validator.FiskValidator(f.ValidationExpression))
 			}
 
-			switch {
-			case len(f.Enum) > 0:
-				flags[f.Name] = flag.Enum(f.Enum...)
-			case f.Bool:
-				if f.Default == true || f.Default == "true" {
-					flags[f.Name] = flag.Bool()
-				} else {
-					flags[f.Name] = flag.UnNegatableBool()
-				}
-			default:
-				flags[f.Name] = flag.String()
+			dType := normalizeType(f.Type)
+			if f.Bool {
+				dType = "bool"
 			}
+
+			flags[f.Name] = applyInputType(flag, dType, f.Enum, f.Default)
 		}
 	}
 
