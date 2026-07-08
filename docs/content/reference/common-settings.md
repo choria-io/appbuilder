@@ -119,6 +119,7 @@ Arguments can have many options, the table below detail them and the version tha
 | `required`    | Indicates that a value for this argument must be set, which includes being set from default                                             |          |         |
 | `enum`        | An array of valid values, if set the flag must be one of these values                                                                   |          | 0.0.4   |
 | `default`     | Sets a default value when not passed, will satisfy enums and required. For bools must be `true` or `false`                              |          | 0.0.4   |
+| `type`        | Ensure input is of a certain type, see [Data Types](#data-types) below                                                                  |          | 0.19.0  |
 | `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 
@@ -137,6 +138,7 @@ A `flag` is a option passed to the application using something like `--flag`, ty
 | `bool`        | Indicates that the flag is a boolean (see below)                                                                                        |          | 0.1.1   |
 | `env`         | Will load the value from an environment variable if set, passing the flag specifically wins, then the env, then default                 |          | 0.1.2   |
 | `short`       | A single character that can be used instead of the `name` to access this flag. ie. `--cowfile` might also be `-F`                       |          | 0.1.2   |
+| `type`        | Ensure input is of a certain type, see [Data Types](#data-types) below                                                                  |          | 0.19.0  |
 | `validate`    | An [expr](https://expr-lang.org) based validation expression, see [Argument and Flag Validations](#argument-and-flag-validations) below |          | 0.8.0   |
 
 ##### Boolean Flags
@@ -159,16 +161,43 @@ A `flag` is a option passed to the application using something like `--flag`, ty
 
 The `--force` flag is used to influence the command. Booleans with their default set to `true` or `"true"` will add a `--no-flag-name` option to negate it. Booleans without a `true` default do not get a negation flag.
 
+#### Data types
+
+Input provided to commands may need to be of a certain data type, specifying the type will provide both validation and type casting.
+
+{{% notice secondary "Version Hint" code-branch %}}
+This is available since version `0.19.0`.
+{{% /notice %}}
+
+| Type            | Description                                              |
+|-----------------|----------------------------------------------------------|
+| `bool`          | Boolean value, see [Boolean Flags](#boolean-flags) above |
+| `existing_file` | Path to a file that must exist                           |
+| `existing_dir`  | Path to a directory that must exist                      |
+| `counter`       | Counts how often a flag is passed, like `-vvv`           |
+| `int`           | Signed integer, alias `integer`                          |
+| `int8`          | Signed 8-bit integer                                     |
+| `int16`         | Signed 16-bit integer                                    |
+| `int32`         | Signed 32-bit integer                                    |
+| `int64`         | Signed 64-bit integer                                    |
+| `uint`          | Unsigned integer                                         |
+| `uint8`         | Unsigned 8-bit integer                                   |
+| `uint16`        | Unsigned 16-bit integer                                  |
+| `uint32`        | Unsigned 32-bit integer                                  |
+| `uint64`        | Unsigned 64-bit integer                                  |
+| `float`         | Floating-point number, same as `float64`                 |
+| `float32`       | 32-bit floating-point number                             |
+| `float64`       | 64-bit floating-point number                             |
+| `string`        | String value, default when not set                       |
+
+The data passed into templates will be of the type specified.
+
 #### Argument and Flag Validations
 
 Input provided to commands may need validation. For example, when passing commands
 to shell scripts, care must be taken to avoid [Shell Injection](https://en.wikipedia.org/wiki/Code_injection#Shell_injection).
 
 Custom validators on Arguments and Flags are supported using the [Expr Language](https://expr.medv.io/docs/Language-Definition).
-
-{{% notice secondary "Version Hint" code-branch %}}
-This is available since version `0.8.0`.
-{{% /notice %}}
 
 Based on the Getting Started example that calls `cowsay` we might wish to limit the length of the message to what
 would work well with `cowsay` and also ensure there is no shell escaping happening.

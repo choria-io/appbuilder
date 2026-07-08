@@ -74,6 +74,11 @@ func (r *CCMManifest) Validate(log builder.Logger) error {
 		r.def.NATSContext = "CCM"
 	}
 
+	err := r.def.GenericCommand.Validate(log)
+	if err != nil {
+		return err
+	}
+
 	if r.def.Transform != nil {
 		err := r.def.Transform.Validate(log)
 		if err != nil {
