@@ -266,14 +266,12 @@ func validateInput(kind, name, typ string, dflt any, hasEnum, legacyBool bool) [
 	}
 
 	switch {
-	case hasEnum:
+	case hasEnum && !(dType == "string" || dType == ""):
 		errs = append(errs, fmt.Sprintf("%s %q sets both type and enum, remove one", kind, name))
 	case legacyBool && dType != "bool":
 		errs = append(errs, fmt.Sprintf("%s %q sets both bool and type %q, remove one", kind, name, dType))
 	case dType == "bool", knownInputType(dType):
 		// supported
-	case dType == "duration":
-		errs = append(errs, fmt.Sprintf("%s %q type \"duration\" is not supported, validate durations with an expression like validate: is_duration(value)", kind, name))
 	default:
 		errs = append(errs, fmt.Sprintf("%s %q has unknown type %q, valid types are: %s", kind, name, dType, strings.Join(knownTypeNames(), ", ")))
 	}
