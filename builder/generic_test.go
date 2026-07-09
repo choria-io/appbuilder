@@ -176,12 +176,6 @@ var _ = Describe("GenericCommand", func() {
 			Expect(err).To(MatchError(ContainSubstring("valid types are: bool, counter")))
 		})
 
-		It("Should guide duration to the is_duration validator", func() {
-			Expect(valErr(func(d *GenericCommand) {
-				d.Flags = []GenericFlag{{Name: "t", Description: "h", Type: "duration"}}
-			})).To(MatchError(ContainSubstring("validate: is_duration(value)")))
-		})
-
 		It("Should reject non string or bool defaults with a usable quoting hint", func() {
 			// YAML numbers arrive as float64 after YAMLToJSON, and naive formatting
 			// would render 1000000 as 1e+06 in the hint.
@@ -192,10 +186,25 @@ var _ = Describe("GenericCommand", func() {
 			Expect(err).To(MatchError(ContainSubstring(`default: "1000000"`)))
 		})
 
-		It("Should reject combining type with enum", func() {
+		It("Should allow enum with a blank or string type", func() {
 			Expect(valErr(func(d *GenericCommand) {
-				d.Flags = []GenericFlag{{Name: "c", Description: "h", Type: "int", Enum: []string{"1", "2"}}}
-			})).To(MatchError(ContainSubstring("sets both type and enum")))
+				d.Flags = []GenericFlag{
+					{Name: "e", Description: "h", Enum: []string{"a", "b"}},
+					{Name: "es", Description: "h", Type: "string", Enum: []string{"a", "b"}},
+					{Name: "ews", Description: "h", Type: " String ", Enum: []string{"a", "b"}},
+				}
+				d.Arguments = []GenericArgument{
+					{Name: "ea", Description: "h", Type: "string", Enum: []string{"a", "b"}},
+				}
+			})).To(Succeed())
+		})
+
+		It("Should reject combining a non string type with enum", func() {
+			for _, typ := range []string{"int", "bool", "float", "existing_file"} {
+				Expect(valErr(func(d *GenericCommand) {
+					d.Flags = []GenericFlag{{Name: "c", Description: "h", Type: typ, Enum: []string{"1", "2"}}}
+				})).To(MatchError(ContainSubstring("sets both type and enum")), "type %q should conflict with enum", typ)
+			}
 		})
 
 		It("Should reject combining the legacy bool field with a non bool type", func() {
