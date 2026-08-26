@@ -16,6 +16,7 @@ import (
 	"github.com/choria-io/appbuilder/builder"
 	"github.com/choria-io/appbuilder/commands/ccm_manifest"
 	"github.com/choria-io/appbuilder/commands/exec"
+	"github.com/choria-io/appbuilder/commands/file"
 	"github.com/choria-io/appbuilder/commands/form"
 	"github.com/choria-io/appbuilder/commands/parent"
 	"github.com/choria-io/appbuilder/commands/scaffold"
@@ -41,6 +42,7 @@ var _ = Describe("Example Application", func() {
 		scaffold.Register()
 		form.Register()
 		ccm_manifest.Register()
+		file.Register()
 
 		app, err = builder.New(context.Background(), "example",
 			builder.WithAppDefinitionFile("sample-app.yaml"),
@@ -222,6 +224,24 @@ var _ = Describe("Example Application", func() {
 				cmd.MustParseWithUsage(strings.Fields("exec shell_helper"))
 				Expect(usageBuf.String()).To(ContainSubstring("???\n??? Demonstrates using the shell helper\n???"))
 			})
+		})
+	})
+
+	Describe("file", func() {
+		It("Should read the file", func() {
+			cmd.MustParseWithUsage(strings.Fields("file sample-app.yaml"))
+			Expect(usageBuf.String()).To(ContainSubstring("A sample application demonstrating App Builder features"))
+		})
+
+		It("Should read files within a chroot", func() {
+			cmd.MustParseWithUsage(strings.Fields("file sample-app.yaml --chroot ."))
+			Expect(usageBuf.String()).To(ContainSubstring("A sample application demonstrating App Builder features"))
+		})
+
+		It("Should not read files outside of a chroot", func() {
+			cmd.MustParseWithUsage(strings.Fields("file ../example/sample-app.yaml --chroot ."))
+			Expect(usageBuf.String()).ToNot(ContainSubstring("A sample application demonstrating App Builder features"))
+			Expect(usageBuf.String()).To(ContainSubstring("error"))
 		})
 	})
 

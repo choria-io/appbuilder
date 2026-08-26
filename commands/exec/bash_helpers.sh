@@ -49,6 +49,6 @@ function ab_error() {
 }
 
 function ab_panic() {
-  error "$*"
+  ab_error "$*"
   exit 1
 }

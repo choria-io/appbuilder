@@ -497,3 +497,17 @@ commands:
                   report.summary.download_count
             - write_file:
                 file: /tmp/report.txt
+
+  - name: file
+    description: Demonstrates reading a file, optionally restricted to a directory
+    type: file
+    action: read
+    file: "{{ .Arguments.file }}"
+    chroot: "{{ .Flags.chroot }}"
+    arguments:
+      - name: file
+        description: The file to read
+        required: true
+    flags:
+      - name: chroot
+        description: Restricts reads to files below this directory

@@ -7,6 +7,7 @@ package commands
 import (
 	"github.com/choria-io/appbuilder/commands/ccm_manifest"
 	"github.com/choria-io/appbuilder/commands/exec"
+	"github.com/choria-io/appbuilder/commands/file"
 	"github.com/choria-io/appbuilder/commands/form"
 	"github.com/choria-io/appbuilder/commands/parent"
 	"github.com/choria-io/appbuilder/commands/scaffold"
@@ -16,6 +17,7 @@ func MustRegisterStandardCommands() {
 	parent.MustRegister()
 	exec.MustRegister()
 	scaffold.MustRegister()
+	file.MustRegister()
 	form.MustRegister()
 	ccm_manifest.MustRegister()
 }
