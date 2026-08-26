@@ -40,6 +40,37 @@ The command accepts the standard [common settings](../reference/common-settings/
 | `render_summary` (boolean)     | When true displays the summary statistics as text on STDOUT                         |
 | `no_render_messages` (boolean) | When true suppresses the pre- or post-message defined in the manifest               |
 
+## File Command Type
+
+The `file` command type reads a file and writes its bytes to STDOUT unchanged.
+
+{{% notice secondary "Version Hint" code-branch %}}
+This was added in version 0.20.0
+{{% /notice %}}
+
+```yaml
+name: demo
+description: Demo application for Choria App Builder
+author: https://github.com/choria-io/appbuilder
+commands:
+  - name: motd
+    description: Shows the message of the day
+    type: file
+    action: read
+    file: motd
+    chroot: /etc
+```
+
+When `chroot` is set the file is opened within that directory, absolute paths, `..` traversal and symlinks that point outside of it are refused. Without `chroot` the file is opened as given.
+
+The command accepts the standard [common settings](../reference/common-settings/) including flags, arguments and sub commands. The [Sprig](https://github.com/Masterminds/sprig) functions library is available in the `file` and `chroot` templates.
+
+| Option   | Description                                                                                         |
+|----------|-----------------------------------------------------------------------------------------------------|
+| `file`   | The file to read, relative to `chroot` when set, supports [templating](../reference/templating/)     |
+| `chroot` | Restricts reads to files below this directory, supports [templating](../reference/templating/)       |
+| `action` | The operation to perform on the file, only `read` is supported and it is the default                |
+
 ## Choria Configuration Manager Transform
 
 The [Choria Configuration Manager](https://choria-io.github.io/ccm/) is a configuration management tool that is part of the Choria project.

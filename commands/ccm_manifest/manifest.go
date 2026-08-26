@@ -42,7 +42,7 @@ type CCMManifest struct {
 }
 
 func Register() error {
-	return builder.RegisterCommand("exec", NewCCMManifest)
+	return builder.RegisterCommand("ccm_manifest", NewCCMManifest)
 }
 
 func MustRegister() {

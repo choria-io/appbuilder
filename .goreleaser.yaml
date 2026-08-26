@@ -1,3 +1,4 @@
+version: 2
 project_name: appbuilder
 
 release:
@@ -30,29 +31,35 @@ builds:
 archives:
   - name_template: "appbuilder-{{.Version}}-{{.Os}}-{{.Arch}}{{if .Arm}}{{.Arm}}{{end}}"
     wrap_in_directory: true
-    format: tar.gz
+    formats: [tar.gz]
     format_overrides:
       - goos: windows
-        format: zip
+        formats: [zip]
     files:
       - README.md
       - LICENSE
 
-brews:
+homebrew_casks:
   - name: appbuilder
-    directory: Formula
+    binaries:
+      - appbuilder
+    directory: Casks
     repository:
       owner: choria-io
       name: homebrew-tap
-    url_template: "https://github.com/choria-io/appbuilder/releases/download/{{ .Tag }}/appbuilder-{{.Version}}-{{ .Os }}-{{ .Arch }}{{if .Arm}}{{.Arm}}{{end}}.tar.gz"
     homepage: "https://github.com/choria-io/appbuilder"
     description: "Choria Application Builder"
-    skip_upload: false
-    test: |
-      system "#{bin}/appbuilder --version"
-    install: |
-      bin.install "appbuilder"
-      bin.install_symlink "appbuilder" => "abt"
+    # abt is the same binary under a second name (mirrors the nfpm abt->appbuilder symlink)
+    custom_block: |
+      binary "appbuilder", target: "abt"
+    # binaries are not signed/notarized; strip quarantine so Gatekeeper does not
+    # block first run. Keep -dr (exit 0 if absent) and system_command (non-bang, best-effort).
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/appbuilder"]
+          end
 
 checksum:
   name_template: "SHA256SUMS"
