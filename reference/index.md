@@ -17,3 +17,7 @@ Nested commands should be structured as `root -> parent -> parent -> exec` and n
 Commands often need parameters. For example, a software upgrade command might look like `demo upgrade 1.2.3`. Here the `1.2.3` is an argument. Commands can have a number of arguments, and they can be set to be required or optional. When multiple arguments exist, an optional one cannot appear before a required one.
 
 Flags are generally kept for optional items like `demo upgrade 1.2.3 --channel=nightly`, where `--channel` is a flag. At present only flags with string values are supported. Future versions intend to support enums of valid values and boolean flags.
+
+## Shell completion
+
+App Builder can generate a shell completion scripts for `bash` and `zsh` with `--completion-script-bash`/`--completion-script-zsh` accordingly.
